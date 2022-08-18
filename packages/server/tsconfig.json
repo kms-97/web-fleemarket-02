@@ -12,5 +12,5 @@
     "strictNullChecks": false,
     "noImplicitAny": false
   },
-  "extends": "../../tsconfig.base.json"
+  "extends": "./tsconfig.paths.json"
 }

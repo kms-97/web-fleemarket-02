@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"baseUrl": "./",
+		"noFallthroughCasesInSwitch": true,
+		"forceConsistentCasingInFileNames": false,
+		"strictBindCallApply": false,
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": true
+	}
+}

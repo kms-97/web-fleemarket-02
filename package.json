@@ -1,0 +1,17 @@
+{
+  "name": "web-fleemarket-02",
+  "packageManager": "yarn@3.2.2",
+  "private": true,
+  "scripts": {
+    "client": "yarn workspace client",
+    "server": "yarn workspace server"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "eslint": "^8.0.1",
+    "prettier": "^2.3.2",
+    "typescript": "^4.7.4"
+  }
+}

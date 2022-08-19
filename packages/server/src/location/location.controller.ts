@@ -16,10 +16,9 @@ export class LocationController {
 
   @Get()
   async findLocation(@Query() dto: locationDto) {
-    let { keyword, code, page } = dto;
+    const { keyword, code } = dto;
+    const page = dto.page ?? 1;
     let locations: Location[];
-    let hasNext: boolean;
-    page = page ?? 1;
 
     if (keyword && code) {
       throw new HttpException(
@@ -36,17 +35,16 @@ export class LocationController {
     }
 
     if (keyword) {
-      ({ locations, hasNext } =
-        await this.locationService.findLocationByKeyword(keyword, page));
+      locations = await this.locationService.findLocationByKeyword(
+        keyword,
+        page,
+      );
     }
     if (code) {
-      ({ locations, hasNext } = await this.locationService.findLocationByCode(
-        code,
-        page,
-      ));
+      locations = await this.locationService.findLocationByCode(code, page);
     }
 
-    return { locations, hasNext, page };
+    return { locations, page };
   }
 
   @Get(':code')

@@ -11,38 +11,32 @@ export class LocationService {
     private readonly locationRepository: LocationRepository,
   ) {}
 
-  async findLocationByKeyword(keyword: string, page: number) {
-    const allLocations = await this.locationRepository.query(
+  findLocationByKeyword(keyword: string, page: number) {
+    const offset = (page - 1) * DEFAULT_LIMIT;
+    return this.locationRepository.query(
       `
       select id, sido, gungu, dong, code from Location l
       where l.sido like ? or l.gungu like ? or l.dong like ?
+      limit ?, ?
       `,
-      [`%${keyword}%`, `%${keyword}%`, `%${keyword}%`],
+      [`%${keyword}%`, `%${keyword}%`, `%${keyword}%`, offset, DEFAULT_LIMIT],
     );
-    const count = allLocations.length;
-    const offset = (page - 1) * DEFAULT_LIMIT;
-    const hasNext = offset + DEFAULT_LIMIT <= count;
-
-    return { locations: allLocations.splice(offset, DEFAULT_LIMIT), hasNext };
   }
 
-  async findLocationByCode(code: string, page: number) {
-    const allLocations = await this.locationRepository.query(
+  findLocationByCode(code: string, page: number) {
+    const offset = (page - 1) * DEFAULT_LIMIT;
+    return this.locationRepository.query(
       `
       select id, sido, gungu, dong, code from Location l
       where l.code like ?
+      limit ?, ?
       `,
-      [`${code}%`],
+      [`${code}%`, offset, DEFAULT_LIMIT],
     );
-    const count = allLocations.length;
-    const offset = (page - 1) * DEFAULT_LIMIT;
-    const hasNext = offset + DEFAULT_LIMIT <= count;
-
-    return { locations: allLocations.splice(offset, DEFAULT_LIMIT), hasNext };
   }
 
   async getLocationByCode(code: string): Promise<Location> {
-    const location = this.locationRepository.query(
+    const location = await this.locationRepository.query(
       `
       select id, sido, gungu, dong, code from Location l
       where l.code = ?

@@ -17,11 +17,6 @@ import { UserUpdateDto } from './dto/userUpdate.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
-class IdParam {
-  @IsNumber()
-  id: number;
-}
-
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}

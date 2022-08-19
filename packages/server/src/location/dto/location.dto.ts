@@ -1,6 +1,6 @@
 import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
-export class locationDto {
+export class LocationDto {
   @IsOptional()
   @IsNumberString()
   code?: string;

@@ -9,6 +9,7 @@ export class locationDto {
   @IsString()
   keyword?: string;
 
+  @IsOptional()
   @IsNumberString()
   page?: number;
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -24,7 +25,7 @@ export class ProductController {
 
   @Get(':id')
   async getProductById(@Param('id') id: number) {
-    return this.productService.getProductById(id);
+    return this.productService.getProductDetailById(id);
   }
 
   @Post()
@@ -43,5 +44,10 @@ export class ProductController {
     @Body('status') newStatus: productStatus,
   ) {
     await this.productService.updateProductStatus(id, newStatus);
+  }
+
+  @Delete(':id')
+  async deleteProduct(@Param('id') id: number) {
+    await this.productService.deleteProduct(id);
   }
 }

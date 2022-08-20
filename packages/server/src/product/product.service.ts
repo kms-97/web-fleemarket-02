@@ -173,6 +173,24 @@ export class ProductService {
     );
   }
 
+  async deleteProduct(id: number) {
+    if (isNaN(id)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistProduct(id);
+
+    await this.productRepository.query(
+      `
+      delete from product where id = ?
+      `,
+      [id],
+    );
+  }
+
   private findProductByCategory(
     category: string,
     location: number,

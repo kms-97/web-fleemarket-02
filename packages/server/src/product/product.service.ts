@@ -2,6 +2,7 @@ import { CategoryService } from '@category/category.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustomException } from '@src/base/CustomException';
+import { productStatus } from '@src/constant/enum';
 import { ErrorMessage } from '@src/constant/ErrorMessage';
 import { LocationService } from '@src/location/location.service';
 import { UserService } from '@src/user/user.service';
@@ -140,6 +141,33 @@ export class ProductService {
         categoryName,
         id,
       ],
+    );
+  }
+
+  async updateProductStatus(id: number, newStatus: productStatus) {
+    if (isNaN(id)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (!Object.values(productStatus).includes(newStatus)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistProduct(id);
+
+    await this.productRepository.query(
+      `
+      update product
+      set status = ?
+      where id = ?
+      `,
+      [newStatus, id],
     );
   }
 

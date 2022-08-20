@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { productStatus } from '@src/constant/enum';
 import { ProductInsertDto } from './dto/productInsert.dto';
 import { ProductSearchDto } from './dto/productSearch.dto';
 import { ProductService } from './product.service';
@@ -25,5 +35,13 @@ export class ProductController {
   @Put(':id')
   async updateProduct(@Param('id') id: number, @Body() dto: ProductInsertDto) {
     await this.productService.updateProduct(id, dto);
+  }
+
+  @Patch(':id')
+  async updateProductStatus(
+    @Param('id') id: number,
+    @Body('status') newStatus: productStatus,
+  ) {
+    await this.productService.updateProductStatus(id, newStatus);
   }
 }

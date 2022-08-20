@@ -1,7 +1,11 @@
 import { BaseEntity } from '@src/base/BaseEntity';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsObject, IsString } from 'class-validator';
 import { Column, Entity, Repository } from 'typeorm';
 
+interface GithubUser {
+  id: number;
+  name: string;
+}
 @Entity({ name: 'User' })
 export class User extends BaseEntity {
   @IsString()
@@ -34,6 +38,10 @@ export class User extends BaseEntity {
     unique: true,
   })
   githubEmail?: string;
+
+  @IsObject()
+  @Column({ type: 'json', default: null })
+  github: GithubUser;
 }
 
 export type UserRepository = Repository<User>;

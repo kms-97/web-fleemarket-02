@@ -6,14 +6,11 @@ import {
   Get,
   Patch,
   Query,
-  ConflictException,
-  BadRequestException,
   HttpCode,
 } from '@nestjs/common';
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
-import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -35,32 +32,15 @@ export class UserController {
     }
 
     await this.userService.insertUser(dto);
-    return;
   }
 
   @Get()
   async getUserByUserIdOrGithubEmail(@Query() dto: UserSearchDto) {
-    const { githubEmail, userId } = dto;
-    let user: User;
-
-    if (githubEmail && userId) {
-      throw new BadRequestException('검색 조건은 하나만 가능합니다.');
-    }
-    if (!githubEmail && !userId) {
-      throw new BadRequestException('검색 조건이 하나 이상 존재해야 합니다.');
-    }
-
-    if (githubEmail) {
-      user = await this.userService.getUserByGithubEmail(githubEmail);
-    }
-    if (userId) {
-      user = await this.userService.getUserByUserId(userId);
-    }
-
-    return { user };
+    return this.userService.getUserByUserIdOrGithubEmail(dto);
   }
 
   @Get(':id')
+
   async getUserById(@Param('id') id: number) {
     if (isNaN(id)) {
       throw new BadRequestException('적절하지 않은 ID입니다.');
@@ -70,12 +50,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  @HttpCode(204)
   async updateUser(@Param('id') id: string, @Body() dto: UserUpdateDto) {
-    if (!Number(id)) {
-      throw new BadRequestException('적절하지 않은 ID입니다.');
-    }
-
     await this.userService.updateUser(id, dto);
   }
 }

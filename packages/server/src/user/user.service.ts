@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { compare, hash } from 'bcrypt';
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
 import { User, UserRepository } from './entities/user.entity';
@@ -13,16 +14,18 @@ export class UserService {
   async insertUser(dto: UserInsertDto) {
     const { userId, name, password, locations } = dto;
 
+    const hashedPassword = await this.hashPassword(password);
+
     await this.userRepository.query(
       `
       insert into User (user_id, name, password)
       values (?, ?, ?)
       `,
-      [userId, name, password],
+      [userId, name, hashedPassword],
     );
 
     // todo: locations user_location 테이블 추가 (트랜잭션 처리)
-    // todo: password bcrypt 암호화 필요 ()
+    // todo: password bcrypt 암호화 필요 (완료)
 
     return true;
   }
@@ -85,5 +88,19 @@ export class UserService {
     );
 
     return true;
+  }
+
+  async comparePassword(aPassword: string, password: string) {
+    const isCompare = await compare(aPassword, password);
+
+    return isCompare;
+  }
+
+  private async hashPassword(password: string) {
+    if (!password) {
+      return null;
+    }
+
+    return await hash(password, 10);
   }
 }

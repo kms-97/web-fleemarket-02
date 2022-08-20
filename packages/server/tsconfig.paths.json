@@ -4,7 +4,14 @@
     "paths": {
       "@category/*": ["src/category/*"],
       "@database/*": ["src/database/*"],
+      "@user/*": ["src/user/*"],
+      "@location/*": ["src/location/*"],
+      "@image/*": ["src/image/*"],
+      "@product/*": ["src/product/*"],
+      "@userLocation/*": ["src/userLocation/*"],
+      "@auth/*": ["src/auth/*"],
       "@utils/*": ["src/utils/*"],
+      "@constant/*": ["src/constant/*"],
       "@src/*": ["src/*"]
     }
   },

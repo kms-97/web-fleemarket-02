@@ -2,7 +2,9 @@ import { Response } from 'express';
 import {
   BadRequestException,
   Controller,
+  Get,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -93,5 +95,26 @@ export class AuthController {
     });
 
     return true;
+  }
+
+  @Get('/github/callback')
+  async githubAuthentication(
+    @Query('code') code: string,
+    @Res() res: Response,
+  ) {
+    const aAccessToken = await this.authService.getGithubTokenByCode(code);
+    const userInfo = await this.authService.getGithubUserByAccessToken(
+      aAccessToken,
+    );
+
+    const user = await this.userService.getUserByGithubId(userInfo.id);
+
+    if (user) {
+      await this.login(user, res);
+      return res.redirect('http://localhost:3000');
+    }
+
+    // 회원가입 경로로 바꿔주고 query params를 상태로 저장해야함
+    return res.redirect('http://localhost:3000?githubname=' + userInfo.name);
   }
 }

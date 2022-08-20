@@ -28,6 +28,7 @@ export class Product extends BaseEntity {
   description!: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 0, default: 0 })
+  @IsNotEmpty()
   price!: number;
 
   @Column({ type: 'json' })

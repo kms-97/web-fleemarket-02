@@ -5,11 +5,11 @@ import { Entity, JoinColumn, ManyToOne, Repository } from 'typeorm';
 
 @Entity({ name: 'Wish' })
 export class Wish extends BaseEntity {
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   userId!: number;
 
-  @ManyToOne(() => Product, (product) => product.id)
+  @ManyToOne(() => Product, (product) => product.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
   productId!: number;
 }

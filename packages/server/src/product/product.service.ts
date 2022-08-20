@@ -43,7 +43,7 @@ export class ProductService {
     return { products, page };
   }
 
-  async getProductById(id: number) {
+  async getProductDetailById(id: number) {
     if (isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
@@ -209,6 +209,15 @@ export class ProductService {
     );
   }
 
+  private async findProductById(id: number) {
+    const [product] = await this.productRepository.query(
+      `select * from product where id = ?`,
+      [id],
+    );
+
+    return { product: product ?? null };
+  }
+
   private async checkExistCategory(name: string) {
     const { category } = await this.categoryService.getCategoryByName(name);
     if (!category) {
@@ -240,7 +249,7 @@ export class ProductService {
   }
 
   private async checkExistProduct(id: number) {
-    const { product } = await this.getProductById(id);
+    const { product } = await this.findProductById(id);
     if (!product) {
       throw new CustomException(
         [ErrorMessage.NOT_FOUND_TARGET('상품')],

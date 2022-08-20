@@ -10,17 +10,11 @@ import {
   BadRequestException,
   HttpCode,
 } from '@nestjs/common';
-import { IsNumber } from 'class-validator';
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
-
-class IdParam {
-  @IsNumber()
-  id: number;
-}
 
 @Controller('user')
 export class UserController {
@@ -35,6 +29,7 @@ export class UserController {
     }
 
     const duplicateIdUser = await this.userService.getUserByUserId(userId);
+
     if (duplicateIdUser) {
       throw new ConflictException('이미 존재하는 ID입니다.');
     }

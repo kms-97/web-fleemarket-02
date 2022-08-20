@@ -26,7 +26,7 @@ export class WishService {
   async deleteWish(userId: number, productId: number) {
     await this.wishRepository.query(
       `
-      delete wish where user_id = ? and product_id = ?
+      delete from wish where user_id = ? and product_id = ?
       `,
       [userId, productId],
     );

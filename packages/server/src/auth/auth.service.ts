@@ -2,9 +2,10 @@ import { verify } from 'jsonwebtoken';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserService } from '@user/user.service';
 import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
 
+import { UserService } from '@user/user.service';
 import { encryptValue } from '@utils/crypto';
 
 import { Auth, AuthRepository } from './entities/auth.entity';
@@ -15,6 +16,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
     @InjectRepository(Auth) private readonly authRepository: AuthRepository,
   ) {}
 
@@ -111,5 +113,41 @@ export class AuthService {
         `,
       [userId, refreshToken],
     );
+  }
+
+  async getGithubTokenByCode(code: string) {
+    const config = this.configService;
+
+    const client_id = config.get('GITHUB_CLIENT_ID');
+    const client_secret = config.get('GITHUB_CLIENT_SECRET');
+    const url = `https://github.com/login/oauth/access_token`;
+
+    const { data } = await this.httpService.axiosRef.get(url, {
+      params: {
+        client_id,
+        client_secret,
+        code,
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    return data.access_token;
+  }
+
+  async getGithubUserByAccessToken(accessToken: string) {
+    const url = ` https://api.github.com/user`;
+
+    const { data } = await this.httpService.axiosRef.get(url, {
+      headers: {
+        Authorization: `bearer ${accessToken}`,
+      },
+      params: {
+        scope: 'user',
+      },
+    });
+
+    return data;
   }
 }

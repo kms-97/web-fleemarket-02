@@ -9,8 +9,10 @@ export class CategoryService {
   ) {}
 
   async getCategories() {
-    return this.categoryRepository.query(
+    const categories = await this.categoryRepository.query(
       `select id, name, imgUrl from Category`,
     );
+
+    return { categories };
   }
 }

@@ -102,6 +102,47 @@ export class ProductService {
     );
   }
 
+  async updateProduct(id: number, dto: ProductInsertDto) {
+    if (isNaN(id)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const {
+      title,
+      description,
+      price,
+      imgUrl,
+      sellerId,
+      categoryName,
+      locationId,
+    } = dto;
+
+    await this.checkExistCategory(categoryName);
+    await this.checkExistUser(sellerId);
+    await this.checkExistLocation(locationId);
+
+    await this.productRepository.query(
+      `
+      update product
+      set title = ?, description = ?, price = ?, imgUrl = ?, location_id = ?, seller_id = ?, category_name = ?
+      where id = ?
+      `,
+      [
+        title,
+        description,
+        price,
+        JSON.stringify(imgUrl),
+        locationId,
+        sellerId,
+        categoryName,
+        id,
+      ],
+    );
+  }
+
   private findProductByCategory(
     category: string,
     location: number,

@@ -1,5 +1,4 @@
 import { AuthService } from '@auth/auth.service';
-import { jwtConstants } from '@constant/jwt';
 import {
   ExecutionContext,
   Injectable,
@@ -30,7 +29,7 @@ export class AccessJwtAuthGuard extends AuthGuard('jwt') {
 
     return setAuth(
       req,
-      config.get('JWT_ACCESS_TOKEN'),
+      config.get('JWT_ACCESS_TOKEN') ?? '',
       config.get('LOGIN_SECRET_KEY'),
     );
   }
@@ -53,23 +52,37 @@ export class RefreshJwtAuthGuard extends AuthGuard('jwt') {
     return user;
   }
 
-  async getRequest(context: ExecutionContext) {
+  getRequest(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
-    const refreshToken = req.cookies[jwtConstants.refreshToken];
     const config = this.config;
-
-    const isValid = await this.authService.verifyRefresh(
-      decryptValue(refreshToken, config.get('LOGIN_SECRET_KEY')),
-    );
-
-    if (isValid) {
-      throw new UnauthorizedException('다시 로그인해주세요.');
-    }
 
     return setAuth(
       req,
       config.get('JWT_REFRESH_TOKEN'),
       config.get('LOGIN_SECRET_KEY'),
     );
+  }
+
+  async canActivate(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
+    const config = this.config;
+
+    const refreshToken = req.cookies[config.get('JWT_REFRESH_TOKEN')];
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('no auth token');
+    }
+
+    const isValid = await this.authService.verifyRefresh(
+      decryptValue(refreshToken, config.get('LOGIN_SECRET_KEY')),
+    );
+
+    if (!isValid) {
+      throw new UnauthorizedException('만료된 토큰입니다.');
+    }
+
+    super.canActivate(context);
+
+    return isValid;
   }
 }

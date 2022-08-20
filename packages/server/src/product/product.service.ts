@@ -210,4 +210,14 @@ export class ProductService {
       );
     }
   }
+
+  private async checkExistProduct(id: number) {
+    const { product } = await this.getProductById(id);
+    if (!product) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('상품')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
 }

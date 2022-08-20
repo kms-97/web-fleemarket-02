@@ -5,10 +5,12 @@ import { DatabaseModule } from '@database/database.module';
 import { ImageModule } from './image/image.module';
 import { LocationModule } from './location/location.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    AuthModule,
     DatabaseModule,
     CategoryModule,
     ImageModule,

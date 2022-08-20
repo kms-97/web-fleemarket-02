@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from '@user/user.module';
@@ -31,6 +32,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     UserModule,
     PassportModule,
     ConfigModule,
+    HttpModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],

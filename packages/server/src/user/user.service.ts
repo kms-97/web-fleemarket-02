@@ -30,7 +30,7 @@ export class UserService {
     return true;
   }
 
-  async getUserById(id: string) {
+  async getUserById(id: number) {
     const user = await this.userRepository.query(
       `
       select u.id, u.user_id as userId, u.name as name
@@ -55,6 +55,19 @@ export class UserService {
     );
 
     // todo: locations, likes 조인 필요.
+    return user[0] ?? null;
+  }
+
+  async getUserWithHashPasswordByUserId(userId: string) {
+    const user = await this.userRepository.query(
+      `
+      select u.id, u.user_id as userId, u.name as name, u.password as password
+      from User u
+      where u.user_id = ?;
+      `,
+      [userId],
+    );
+
     return user[0] ?? null;
   }
 

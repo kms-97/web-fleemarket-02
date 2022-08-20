@@ -6,6 +6,7 @@ import { productStatus } from '@src/constant/enum';
 import { ErrorMessage } from '@src/constant/ErrorMessage';
 import { LocationService } from '@src/location/location.service';
 import { UserService } from '@src/user/user.service';
+import { WishService } from '@src/wish/wish.service';
 import { ProductInsertDto } from './dto/productInsert.dto';
 import { ProductSearchDto } from './dto/productSearch.dto';
 import { Product, ProductRepository } from './entities/product.entity';
@@ -20,19 +21,13 @@ export class ProductService {
     private readonly categoryService: CategoryService,
     private readonly userService: UserService,
     private readonly locationService: LocationService,
+    private readonly wishService: WishService,
   ) {}
 
   async findProduct(dto: ProductSearchDto) {
     const { category, location } = dto;
     const page = dto.page ?? 1;
     let products: Product[];
-
-    if (!location) {
-      throw new CustomException(
-        [ErrorMessage.NOT_FOUND_ESSENTIAL],
-        HttpStatus.BAD_REQUEST,
-      );
-    }
 
     if (category) {
       await this.categoryService.checkExistCategoryByName(category);
@@ -106,6 +101,18 @@ export class ProductService {
         categoryName,
       ],
     );
+  }
+
+  async insertProductWish(userId: number, productId: number) {
+    if (isNaN(productId)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistProductById(productId);
+    await this.wishService.insertWish(userId, productId);
   }
 
   async updateProduct(id: number, dto: ProductInsertDto) {

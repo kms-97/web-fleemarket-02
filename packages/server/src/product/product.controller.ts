@@ -33,6 +33,12 @@ export class ProductController {
     await this.productService.insertProduct(dto);
   }
 
+  @Post(':id/wish')
+  async insertProductWish(@Param('id') productId: number) {
+    const userId = 1; // todo: auth를 통해 접속한 유저 아이디 전달받기.
+    await this.productService.insertProductWish(userId, productId);
+  }
+
   @Put(':id')
   async updateProduct(@Param('id') id: number, @Body() dto: ProductInsertDto) {
     await this.productService.updateProduct(id, dto);

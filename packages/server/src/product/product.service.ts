@@ -42,6 +42,34 @@ export class ProductService {
     return { products, page };
   }
 
+  async getProductById(id: number) {
+    if (isNaN(id)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const [product] = await this.productRepository.query(
+      `
+      select p.id as id, title, description, price, p.imgUrl as imgUrl, status, hits,
+            json_object('id', l.id, 'code', l.code, 'dong', l.dong) as location,
+            json_object('id', c.id, 'name', c.name) as category,
+            json_object('id', u.id, 'userId', u.user_id, 'name', u.name) as seller,
+            json_arrayagg(w.user_id) as likeUsers
+      from Product p
+      join location l on p.location_id = l.id
+      join user u on u.id = p.seller_id
+      join category c on c.name = p.category_name
+      left join wish w on w.product_id = p.id
+      where p.id = ?;
+      `,
+      [id],
+    );
+
+    return { product: product ?? null };
+  }
+
   async insertProduct(dto: ProductInsertDto) {
     const {
       title,

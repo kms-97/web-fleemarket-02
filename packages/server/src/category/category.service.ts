@@ -15,4 +15,13 @@ export class CategoryService {
 
     return { categories };
   }
+
+  async getCategoryByName(name: string) {
+    const [category] = await this.categoryRepository.query(
+      `select * from Category where name = ?`,
+      [name],
+    );
+
+    return { category: category ?? null };
+  }
 }

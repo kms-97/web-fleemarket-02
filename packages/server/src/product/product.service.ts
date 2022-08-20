@@ -203,6 +203,18 @@ export class ProductService {
     );
   }
 
+  async deleteProductWish(userId: number, productId: number) {
+    if (isNaN(productId)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistProductById(productId);
+    await this.wishService.deleteWish(userId, productId);
+  }
+
   findProductByCategory(category: string, location: number, page: number) {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(

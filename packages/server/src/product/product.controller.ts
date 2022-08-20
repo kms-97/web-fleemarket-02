@@ -56,4 +56,10 @@ export class ProductController {
   async deleteProduct(@Param('id') id: number) {
     await this.productService.deleteProduct(id);
   }
+
+  @Delete(':id/wish')
+  async deleteProductWish(@Param('id') productId: number) {
+    const userId = 1; // todo: auth를 통해 접속한 유저 아이디 전달받기.
+    await this.productService.deleteProductWish(userId, productId);
+  }
 }

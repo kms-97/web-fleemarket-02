@@ -78,4 +78,16 @@ export class LocationService {
 
     return { location: location ?? null };
   }
+
+  async getLocationById(id: number) {
+    const [location] = await this.locationRepository.query(
+      `
+      select id, sido, gungu, dong, code from Location l
+      where l.id = ?
+      `,
+      [id],
+    );
+
+    return { location: location ?? null };
+  }
 }

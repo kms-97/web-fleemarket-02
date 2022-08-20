@@ -141,4 +141,14 @@ export class UserService {
 
     return true;
   }
+
+  async checkExistUserById(id: number) {
+    const { user } = await this.getUserById(id);
+    if (!user) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('사용자')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
 }

@@ -35,8 +35,11 @@ export class ProductService {
     }
 
     if (category) {
+      await this.categoryService.checkExistCategoryByName(category);
+      await this.locationService.checkExistLocationById(location);
       products = await this.findProductByCategory(category, location, page);
     } else {
+      await this.locationService.checkExistLocationById(location);
       products = await this.findProductByLocation(location, page);
     }
 
@@ -51,7 +54,7 @@ export class ProductService {
       );
     }
 
-    await this.checkExistProduct(id);
+    await this.checkExistProductById(id);
 
     const [product] = await this.productRepository.query(
       `
@@ -84,9 +87,9 @@ export class ProductService {
       locationId,
     } = dto;
 
-    await this.checkExistCategory(categoryName);
-    await this.checkExistUser(sellerId);
-    await this.checkExistLocation(locationId);
+    await this.categoryService.checkExistCategoryByName(categoryName);
+    await this.userService.checkExistUserById(sellerId);
+    await this.locationService.checkExistLocationById(locationId);
 
     await this.productRepository.query(
       `
@@ -113,6 +116,8 @@ export class ProductService {
       );
     }
 
+    await this.checkExistProductById(id);
+
     const {
       title,
       description,
@@ -123,9 +128,9 @@ export class ProductService {
       locationId,
     } = dto;
 
-    await this.checkExistCategory(categoryName);
-    await this.checkExistUser(sellerId);
-    await this.checkExistLocation(locationId);
+    await this.categoryService.checkExistCategoryByName(categoryName);
+    await this.userService.checkExistUserById(sellerId);
+    await this.locationService.checkExistLocationById(locationId);
 
     await this.productRepository.query(
       `
@@ -161,7 +166,7 @@ export class ProductService {
       );
     }
 
-    await this.checkExistProduct(id);
+    await this.checkExistProductById(id);
 
     await this.productRepository.query(
       `
@@ -181,7 +186,7 @@ export class ProductService {
       );
     }
 
-    await this.checkExistProduct(id);
+    await this.checkExistProductById(id);
 
     await this.productRepository.query(
       `
@@ -191,11 +196,7 @@ export class ProductService {
     );
   }
 
-  private findProductByCategory(
-    category: string,
-    location: number,
-    page: number,
-  ) {
+  findProductByCategory(category: string, location: number, page: number) {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
       `
@@ -212,7 +213,7 @@ export class ProductService {
     );
   }
 
-  private findProductByLocation(location: number, page: number) {
+  findProductByLocation(location: number, page: number) {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
       `
@@ -229,7 +230,7 @@ export class ProductService {
     );
   }
 
-  private async findProductById(id: number) {
+  async getProductById(id: number) {
     const [product] = await this.productRepository.query(
       `select * from product where id = ?`,
       [id],
@@ -238,38 +239,8 @@ export class ProductService {
     return { product: product ?? null };
   }
 
-  private async checkExistCategory(name: string) {
-    const { category } = await this.categoryService.getCategoryByName(name);
-    if (!category) {
-      throw new CustomException(
-        [ErrorMessage.NOT_FOUND_TARGET('카테고리')],
-        HttpStatus.NOT_FOUND,
-      );
-    }
-  }
-
-  private async checkExistUser(id: number) {
-    const { user } = await this.userService.getUserById(id);
-    if (!user) {
-      throw new CustomException(
-        [ErrorMessage.NOT_FOUND_TARGET('사용자')],
-        HttpStatus.NOT_FOUND,
-      );
-    }
-  }
-
-  private async checkExistLocation(id: number) {
-    const { location } = await this.locationService.getLocationById(id);
-    if (!location) {
-      throw new CustomException(
-        [ErrorMessage.NOT_FOUND_TARGET('지역')],
-        HttpStatus.NOT_FOUND,
-      );
-    }
-  }
-
-  private async checkExistProduct(id: number) {
-    const { product } = await this.findProductById(id);
+  async checkExistProductById(id: number) {
+    const { product } = await this.getProductById(id);
     if (!product) {
       throw new CustomException(
         [ErrorMessage.NOT_FOUND_TARGET('상품')],

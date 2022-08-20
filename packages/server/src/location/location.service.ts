@@ -90,4 +90,14 @@ export class LocationService {
 
     return { location: location ?? null };
   }
+
+  async checkExistLocationById(id: number) {
+    const { location } = await this.getLocationById(id);
+    if (!location) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('지역')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
 }

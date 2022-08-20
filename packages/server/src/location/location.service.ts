@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustomException } from '@src/base/CustomException';
 import { ErrorMessage } from '@src/constant/ErrorMessage';
@@ -26,7 +26,7 @@ export class LocationService {
     }
 
     if (!keyword && !code) {
-      throw new HttpException(
+      throw new CustomException(
         [ErrorMessage.NEED_ONE_SEARCH_CONDITION],
         HttpStatus.BAD_REQUEST,
       );

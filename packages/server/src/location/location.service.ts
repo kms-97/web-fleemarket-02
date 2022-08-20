@@ -17,6 +17,7 @@ export class LocationService {
   async findLocation(dto: LocationDto) {
     const { keyword, code } = dto;
     const page = dto.page ?? 1;
+    let locations: Location;
 
     if (keyword && code) {
       throw new CustomException(
@@ -33,11 +34,13 @@ export class LocationService {
     }
 
     if (keyword) {
-      return { locations: this.findLocationByKeyword(keyword, page), page };
+      locations = await this.findLocationByKeyword(keyword, page);
     }
     if (code) {
-      return { locations: this.findLocationByCode(code, page), page };
+      locations = await this.findLocationByCode(code, page);
     }
+
+    return { locations, page };
   }
 
   findLocationByKeyword(keyword: string, page: number) {

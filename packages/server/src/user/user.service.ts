@@ -58,19 +58,6 @@ export class UserService {
     return user[0] ?? null;
   }
 
-  async getUserWithHashPasswordByUserId(userId: string) {
-    const user = await this.userRepository.query(
-      `
-      select u.id, u.user_id as userId, u.name as name, u.password as password
-      from User u
-      where u.user_id = ?;
-      `,
-      [userId],
-    );
-
-    return user[0] ?? null;
-  }
-
   async getUserByGithubEmail(email: string) {
     const user = await this.userRepository.query(
       `
@@ -115,5 +102,31 @@ export class UserService {
     }
 
     return await hash(password, 10);
+  }
+
+  async getUserWithHashPasswordByUserId(userId: string) {
+    const user = await this.userRepository.query(
+      `
+      select u.id, u.user_id as userId, u.name as name, u.password as password
+      from User u
+      where u.user_id = ?;
+      `,
+      [userId],
+    );
+
+    return user[0] ?? null;
+  }
+
+  async getUserByGithubId(githubId: number) {
+    const user = await this.userRepository.query(
+      `
+      select u.id, u.user_id as userId, u.name as name
+      from User u
+      where json_extract(u.github, '$.id') = ?;
+      `,
+      [githubId],
+    );
+
+    return user[0] ?? null;
   }
 }

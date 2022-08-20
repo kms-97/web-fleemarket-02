@@ -1,5 +1,6 @@
 import { Category } from '@category/entities/category.entity';
 import { BaseEntity } from '@src/base/BaseEntity';
+import { productStatus } from '@src/constant/enum';
 import { Location } from '@src/location/entities/location.entity';
 import { User } from '@src/user/entities/user.entity';
 import {
@@ -10,12 +11,6 @@ import {
   IsString,
 } from 'class-validator';
 import { Column, Entity, JoinColumn, ManyToOne, Repository } from 'typeorm';
-
-enum status {
-  onSale = '판매중',
-  reserved = '예약중',
-  soldOut = '거래완료',
-}
 
 @Entity({ name: 'Product' })
 export class Product extends BaseEntity {
@@ -40,9 +35,9 @@ export class Product extends BaseEntity {
   @IsNumber()
   hits!: number;
 
-  @Column({ type: 'enum', enum: status, default: status.onSale })
-  @IsEnum(status)
-  status!: status;
+  @Column({ type: 'enum', enum: productStatus, default: productStatus.onSale })
+  @IsEnum(productStatus)
+  status!: productStatus;
 
   @ManyToOne(() => Location, (location) => location.id)
   @JoinColumn({ name: 'location_id' })

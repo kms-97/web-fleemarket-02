@@ -61,8 +61,8 @@ export class UserController {
   }
 
   @Get(':id')
-  async getUserById(@Param('id') id: string) {
-    if (!Number(id)) {
+  async getUserById(@Param('id') id: number) {
+    if (isNaN(id)) {
       throw new BadRequestException('적절하지 않은 ID입니다.');
     }
 

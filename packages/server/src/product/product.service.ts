@@ -51,6 +51,8 @@ export class ProductService {
       );
     }
 
+    await this.checkExistProduct(id);
+
     const [product] = await this.productRepository.query(
       `
       select p.id as id, title, description, price, p.imgUrl as imgUrl, status, hits,

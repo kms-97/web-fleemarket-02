@@ -81,31 +81,9 @@ export class ProductService {
       locationId,
     } = dto;
 
-    const { category } = await this.categoryService.getCategoryByName(
-      categoryName,
-    );
-    if (!category) {
-      throw new CustomException(
-        [ErrorMessage.NOT_FOUND_TARGET('카테고리')],
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    const { user } = await this.userService.getUserById(sellerId);
-    if (!user) {
-      throw new CustomException(
-        [ErrorMessage.NOT_FOUND_TARGET('사용자')],
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    const { location } = await this.locationService.getLocationById(locationId);
-    if (!location) {
-      throw new CustomException(
-        [ErrorMessage.NOT_FOUND_TARGET('지역')],
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    await this.checkExistCategory(categoryName);
+    await this.checkExistUser(sellerId);
+    await this.checkExistLocation(locationId);
 
     await this.productRepository.query(
       `
@@ -160,5 +138,35 @@ export class ProductService {
       `,
       [location, offset, DEFAULT_LIMIT],
     );
+  }
+
+  private async checkExistCategory(name: string) {
+    const { category } = await this.categoryService.getCategoryByName(name);
+    if (!category) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('카테고리')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  private async checkExistUser(id: number) {
+    const { user } = await this.userService.getUserById(id);
+    if (!user) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('사용자')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  private async checkExistLocation(id: number) {
+    const { location } = await this.locationService.getLocationById(id);
+    if (!location) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('지역')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }

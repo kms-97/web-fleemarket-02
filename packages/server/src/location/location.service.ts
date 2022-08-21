@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustomException } from '@src/base/CustomException';
 import { ErrorMessage } from '@src/constant/ErrorMessage';
@@ -17,6 +17,7 @@ export class LocationService {
   async findLocation(dto: LocationDto) {
     const { keyword, code } = dto;
     const page = dto.page ?? 1;
+    let locations: Location;
 
     if (keyword && code) {
       throw new CustomException(
@@ -26,18 +27,20 @@ export class LocationService {
     }
 
     if (!keyword && !code) {
-      throw new HttpException(
+      throw new CustomException(
         [ErrorMessage.NEED_ONE_SEARCH_CONDITION],
         HttpStatus.BAD_REQUEST,
       );
     }
 
     if (keyword) {
-      return { locations: this.findLocationByKeyword(keyword, page), page };
+      locations = await this.findLocationByKeyword(keyword, page);
     }
     if (code) {
-      return { locations: this.findLocationByCode(code, page), page };
+      locations = await this.findLocationByCode(code, page);
     }
+
+    return { locations, page };
   }
 
   findLocationByKeyword(keyword: string, page: number) {
@@ -74,5 +77,27 @@ export class LocationService {
     );
 
     return { location: location ?? null };
+  }
+
+  async getLocationById(id: number) {
+    const [location] = await this.locationRepository.query(
+      `
+      select id, sido, gungu, dong, code from Location l
+      where l.id = ?
+      `,
+      [id],
+    );
+
+    return { location: location ?? null };
+  }
+
+  async checkExistLocationById(id: number) {
+    const { location } = await this.getLocationById(id);
+    if (!location) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('지역')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }

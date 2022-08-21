@@ -6,6 +6,8 @@ import { ImageModule } from './image/image.module';
 import { LocationModule } from './location/location.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ProductModule } from './product/product.module';
+import { WishModule } from './wish/wish.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { AuthModule } from './auth/auth.module';
     ImageModule,
     LocationModule,
     UserModule,
+    ProductModule,
+    WishModule,
   ],
 })
 export class AppModule {}

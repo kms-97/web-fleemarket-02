@@ -39,18 +39,13 @@ export class UserController {
     return this.userService.getUserByUserIdOrGithubEmail(dto);
   }
 
-  @Get(':id')
 
   async getUserById(@Param('id') id: number) {
-    if (isNaN(id)) {
-      throw new BadRequestException('적절하지 않은 ID입니다.');
-    }
-
     return this.userService.getUserById(id);
   }
 
   @Patch(':id')
-  async updateUser(@Param('id') id: string, @Body() dto: UserUpdateDto) {
+  async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
     await this.userService.updateUser(id, dto);
   }
 }

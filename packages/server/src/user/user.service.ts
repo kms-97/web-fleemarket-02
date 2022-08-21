@@ -65,7 +65,14 @@ export class UserService {
   }
 
   async getUserById(id: number) {
-    const user = await this.userRepository.query(
+    if (isNaN(id)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const [user] = await this.userRepository.query(
       `
       select u.id, u.user_id as userId, u.name as name
       from User u
@@ -106,8 +113,8 @@ export class UserService {
     return { user: user ?? null };
   }
 
-  async updateUser(id: string, dto: UserUpdateDto) {
-    if (!Number(id)) {
+  async updateUser(id: number, dto: UserUpdateDto) {
+    if (!isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
         HttpStatus.BAD_REQUEST,
@@ -177,5 +184,15 @@ export class UserService {
     );
 
     return user[0] ?? null;
+  }
+  
+  async checkExistUserById(id: number) {
+    const { user } = await this.getUserById(id);
+    if (!user) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('사용자')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }

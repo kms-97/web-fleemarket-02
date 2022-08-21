@@ -40,6 +40,12 @@ export class UserService {
       [userId, name, hashedPassword],
     );
 
+    const { user: createdUser } = await this.getUserByUserId(userId);
+    const promises = locations.map((locationId) =>
+      this.userLocationService.insertUserLocation(createdUser.id, locationId),
+    );
+    await Promise.all(promises);
+
     // todo: locations user_location 테이블 추가 (트랜잭션 처리)
     // todo: password bcrypt 암호화 필요 (완료)
   }

@@ -10,6 +10,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { UserInsertDto } from './dto/userInsert.dto';
+import { UserProductSearchDto } from './dto/userProductSearch.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
 import { UserService } from './user.service';
@@ -41,6 +42,14 @@ export class UserController {
   @Get(':id')
   async getUserById(@Param('id') id: number) {
     return this.userService.getUserById(id);
+  }
+
+  @Get(':id/product')
+  async getUserProductById(
+    @Param('id') id: number,
+    @Query() dto: UserProductSearchDto,
+  ) {
+    return this.userService.getUserProductById(id, dto);
   }
 
   @Patch(':id')

@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
 import { UserInsertDto } from './dto/userInsert.dto';
@@ -9,6 +9,8 @@ import { UserLocationService } from '@src/userLocation/UserLocation.service';
 import { User, UserRepository } from './entities/user.entity';
 import { CustomException } from '@src/base/CustomException';
 import { ErrorMessage } from '@src/constant/ErrorMessage';
+import { ProductService } from '@product/product.service';
+import { UserProductSearchDto } from './dto/userProductSearch.dto';
 
 @Injectable()
 export class UserService {
@@ -16,6 +18,8 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: UserRepository,
     private readonly locationService: LocationService,
     private readonly userLocationService: UserLocationService,
+    @Inject(forwardRef(() => ProductService))
+    private readonly productService: ProductService,
   ) {}
 
   async insertUser(dto: UserInsertDto) {
@@ -143,7 +147,6 @@ export class UserService {
       [id],
     );
 
-    // todo: locations, likes 조인 필요.
     return { user: user ?? null };
   }
 
@@ -162,7 +165,6 @@ export class UserService {
       [userId],
     );
 
-    // todo: locations, likes 조인 필요.
     return { user: user ?? null };
   }
 
@@ -181,8 +183,23 @@ export class UserService {
       [email],
     );
 
-    // todo: locations, likes 조인 필요.
     return { user: user ?? null };
+  }
+
+  async getUserProductById(id: number, dto: UserProductSearchDto) {
+    if (isNaN(id)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistUserById(id);
+
+    const page = dto.page ?? 1;
+    const products = await this.productService.findProductBySellerId(id, page);
+
+    return { products, page };
   }
 
   async updateUser(id: number, dto: UserUpdateDto) {

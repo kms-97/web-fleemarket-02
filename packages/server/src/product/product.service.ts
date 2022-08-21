@@ -57,7 +57,7 @@ export class ProductService {
             json_object('id', l.id, 'code', l.code, 'dong', l.dong) as location,
             json_object('id', c.id, 'name', c.name) as category,
             json_object('id', u.id, 'userId', u.user_id, 'name', u.name) as seller,
-            json_arrayagg(w.user_id) as likeUsers
+            if(count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
       from Product p
       join location l on p.location_id = l.id
       join user u on u.id = p.seller_id

@@ -101,6 +101,24 @@ export class UserLocationService {
     }
   }
 
+  async checkNotExistUserLocation(userId: number, locationId: number) {
+    const [userLocation] = await this.userLocationRepository.query(
+      `
+      select user_id as userId, location_id as locationId
+      from userlocation
+      where user_id = ? and location_id = ?;
+      `,
+      [userId, locationId],
+    );
+
+    if (!userLocation) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('관심 지역')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
   async checkUserLocationMax(userId: number) {
     const count = await this.countUserLocation(userId);
 

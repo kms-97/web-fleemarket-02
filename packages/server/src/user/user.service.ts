@@ -78,6 +78,21 @@ export class UserService {
     await this.userLocationService.activeUserLocation(userId, locationId);
   }
 
+  async deleteUserLocationHandler(userId: number, locationId: number) {
+    if (isNaN(userId) || isNaN(locationId)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistUserById(userId);
+    await this.locationService.checkExistLocationById(locationId);
+
+    await this.userLocationService.checkUserLocationMin(userId);
+    await this.userLocationService.deleteUserLocation(userId, locationId);
+  }
+
   async getUserByUserIdOrGithubEmail(dto: UserSearchDto) {
     const { githubEmail, userId } = dto;
 

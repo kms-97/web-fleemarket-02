@@ -7,6 +7,7 @@ import {
   Patch,
   Query,
   HttpCode,
+  Delete,
 } from '@nestjs/common';
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
@@ -53,5 +54,13 @@ export class UserController {
     @Param('locationId') locationId: number,
   ) {
     await this.userService.updateActiveUserLocationHandler(userId, locationId);
+  }
+
+  @Delete(':userId/location/:locationId')
+  async deleteUserLocation(
+    @Param('userId') userId: number,
+    @Param('locationId') locationId: number,
+  ) {
+    await this.userService.deleteUserLocationHandler(userId, locationId);
   }
 }

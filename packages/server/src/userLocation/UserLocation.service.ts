@@ -29,7 +29,7 @@ export class UserLocationService {
     await this.setAllUserLocationToActive(userId);
     await this.userLocationRepository.query(
       `
-      delete userlocation
+      delete from userlocation
       where user_id = ? and location_id = ?;
       `,
       [userId, locationId],

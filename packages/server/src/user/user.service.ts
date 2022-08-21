@@ -45,9 +45,7 @@ export class UserService {
       this.userLocationService.insertUserLocation(createdUser.id, locationId),
     );
     await Promise.all(promises);
-
     // todo: locations user_location 테이블 추가 (트랜잭션 처리)
-    // todo: password bcrypt 암호화 필요 (완료)
   }
 
   async insertUserLocationHandler(userId: number, locationId: number) {
@@ -133,8 +131,13 @@ export class UserService {
 
     const [user] = await this.userRepository.query(
       `
-      select u.id, u.user_id as userId, u.name as name
+      select u.id, u.user_id as userId, u.name as name,
+            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code)) as locations,
+            if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id)) as wishes
       from User u
+      left join userlocation ul on u.id = ul.user_id
+      left join wish w on w.user_id = u.id
+      left join location l on l.id = ul.id
       where u.id = ?;
       `,
       [id],
@@ -147,8 +150,13 @@ export class UserService {
   async getUserByUserId(userId: string) {
     const [user] = await this.userRepository.query(
       `
-      select u.id, u.user_id as userId, u.name as name
+      select u.id, u.user_id as userId, u.name as name,
+            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code)) as locations,
+            if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id)) as wishes
       from User u
+      left join userlocation ul on u.id = ul.user_id
+      left join wish w on w.user_id = u.id
+      left join location l on l.id = ul.id
       where u.user_id = ?;
       `,
       [userId],
@@ -161,8 +169,13 @@ export class UserService {
   async getUserByGithubEmail(email: string) {
     const [user] = await this.userRepository.query(
       `
-      select u.id, u.user_id as userId, u.name as name
+      select u.id, u.user_id as userId, u.name as name,
+            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code)) as locations,
+            if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id)) as wishes
       from User u
+      left join userlocation ul on u.id = ul.user_id
+      left join wish w on w.user_id = u.id
+      left join location l on l.id = ul.id
       where u.github_email = ?;
       `,
       [email],

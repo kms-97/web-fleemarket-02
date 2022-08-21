@@ -5,6 +5,7 @@ export const ErrorMessage = {
   NOT_FOUND_ESSENTIAL: '필수 항목이 누락되었습니다',
   DUPLICATED_USER_ID: '이미 존재하는 ID입니다.',
   DUPLICATED_WISH: '이미 추가된 항목입니다.',
+  DUPLICATED_USER_LOCATION: '이미 추가된 항목입니다.',
   NEED_ONE_SEARCH_CONDITION: '검색 조건이 하나 이상 존재해야 합니다.',
   EXCEED_ONE_SEARCH_CONDITION: '검색 조건은 하나만 가능합니다.',
   EXCEED_USER_LOCATION_LIMIT: '관심 지역은 최대 2개까지 설정 가능합니다.',

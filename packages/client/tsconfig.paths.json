@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@theme/*": ["src/theme/*"],
+      "@base/*": ["src/components/base/*"],
+      "@icons/*": ["src/components/icons/*"],
+      "@components/*": ["src/components/*"],
+      "@src/*": ["src/*"]
+    }
+  },
+  "extends": "../../tsconfig.base.json"
+}

@@ -20,18 +20,16 @@ export class UserController {
   @Post('signup')
   @HttpCode(201)
   async insertUser(@Body() dto: UserInsertDto) {
-    const { userId, name, password, locations } = dto;
-    if (!name || !userId || !password || !locations) {
-      throw new BadRequestException('필수 파라미터가 누락되었습니다.');
-    }
-
-    const duplicateIdUser = await this.userService.getUserByUserId(userId);
-
-    if (duplicateIdUser) {
-      throw new ConflictException('이미 존재하는 ID입니다.');
-    }
-
     await this.userService.insertUser(dto);
+  }
+
+  @Post(':userId/location/:locationId')
+  @HttpCode(201)
+  async insertUserLocation(
+    @Param('userId') userId: number,
+    @Param('locationId') locationId: number,
+  ) {
+    await this.userService.insertUserLocationHandler(userId, locationId);
   }
 
   @Get()
@@ -39,7 +37,7 @@ export class UserController {
     return this.userService.getUserByUserIdOrGithubEmail(dto);
   }
 
-
+  @Get(':id')
   async getUserById(@Param('id') id: number) {
     return this.userService.getUserById(id);
   }

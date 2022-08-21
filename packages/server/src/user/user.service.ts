@@ -1,25 +1,30 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
-
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
+import { LocationService } from '@src/location/location.service';
+import { UserLocationService } from '@src/userLocation/UserLocation.service';
+import { User, UserRepository } from './entities/user.entity';
+import { CustomException } from '@src/base/CustomException';
+import { ErrorMessage } from '@src/constant/ErrorMessage';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: UserRepository,
+    private readonly locationService: LocationService,
+    private readonly userLocationService: UserLocationService,
   ) {}
 
   async insertUser(dto: UserInsertDto) {
     const { userId, name, password, locations } = dto;
 
-
     const hashedPassword = await this.hashPassword(password);
 
     const { user } = await this.getUserByUserId(userId);
-    
+
     if (user) {
       throw new CustomException(
         [ErrorMessage.DUPLICATED_USER_ID],
@@ -39,6 +44,21 @@ export class UserService {
     // todo: password bcrypt 암호화 필요 (완료)
   }
 
+  async insertUserLocationHandler(userId: number, locationId: number) {
+    if (isNaN(userId) || isNaN(locationId)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistUserById(userId);
+    await this.locationService.checkExistLocationById(locationId);
+
+    await this.userLocationService.checkExistUserLocation(userId, locationId);
+    await this.userLocationService.checkUserLocationMax(userId);
+    await this.userLocationService.insertUserLocation(userId, locationId);
+  }
 
   async getUserByUserIdOrGithubEmail(dto: UserSearchDto) {
     const { githubEmail, userId } = dto;
@@ -185,7 +205,7 @@ export class UserService {
 
     return user[0] ?? null;
   }
-  
+
   async checkExistUserById(id: number) {
     const { user } = await this.getUserById(id);
     if (!user) {

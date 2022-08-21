@@ -46,4 +46,12 @@ export class UserController {
   async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
     await this.userService.updateUser(id, dto);
   }
+
+  @Patch(':userId/location/:locationId')
+  async updateActiveUserLocation(
+    @Param('userId') userId: number,
+    @Param('locationId') locationId: number,
+  ) {
+    await this.userService.updateActiveUserLocationHandler(userId, locationId);
+  }
 }

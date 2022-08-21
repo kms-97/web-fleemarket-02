@@ -249,6 +249,23 @@ export class ProductService {
     );
   }
 
+  findProductBySellerId(id: number, page: number) {
+    const offset = (page - 1) * DEFAULT_LIMIT;
+    return this.productRepository.query(
+      `
+      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName,
+        seller_id as sellerId, json_arrayagg(w.user_id) as likeUsers
+      from Product p
+      join location l on p.location_id = l.id
+      left join wish w on w.product_id = p.id
+      where p.seller_id = ?
+      group by p.id
+      limit ?, ?;
+      `,
+      [id, offset, DEFAULT_LIMIT],
+    );
+  }
+
   async getProductById(id: number) {
     const [product] = await this.productRepository.query(
       `select * from product where id = ?`,

@@ -5,12 +5,14 @@ import { DatabaseModule } from '@database/database.module';
 import { ImageModule } from './image/image.module';
 import { LocationModule } from './location/location.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 import { ProductModule } from './product/product.module';
 import { WishModule } from './wish/wish.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    AuthModule,
     DatabaseModule,
     CategoryModule,
     ImageModule,

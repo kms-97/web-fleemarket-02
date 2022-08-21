@@ -1,5 +1,7 @@
+import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filter/HttpException.filter';
 
@@ -10,6 +12,8 @@ async function bootstrap() {
       credentials: true,
     },
   });
+
+  app.use(cookieParser());
   app.setGlobalPrefix('/api');
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(

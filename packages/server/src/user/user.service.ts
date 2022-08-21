@@ -1,8 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CustomException } from '@src/base/CustomException';
-import { ErrorMessage } from '@src/constant/ErrorMessage';
-import { User, UserRepository } from './entities/user.entity';
+import { compare, hash } from 'bcrypt';
+
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
@@ -16,7 +15,11 @@ export class UserService {
   async insertUser(dto: UserInsertDto) {
     const { userId, name, password, locations } = dto;
 
+
+    const hashedPassword = await this.hashPassword(password);
+
     const { user } = await this.getUserByUserId(userId);
+    
     if (user) {
       throw new CustomException(
         [ErrorMessage.DUPLICATED_USER_ID],
@@ -29,12 +32,13 @@ export class UserService {
       insert into User (user_id, name, password)
       values (?, ?, ?)
       `,
-      [userId, name, password],
+      [userId, name, hashedPassword],
     );
 
     // todo: locations user_location 테이블 추가 (트랜잭션 처리)
-    // todo: password bcrypt 암호화 필요 ()
+    // todo: password bcrypt 암호화 필요 (완료)
   }
+
 
   async getUserByUserIdOrGithubEmail(dto: UserSearchDto) {
     const { githubEmail, userId } = dto;
@@ -142,6 +146,46 @@ export class UserService {
     return true;
   }
 
+  async comparePassword(aPassword: string, password: string) {
+    const isCompare = await compare(aPassword, password);
+
+    return isCompare;
+  }
+
+  private async hashPassword(password: string) {
+    if (!password) {
+      return null;
+    }
+
+    return await hash(password, 10);
+  }
+
+  async getUserWithHashPasswordByUserId(userId: string) {
+    const user = await this.userRepository.query(
+      `
+      select u.id, u.user_id as userId, u.name as name, u.password as password
+      from User u
+      where u.user_id = ?;
+      `,
+      [userId],
+    );
+
+    return user[0] ?? null;
+  }
+
+  async getUserByGithubId(githubId: number) {
+    const user = await this.userRepository.query(
+      `
+      select u.id, u.user_id as userId, u.name as name
+      from User u
+      where json_extract(u.github, '$.id') = ?;
+      `,
+      [githubId],
+    );
+
+    return user[0] ?? null;
+  }
+  
   async checkExistUserById(id: number) {
     const { user } = await this.getUserById(id);
     if (!user) {

@@ -1,6 +1,6 @@
-import { BaseEntity } from '@src/base/BaseEntity';
-import { Product } from '@src/product/entities/product.entity';
-import { User } from '@src/user/entities/user.entity';
+import { BaseEntity } from '@base/BaseEntity';
+import { Product } from '@product/entities/product.entity';
+import { User } from '@user/entities/user.entity';
 import { Entity, JoinColumn, ManyToOne, Repository } from 'typeorm';
 
 @Entity({ name: 'Wish' })

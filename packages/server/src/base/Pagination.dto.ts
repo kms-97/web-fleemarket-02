@@ -1,6 +1,6 @@
 import { IsNumberString, IsOptional } from 'class-validator';
 
-export class UserProductSearchDto {
+export class PaginationDto {
   @IsOptional()
   @IsNumberString()
   page?: number;

@@ -1,7 +1,8 @@
+import { LOCATION_QUERY } from '@constant/queries';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CustomException } from '@src/base/CustomException';
-import { ErrorMessage } from '@src/constant/ErrorMessage';
+import { CustomException } from '@base/CustomException';
+import { ErrorMessage } from '@constant/ErrorMessage';
 import { LocationDto } from './dto/location.dto';
 import { Location, LocationRepository } from './entities/location.entity';
 
@@ -46,33 +47,23 @@ export class LocationService {
   findLocationByKeyword(keyword: string, page: number) {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.locationRepository.query(
-      `
-      select id, sido, gungu, dong, code from Location l
-      where l.sido like ? or l.gungu like ? or l.dong like ?
-      limit ?, ?
-      `,
+      LOCATION_QUERY.FIND_LOCATION_BY_KEYWORD,
       [`%${keyword}%`, `%${keyword}%`, `%${keyword}%`, offset, DEFAULT_LIMIT],
     );
   }
 
   findLocationByCode(code: string, page: number) {
     const offset = (page - 1) * DEFAULT_LIMIT;
-    return this.locationRepository.query(
-      `
-      select id, sido, gungu, dong, code from Location l
-      where l.code like ?
-      limit ?, ?
-      `,
-      [`${code}%`, offset, DEFAULT_LIMIT],
-    );
+    return this.locationRepository.query(LOCATION_QUERY.FIND_LOCATION_BY_CODE, [
+      `${code}%`,
+      offset,
+      DEFAULT_LIMIT,
+    ]);
   }
 
   async getLocationByCode(code: string) {
     const [location] = await this.locationRepository.query(
-      `
-      select id, sido, gungu, dong, code from Location l
-      where l.code = ?
-      `,
+      LOCATION_QUERY.GET_LOCATION_BY_CODE,
       [code],
     );
 
@@ -81,10 +72,7 @@ export class LocationService {
 
   async getLocationById(id: number) {
     const [location] = await this.locationRepository.query(
-      `
-      select id, sido, gungu, dong, code from Location l
-      where l.id = ?
-      `,
+      LOCATION_QUERY.GET_LOCATION_BY_ID,
       [id],
     );
 

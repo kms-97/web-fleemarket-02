@@ -1,4 +1,4 @@
-import { BaseEntity } from '@src/base/BaseEntity';
+import { BaseEntity } from '@base/BaseEntity';
 import { IsEmail, IsNotEmpty, IsObject, IsString } from 'class-validator';
 import { Column, Entity, Repository } from 'typeorm';
 

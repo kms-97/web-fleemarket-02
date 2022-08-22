@@ -9,7 +9,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { productStatus } from '@src/constant/enum';
+import { productStatus } from '@constant/enum';
 import { ProductInsertDto } from './dto/productInsert.dto';
 import { ProductSearchDto } from './dto/productSearch.dto';
 import { ProductService } from './product.service';

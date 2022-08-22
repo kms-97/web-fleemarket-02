@@ -9,8 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TokenUser, User } from '@src/decorator/user.decorator';
-import { UserService } from '@src/user/user.service';
+import { TokenUser, User } from '@decorator/user.decorator';
+import { UserService } from '@user/user.service';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import {

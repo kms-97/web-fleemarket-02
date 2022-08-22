@@ -9,9 +9,12 @@
       "@image/*": ["src/image/*"],
       "@product/*": ["src/product/*"],
       "@userLocation/*": ["src/userLocation/*"],
+      "@wish/*": ["src/wish/*"],
+      "@base/*": ["src/base/*"],
       "@auth/*": ["src/auth/*"],
       "@utils/*": ["src/utils/*"],
       "@constant/*": ["src/constant/*"],
+      "@decorator/*": ["src/decorator/*"],
       "@src/*": ["src/*"]
     }
   },

@@ -1,4 +1,4 @@
-import { BaseEntity } from '@src/base/BaseEntity';
+import { BaseEntity } from '@base/BaseEntity';
 import { Entity, Unique, Column, Repository } from 'typeorm';
 import { IsString } from 'class-validator';
 

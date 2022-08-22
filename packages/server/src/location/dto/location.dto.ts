@@ -1,6 +1,7 @@
+import { PaginationDto } from '@base/Pagination.dto';
 import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
-export class LocationDto {
+export class LocationDto extends PaginationDto {
   @IsOptional()
   @IsNumberString()
   code?: string;
@@ -8,8 +9,4 @@ export class LocationDto {
   @IsOptional()
   @IsString()
   keyword?: string;
-
-  @IsOptional()
-  @IsNumberString()
-  page?: number;
 }

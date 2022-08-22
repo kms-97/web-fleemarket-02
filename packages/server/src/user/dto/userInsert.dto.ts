@@ -1,5 +1,5 @@
 import { PickType } from '@nestjs/mapped-types';
-import { ErrorMessage } from '@src/constant/ErrorMessage';
+import { ErrorMessage } from '@constant/ErrorMessage';
 import {
   ArrayMaxSize,
   ArrayMinSize,

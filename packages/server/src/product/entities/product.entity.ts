@@ -1,8 +1,8 @@
 import { Category } from '@category/entities/category.entity';
-import { BaseEntity } from '@src/base/BaseEntity';
-import { productStatus } from '@src/constant/enum';
-import { Location } from '@src/location/entities/location.entity';
-import { User } from '@src/user/entities/user.entity';
+import { BaseEntity } from '@base/BaseEntity';
+import { productStatus } from '@constant/enum';
+import { Location } from '@location/entities/location.entity';
+import { User } from '@user/entities/user.entity';
 import {
   ArrayNotEmpty,
   IsArray,

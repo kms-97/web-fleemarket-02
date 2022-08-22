@@ -1,8 +1,8 @@
-import { BaseEntity } from '@src/base/BaseEntity';
+import { BaseEntity } from '@base/BaseEntity';
 import { Entity, Column, Repository, ManyToOne, JoinColumn } from 'typeorm';
 import { IsBoolean } from 'class-validator';
-import { User } from '@src/user/entities/user.entity';
-import { Location } from '@src/location/entities/location.entity';
+import { User } from '@user/entities/user.entity';
+import { Location } from '@location/entities/location.entity';
 
 @Entity({ name: 'UserLocation' })
 export class UserLocation extends BaseEntity {

@@ -1,8 +1,8 @@
 import { CATEGORY_QUERY } from '@constant/queries';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CustomException } from '@src/base/CustomException';
-import { ErrorMessage } from '@src/constant/ErrorMessage';
+import { CustomException } from '@base/CustomException';
+import { ErrorMessage } from '@constant/ErrorMessage';
 import { Category, CategoryRepository } from './entities/category.entity';
 @Injectable()
 export class CategoryService {

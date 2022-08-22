@@ -1,8 +1,8 @@
 import { LOCATION_QUERY } from '@constant/queries';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CustomException } from '@src/base/CustomException';
-import { ErrorMessage } from '@src/constant/ErrorMessage';
+import { CustomException } from '@base/CustomException';
+import { ErrorMessage } from '@constant/ErrorMessage';
 import { LocationDto } from './dto/location.dto';
 import { Location, LocationRepository } from './entities/location.entity';
 

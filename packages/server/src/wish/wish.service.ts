@@ -1,8 +1,8 @@
 import { WISH_QUERY } from '@constant/queries';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CustomException } from '@src/base/CustomException';
-import { ErrorMessage } from '@src/constant/ErrorMessage';
+import { CustomException } from '@base/CustomException';
+import { ErrorMessage } from '@constant/ErrorMessage';
 import { Wish, WishRepository } from './entities/wish.entity';
 
 const DEFAULT_LIMIT = 10;

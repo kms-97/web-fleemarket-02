@@ -52,6 +52,14 @@ export class UserController {
     return this.userService.getUserProductById(id, dto);
   }
 
+  @Get(':id/wish')
+  async getUserWishById(
+    @Param('id') id: number,
+    @Query() dto: UserProductSearchDto,
+  ) {
+    return this.userService.getUserWishById(id, dto);
+  }
+
   @Patch(':id')
   async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
     await this.userService.updateUser(id, dto);

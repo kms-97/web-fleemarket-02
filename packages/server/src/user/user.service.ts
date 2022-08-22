@@ -11,6 +11,7 @@ import { CustomException } from '@src/base/CustomException';
 import { ErrorMessage } from '@src/constant/ErrorMessage';
 import { ProductService } from '@product/product.service';
 import { UserProductSearchDto } from './dto/userProductSearch.dto';
+import { WishService } from '@src/wish/wish.service';
 
 @Injectable()
 export class UserService {
@@ -20,6 +21,7 @@ export class UserService {
     private readonly userLocationService: UserLocationService,
     @Inject(forwardRef(() => ProductService))
     private readonly productService: ProductService,
+    private readonly wishService: WishService,
   ) {}
 
   async insertUser(dto: UserInsertDto) {
@@ -200,6 +202,22 @@ export class UserService {
     const products = await this.productService.findProductBySellerId(id, page);
 
     return { products, page };
+  }
+
+  async getUserWishById(id: number, dto: UserProductSearchDto) {
+    if (isNaN(id)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistUserById(id);
+
+    const page = dto.page ?? 1;
+    const wishes = await this.wishService.findWishByUserId(id, page);
+
+    return { wishes, page };
   }
 
   async updateUser(id: number, dto: UserUpdateDto) {

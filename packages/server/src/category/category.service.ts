@@ -1,3 +1,4 @@
+import { CATEGORY_QUERY } from '@constant/queries';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustomException } from '@src/base/CustomException';
@@ -12,7 +13,7 @@ export class CategoryService {
 
   async getCategories() {
     const categories = await this.categoryRepository.query(
-      `select id, name, imgUrl from Category`,
+      CATEGORY_QUERY.GET_CATEGORIES,
     );
 
     return { categories };
@@ -20,7 +21,7 @@ export class CategoryService {
 
   async getCategoryByName(name: string) {
     const [category] = await this.categoryRepository.query(
-      `select id, name from Category where name = ?`,
+      CATEGORY_QUERY.GET_CATEGORY_BY_NAME,
       [name],
     );
 
@@ -29,7 +30,7 @@ export class CategoryService {
 
   async getCategoryById(id: number) {
     const [category] = await this.categoryRepository.query(
-      `select id, name from Category where id = ?`,
+      CATEGORY_QUERY.GET_CATEGORY_BY_ID,
       [id],
     );
 

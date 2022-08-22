@@ -13,6 +13,7 @@ import { ProductService } from '@product/product.service';
 import { UserProductSearchDto } from './dto/userProductSearch.dto';
 import { WishService } from '@src/wish/wish.service';
 import { UserLocationDto } from './dto/userLocation.dto';
+import { USER_QUERY } from '@constant/queries';
 
 @Injectable()
 export class UserService {
@@ -39,13 +40,11 @@ export class UserService {
       );
     }
 
-    await this.userRepository.query(
-      `
-      insert into User (user_id, name, password)
-      values (?, ?, ?)
-      `,
-      [userId, name, hashedPassword],
-    );
+    await this.userRepository.query(USER_QUERY.INSERT_USER, [
+      userId,
+      name,
+      hashedPassword,
+    ]);
 
     const { user: createdUser } = await this.getUserByUserId(userId);
     for (let i = 0; i < locations.length; i++) {
@@ -144,39 +143,16 @@ export class UserService {
       );
     }
 
-    const [user] = await this.userRepository.query(
-      `
-      select u.id, u.user_id as userId, u.name as name,
-            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
-            (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
-            from wish w
-            where w.user_id = u.id) as wishes
-      from User u
-      left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
-                from userlocation ul
-                join location l on ul.location_id = l.id) as l on u.id = l.user_id
-      where u.id = ?;
-      `,
-      [id],
-    );
+    const [user] = await this.userRepository.query(USER_QUERY.GET_USER_BY_ID, [
+      id,
+    ]);
 
     return { user: user ?? null };
   }
 
   async getUserByUserId(userId: string) {
     const [user] = await this.userRepository.query(
-      `
-      select u.id, u.user_id as userId, u.name as name,
-            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
-            (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
-            from wish w
-            where w.user_id = u.id) as wishes
-      from User u
-      left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
-                from userlocation ul
-                join location l on ul.location_id = l.id) as l on u.id = l.user_id
-      where u.user_id = ?;
-      `,
+      USER_QUERY.GET_USER_BY_USER_ID,
       [userId],
     );
 
@@ -185,16 +161,7 @@ export class UserService {
 
   async getUserByGithubEmail(email: string) {
     const [user] = await this.userRepository.query(
-      `
-      select u.id, u.user_id as userId, u.name as name,
-            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code)) as locations,
-            if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id)) as wishes
-      from User u
-      left join userlocation ul on u.id = ul.user_id
-      left join wish w on w.user_id = u.id
-      left join location l on l.id = ul.id
-      where u.github_email = ?;
-      `,
+      USER_QUERY.GET_USER_BY_GITHUB_EMAIL,
       [email],
     );
 
@@ -234,7 +201,7 @@ export class UserService {
   }
 
   async updateUser(id: number, dto: UserUpdateDto) {
-    if (!isNaN(id)) {
+    if (isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
         HttpStatus.BAD_REQUEST,
@@ -249,19 +216,7 @@ export class UserService {
       );
     }
 
-    let query = `update User set`;
-
-    if (dto.name) {
-      query = `${query} name = "${dto.name}"`;
-    }
-
-    await this.userRepository.query(
-      `
-      ${query}
-      where id = ?
-      `,
-      [id],
-    );
+    await this.userRepository.query(USER_QUERY.UPDATE_USER, [dto.name, id]);
 
     return true;
   }
@@ -282,11 +237,7 @@ export class UserService {
 
   async getUserWithHashPasswordByUserId(userId: string) {
     const user = await this.userRepository.query(
-      `
-      select u.id, u.user_id as userId, u.name as name, u.password as password
-      from User u
-      where u.user_id = ?;
-      `,
+      USER_QUERY.GET_USER_WITH_HASH_PASSWORD,
       [userId],
     );
 
@@ -295,11 +246,7 @@ export class UserService {
 
   async getUserByGithubId(githubId: number) {
     const user = await this.userRepository.query(
-      `
-      select u.id, u.user_id as userId, u.name as name
-      from User u
-      where json_extract(u.github, '$.id') = ?;
-      `,
+      USER_QUERY.GET_USER_BY_GITHUB_ID,
       [githubId],
     );
 

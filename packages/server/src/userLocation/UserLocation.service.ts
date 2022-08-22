@@ -1,3 +1,4 @@
+import { USER_LOCATION_QUERY } from '@constant/queries';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustomException } from '@src/base/CustomException';
@@ -20,45 +21,32 @@ export class UserLocationService {
     isActive: boolean,
   ) {
     if (isActive) await this.setAllUserLocationToNotActive(userId);
-    await this.userLocationRepository.query(
-      `
-    insert into userlocation (user_id, location_id, is_active)
-    values (?, ?, ?);
-    `,
-      [userId, locationId, isActive],
-    );
+    await this.userLocationRepository.query(USER_LOCATION_QUERY.INSERT_U_L, [
+      userId,
+      locationId,
+      isActive,
+    ]);
   }
 
   async deleteUserLocation(userId: number, locationId: number) {
     await this.setAllUserLocationToActive(userId);
-    await this.userLocationRepository.query(
-      `
-      delete from userlocation
-      where user_id = ? and location_id = ?;
-      `,
-      [userId, locationId],
-    );
+    await this.userLocationRepository.query(USER_LOCATION_QUERY.DELETE_U_L, [
+      userId,
+      locationId,
+    ]);
   }
 
   async activeUserLocation(userId: number, locationId: number) {
     await this.setAllUserLocationToNotActive(userId);
-    await this.userLocationRepository.query(
-      `
-      update userlocation
-      set is_active = true
-      where user_id = ? and location_id = ?
-      `,
-      [userId, locationId],
-    );
+    await this.userLocationRepository.query(USER_LOCATION_QUERY.UPDATE_U_L, [
+      userId,
+      locationId,
+    ]);
   }
 
   async countUserLocation(userId: number) {
     const [{ count }] = await this.userLocationRepository.query(
-      `
-      select count(*) as count
-      from userlocation
-      where user_id = ?
-      `,
+      USER_LOCATION_QUERY.GET_COUNT_U_L,
       [userId],
     );
 
@@ -67,33 +55,21 @@ export class UserLocationService {
 
   setAllUserLocationToNotActive(userId: number) {
     return this.userLocationRepository.query(
-      `
-      update userlocation
-      set is_active = false
-      where user_id = ?
-      `,
+      USER_LOCATION_QUERY.UPDATE_ALL_U_L_TO_FALSE,
       [userId],
     );
   }
 
   setAllUserLocationToActive(userId: number) {
     return this.userLocationRepository.query(
-      `
-      update userlocation
-      set is_active = true
-      where user_id = ?
-      `,
+      USER_LOCATION_QUERY.UPDATE_ALL_U_L_TO_TRUE,
       [userId],
     );
   }
 
   async checkExistUserLocation(userId: number, locationId: number) {
     const [userLocation] = await this.userLocationRepository.query(
-      `
-      select user_id as userId, location_id as locationId
-      from userlocation
-      where user_id = ? and location_id = ?;
-      `,
+      USER_LOCATION_QUERY.GET_U_L_BY_UID_LID,
       [userId, locationId],
     );
 
@@ -107,11 +83,7 @@ export class UserLocationService {
 
   async checkNotExistUserLocation(userId: number, locationId: number) {
     const [userLocation] = await this.userLocationRepository.query(
-      `
-      select user_id as userId, location_id as locationId
-      from userlocation
-      where user_id = ? and location_id = ?;
-      `,
+      USER_LOCATION_QUERY.GET_U_L_BY_UID_LID,
       [userId, locationId],
     );
 

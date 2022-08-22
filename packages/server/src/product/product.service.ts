@@ -1,4 +1,5 @@
 import { CategoryService } from '@category/category.service';
+import { PRODUCT_QUERY } from '@constant/queries';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustomException } from '@src/base/CustomException';
@@ -52,19 +53,7 @@ export class ProductService {
     await this.checkExistProductById(id);
 
     const [product] = await this.productRepository.query(
-      `
-      select p.id as id, title, description, price, p.imgUrl as imgUrl, status, hits,
-            json_object('id', l.id, 'code', l.code, 'dong', l.dong) as location,
-            json_object('id', c.id, 'name', c.name) as category,
-            json_object('id', u.id, 'userId', u.user_id, 'name', u.name) as seller,
-            if(count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
-      from Product p
-      join location l on p.location_id = l.id
-      join user u on u.id = p.seller_id
-      join category c on c.name = p.category_name
-      left join wish w on w.product_id = p.id
-      where p.id = ?;
-      `,
+      PRODUCT_QUERY.GET_PRODUCT_DETAIL_BY_ID,
       [id],
     );
 
@@ -86,21 +75,16 @@ export class ProductService {
     await this.userService.checkExistUserById(sellerId);
     await this.locationService.checkExistLocationById(locationId);
 
-    await this.productRepository.query(
-      `
-      insert into Product (title, description, price, imgUrl, location_id, seller_id, category_name)
-      values (?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        title,
-        description,
-        price,
-        JSON.stringify(imgUrl),
-        locationId,
-        sellerId,
-        categoryName,
-      ],
-    );
+    const values = [
+      title,
+      description,
+      price,
+      JSON.stringify(imgUrl),
+      locationId,
+      sellerId,
+      categoryName,
+    ];
+    await this.productRepository.query(PRODUCT_QUERY.INSERT_PRODUCT, values);
   }
 
   async insertProductWish(userId: number, productId: number) {
@@ -139,23 +123,17 @@ export class ProductService {
     await this.userService.checkExistUserById(sellerId);
     await this.locationService.checkExistLocationById(locationId);
 
-    await this.productRepository.query(
-      `
-      update product
-      set title = ?, description = ?, price = ?, imgUrl = ?, location_id = ?, seller_id = ?, category_name = ?
-      where id = ?
-      `,
-      [
-        title,
-        description,
-        price,
-        JSON.stringify(imgUrl),
-        locationId,
-        sellerId,
-        categoryName,
-        id,
-      ],
-    );
+    const values = [
+      title,
+      description,
+      price,
+      JSON.stringify(imgUrl),
+      locationId,
+      sellerId,
+      categoryName,
+      id,
+    ];
+    await this.productRepository.query(PRODUCT_QUERY.UPDATE_PRODUCT, values);
   }
 
   async updateProductStatus(id: number, newStatus: productStatus) {
@@ -175,14 +153,10 @@ export class ProductService {
 
     await this.checkExistProductById(id);
 
-    await this.productRepository.query(
-      `
-      update product
-      set status = ?
-      where id = ?
-      `,
-      [newStatus, id],
-    );
+    await this.productRepository.query(PRODUCT_QUERY.UPDATE_PRODUCT_STATUS, [
+      newStatus,
+      id,
+    ]);
   }
 
   async deleteProduct(id: number) {
@@ -195,12 +169,7 @@ export class ProductService {
 
     await this.checkExistProductById(id);
 
-    await this.productRepository.query(
-      `
-      delete from product where id = ?
-      `,
-      [id],
-    );
+    await this.productRepository.query(PRODUCT_QUERY.DELETE_PRODUCT, [id]);
   }
 
   async deleteProductWish(userId: number, productId: number) {
@@ -218,16 +187,7 @@ export class ProductService {
   findProductByCategory(category: string, location: number, page: number) {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
-      `
-      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
-        if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
-      from Product p
-      join location l on p.location_id = l.id
-      left join wish w on w.product_id = p.id
-      where p.category_name = ? and p.location_id = ?
-      group by p.id
-      limit ?, ?;
-      `,
+      PRODUCT_QUERY.FIND_PRODUCT_BY_CATEGORY,
       [category, location, offset, DEFAULT_LIMIT],
     );
   }
@@ -235,16 +195,7 @@ export class ProductService {
   findProductByLocation(location: number, page: number) {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
-      `
-      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
-        if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
-      from Product p
-      join location l on p.location_id = l.id
-      left join wish w on w.product_id = p.id
-      where p.location_id = ?
-      group by p.id
-      limit ?, ?;
-      `,
+      PRODUCT_QUERY.FIND_PRODUCT_BY_LOCATION,
       [location, offset, DEFAULT_LIMIT],
     );
   }
@@ -252,23 +203,14 @@ export class ProductService {
   findProductBySellerId(id: number, page: number) {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
-      `
-      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
-        if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
-      from Product p
-      join location l on p.location_id = l.id
-      left join wish w on w.product_id = p.id
-      where p.seller_id = ?
-      group by p.id
-      limit ?, ?;
-      `,
+      PRODUCT_QUERY.FIND_PRODUCT_BY_SELLER_ID,
       [id, offset, DEFAULT_LIMIT],
     );
   }
 
   async getProductById(id: number) {
     const [product] = await this.productRepository.query(
-      `select * from product where id = ?`,
+      PRODUCT_QUERY.GET_PRODUCT_BY_ID,
       [id],
     );
 

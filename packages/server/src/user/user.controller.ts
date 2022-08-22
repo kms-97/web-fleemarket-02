@@ -10,6 +10,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { UserInsertDto } from './dto/userInsert.dto';
+import { UserLocationDto } from './dto/userLocation.dto';
 import { UserProductSearchDto } from './dto/userProductSearch.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
@@ -25,13 +26,10 @@ export class UserController {
     await this.userService.insertUser(dto);
   }
 
-  @Post(':userId/location/:locationId')
+  @Post('/location')
   @HttpCode(201)
-  async insertUserLocation(
-    @Param('userId') userId: number,
-    @Param('locationId') locationId: number,
-  ) {
-    await this.userService.insertUserLocationHandler(userId, locationId);
+  async insertUserLocation(@Body() dto: UserLocationDto) {
+    await this.userService.insertUserLocationHandler(dto);
   }
 
   @Get()

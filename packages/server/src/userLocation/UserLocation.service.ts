@@ -5,7 +5,7 @@ import { ErrorMessage } from '@src/constant/ErrorMessage';
 import {
   UserLocation,
   UserLocationRepository,
-} from './entites/UserLocation.entity';
+} from './entites/userLocation.entity';
 
 @Injectable()
 export class UserLocationService {
@@ -14,14 +14,18 @@ export class UserLocationService {
     private readonly userLocationRepository: UserLocationRepository,
   ) {}
   // 트랜잭션 도입해야함.
-  async insertUserLocation(userId: number, locationId: number) {
-    await this.setAllUserLocationToNotActive(userId);
+  async insertUserLocation(
+    userId: number,
+    locationId: number,
+    isActive: boolean,
+  ) {
+    if (isActive) await this.setAllUserLocationToNotActive(userId);
     await this.userLocationRepository.query(
       `
-      insert into userlocation (user_id, location_id)
-      values (?, ?);
-      `,
-      [userId, locationId],
+    insert into userlocation (user_id, location_id, is_active)
+    values (?, ?, ?);
+    `,
+      [userId, locationId, isActive],
     );
   }
 

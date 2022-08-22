@@ -12,6 +12,7 @@ import { ErrorMessage } from '@src/constant/ErrorMessage';
 import { ProductService } from '@product/product.service';
 import { UserProductSearchDto } from './dto/userProductSearch.dto';
 import { WishService } from '@src/wish/wish.service';
+import { UserLocationDto } from './dto/userLocation.dto';
 
 @Injectable()
 export class UserService {
@@ -47,14 +48,18 @@ export class UserService {
     );
 
     const { user: createdUser } = await this.getUserByUserId(userId);
-    const promises = locations.map((locationId) =>
-      this.userLocationService.insertUserLocation(createdUser.id, locationId),
-    );
-    await Promise.all(promises);
+    for (let i = 0; i < locations.length; i++) {
+      await this.userLocationService.insertUserLocation(
+        createdUser.id,
+        locations[i].locationId,
+        locations[i].isActive,
+      );
+    }
     // todo: locations user_location 테이블 추가 (트랜잭션 처리)
   }
 
-  async insertUserLocationHandler(userId: number, locationId: number) {
+  async insertUserLocationHandler(dto: UserLocationDto) {
+    const { userId, locationId, isActive } = dto;
     if (isNaN(userId) || isNaN(locationId)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
@@ -67,7 +72,11 @@ export class UserService {
 
     await this.userLocationService.checkExistUserLocation(userId, locationId);
     await this.userLocationService.checkUserLocationMax(userId);
-    await this.userLocationService.insertUserLocation(userId, locationId);
+    await this.userLocationService.insertUserLocation(
+      userId,
+      locationId,
+      isActive,
+    );
   }
 
   async updateActiveUserLocationHandler(userId: number, locationId: number) {

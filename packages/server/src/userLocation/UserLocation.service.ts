@@ -1,8 +1,9 @@
 import { USER_LOCATION_QUERY } from '@constant/queries';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CustomException } from '@src/base/CustomException';
-import { ErrorMessage } from '@src/constant/ErrorMessage';
+import { CustomException } from '@base/CustomException';
+import { ErrorMessage } from '@constant/ErrorMessage';
+import { QueryRunner } from 'typeorm';
 import {
   UserLocation,
   UserLocationRepository,
@@ -14,34 +15,52 @@ export class UserLocationService {
     @InjectRepository(UserLocation)
     private readonly userLocationRepository: UserLocationRepository,
   ) {}
-  // 트랜잭션 도입해야함.
+
   async insertUserLocation(
+    queryRunner: QueryRunner,
     userId: number,
     locationId: number,
     isActive: boolean,
   ) {
-    if (isActive) await this.setAllUserLocationToNotActive(userId);
-    await this.userLocationRepository.query(USER_LOCATION_QUERY.INSERT_U_L, [
+    if (isActive) {
+      await this.setAllUserLocationToNotActive(queryRunner, userId);
+    }
+
+    await queryRunner.manager.query(USER_LOCATION_QUERY.INSERT_U_L, [
       userId,
       locationId,
       isActive,
     ]);
+
+    return;
   }
 
-  async deleteUserLocation(userId: number, locationId: number) {
-    await this.setAllUserLocationToActive(userId);
-    await this.userLocationRepository.query(USER_LOCATION_QUERY.DELETE_U_L, [
+  async deleteUserLocation(
+    queryRunner: QueryRunner,
+    userId: number,
+    locationId: number,
+  ) {
+    await this.setAllUserLocationToActive(queryRunner, userId);
+    await queryRunner.query(USER_LOCATION_QUERY.DELETE_U_L, [
       userId,
       locationId,
     ]);
+
+    return;
   }
 
-  async activeUserLocation(userId: number, locationId: number) {
-    await this.setAllUserLocationToNotActive(userId);
-    await this.userLocationRepository.query(USER_LOCATION_QUERY.UPDATE_U_L, [
+  async activeUserLocation(
+    queryRunner: QueryRunner,
+    userId: number,
+    locationId: number,
+  ) {
+    await this.setAllUserLocationToNotActive(queryRunner, userId);
+    await queryRunner.query(USER_LOCATION_QUERY.UPDATE_U_L, [
       userId,
       locationId,
     ]);
+
+    return;
   }
 
   async countUserLocation(userId: number) {
@@ -53,18 +72,16 @@ export class UserLocationService {
     return Number(count);
   }
 
-  setAllUserLocationToNotActive(userId: number) {
-    return this.userLocationRepository.query(
-      USER_LOCATION_QUERY.UPDATE_ALL_U_L_TO_FALSE,
-      [userId],
-    );
+  setAllUserLocationToNotActive(queryRunner: QueryRunner, userId: number) {
+    return queryRunner.query(USER_LOCATION_QUERY.UPDATE_ALL_U_L_TO_FALSE, [
+      userId,
+    ]);
   }
 
-  setAllUserLocationToActive(userId: number) {
-    return this.userLocationRepository.query(
-      USER_LOCATION_QUERY.UPDATE_ALL_U_L_TO_TRUE,
-      [userId],
-    );
+  setAllUserLocationToActive(queryRunner: QueryRunner, userId: number) {
+    return queryRunner.query(USER_LOCATION_QUERY.UPDATE_ALL_U_L_TO_TRUE, [
+      userId,
+    ]);
   }
 
   async checkExistUserLocation(userId: number, locationId: number) {

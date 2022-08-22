@@ -1,19 +1,26 @@
-import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
+import { DataSource } from 'typeorm';
+import {
+  BadRequestException,
+  forwardRef,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { LocationService } from '@location/location.service';
+import { UserLocationService } from '@userLocation/userLocation.service';
+import { CustomException } from '@base/CustomException';
+import { ErrorMessage } from '@constant/ErrorMessage';
+import { ProductService } from '@product/product.service';
+import { WishService } from '@wish/wish.service';
+import { USER_QUERY } from '@constant/queries';
+import { User, UserRepository } from './entities/user.entity';
+import { UserProductSearchDto } from './dto/userProductSearch.dto';
+import { UserLocationDto } from './dto/userLocation.dto';
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
-import { LocationService } from '@src/location/location.service';
-import { UserLocationService } from '@userLocation/userLocation.service';
-import { User, UserRepository } from './entities/user.entity';
-import { CustomException } from '@src/base/CustomException';
-import { ErrorMessage } from '@src/constant/ErrorMessage';
-import { ProductService } from '@product/product.service';
-import { UserProductSearchDto } from './dto/userProductSearch.dto';
-import { WishService } from '@src/wish/wish.service';
-import { UserLocationDto } from './dto/userLocation.dto';
-import { USER_QUERY } from '@constant/queries';
 
 @Injectable()
 export class UserService {
@@ -24,37 +31,39 @@ export class UserService {
     @Inject(forwardRef(() => ProductService))
     private readonly productService: ProductService,
     private readonly wishService: WishService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async insertUser(dto: UserInsertDto) {
     const { userId, name, password, locations } = dto;
-
     const hashedPassword = await this.hashPassword(password);
 
-    const { user } = await this.getUserByUserId(userId);
+    this.checkExistUserByUserId(userId);
 
-    if (user.id) {
-      throw new CustomException(
-        [ErrorMessage.DUPLICATED_USER_ID],
-        HttpStatus.CONFLICT,
-      );
+    const queryRunnner = this.dataSource.createQueryRunner();
+    await queryRunnner.connect();
+    await queryRunnner.startTransaction();
+    try {
+      const { insertId } = await queryRunnner.query(USER_QUERY.INSERT_USER, [
+        userId,
+        name,
+        hashedPassword,
+      ]);
+
+      for (let i = 0; i < locations.length; i++) {
+        await this.userLocationService.insertUserLocation(
+          queryRunnner,
+          insertId,
+          locations[i].locationId,
+          locations[i].isActive,
+        );
+      }
+    } catch (e) {
+      await queryRunnner.rollbackTransaction();
+      throw new BadRequestException();
+    } finally {
+      await queryRunnner.release();
     }
-
-    await this.userRepository.query(USER_QUERY.INSERT_USER, [
-      userId,
-      name,
-      hashedPassword,
-    ]);
-
-    const { user: createdUser } = await this.getUserByUserId(userId);
-    for (let i = 0; i < locations.length; i++) {
-      await this.userLocationService.insertUserLocation(
-        createdUser.id,
-        locations[i].locationId,
-        locations[i].isActive,
-      );
-    }
-    // todo: locations user_location 테이블 추가 (트랜잭션 처리)
   }
 
   async insertUserLocationHandler(dto: UserLocationDto) {
@@ -72,6 +81,7 @@ export class UserService {
     await this.userLocationService.checkExistUserLocation(userId, locationId);
     await this.userLocationService.checkUserLocationMax(userId);
     await this.userLocationService.insertUserLocation(
+      null,
       userId,
       locationId,
       isActive,
@@ -93,7 +103,22 @@ export class UserService {
       userId,
       locationId,
     );
-    await this.userLocationService.activeUserLocation(userId, locationId);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await this.userLocationService.activeUserLocation(
+        queryRunner,
+        userId,
+        locationId,
+      );
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async deleteUserLocationHandler(userId: number, locationId: number) {
@@ -108,7 +133,22 @@ export class UserService {
     await this.locationService.checkExistLocationById(locationId);
 
     await this.userLocationService.checkUserLocationMin(userId);
-    await this.userLocationService.deleteUserLocation(userId, locationId);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await this.userLocationService.deleteUserLocation(
+        queryRunner,
+        userId,
+        locationId,
+      );
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async getUserByUserIdOrGithubEmail(dto: UserSearchDto) {
@@ -208,13 +248,7 @@ export class UserService {
       );
     }
 
-    const { user } = await this.getUserById(id);
-    if (!user) {
-      throw new CustomException(
-        [ErrorMessage.NOT_FOUND_USER],
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    this.checkExistUserById(id);
 
     await this.userRepository.query(USER_QUERY.UPDATE_USER, [dto.name, id]);
 
@@ -255,6 +289,16 @@ export class UserService {
 
   async checkExistUserById(id: number) {
     const { user } = await this.getUserById(id);
+    if (!user) {
+      throw new CustomException(
+        [ErrorMessage.NOT_FOUND_TARGET('사용자')],
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  async checkExistUserByUserId(UserId: string) {
+    const { user } = await this.getUserByUserId(UserId);
     if (!user) {
       throw new CustomException(
         [ErrorMessage.NOT_FOUND_TARGET('사용자')],

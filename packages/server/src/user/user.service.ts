@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LocationService } from '@location/location.service';
+import { PaginationDto } from '@base/Pagination.dto';
 import { UserLocationService } from '@userLocation/userLocation.service';
 import { CustomException } from '@base/CustomException';
 import { ErrorMessage } from '@constant/ErrorMessage';
@@ -16,7 +17,6 @@ import { ProductService } from '@product/product.service';
 import { WishService } from '@wish/wish.service';
 import { USER_QUERY } from '@constant/queries';
 import { User, UserRepository } from './entities/user.entity';
-import { UserProductSearchDto } from './dto/userProductSearch.dto';
 import { UserLocationDto } from './dto/userLocation.dto';
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
@@ -208,7 +208,7 @@ export class UserService {
     return { user: user ?? null };
   }
 
-  async getUserProductById(id: number, dto: UserProductSearchDto) {
+  async getUserProductById(id: number, dto: PaginationDto) {
     if (isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
@@ -224,7 +224,7 @@ export class UserService {
     return { products, page };
   }
 
-  async getUserWishById(id: number, dto: UserProductSearchDto) {
+  async getUserWishById(id: number, dto: PaginationDto) {
     if (isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],

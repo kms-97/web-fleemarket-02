@@ -1,3 +1,4 @@
+import { PaginationDto } from '@base/Pagination.dto';
 import {
   Controller,
   Param,
@@ -11,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserLocationDto } from './dto/userLocation.dto';
-import { UserProductSearchDto } from './dto/userProductSearch.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
 import { UserService } from './user.service';
@@ -45,16 +45,13 @@ export class UserController {
   @Get(':id/product')
   async getUserProductById(
     @Param('id') id: number,
-    @Query() dto: UserProductSearchDto,
+    @Query() dto: PaginationDto,
   ) {
     return this.userService.getUserProductById(id, dto);
   }
 
   @Get(':id/wish')
-  async getUserWishById(
-    @Param('id') id: number,
-    @Query() dto: UserProductSearchDto,
-  ) {
+  async getUserWishById(@Param('id') id: number, @Query() dto: PaginationDto) {
     return this.userService.getUserWishById(id, dto);
   }
 

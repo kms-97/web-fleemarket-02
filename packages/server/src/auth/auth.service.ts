@@ -9,6 +9,7 @@ import { UserService } from '@user/user.service';
 import { encryptValue } from '@utils/crypto';
 
 import { Auth, AuthRepository } from './entities/auth.entity';
+import { AUTH_QUERY } from '@constant/queries';
 
 @Injectable()
 export class AuthService {
@@ -63,14 +64,9 @@ export class AuthService {
   }
 
   async verifyRefresh(aRefreshToken: string) {
-    const row = await this.authRepository.query(
-      `
-      select a.refresh_token as refreshToken
-      from Auth a
-      where a.refresh_token = ?
-      `,
-      [aRefreshToken],
-    );
+    const row = await this.authRepository.query(AUTH_QUERY.FIND_REFRESH_TOKEN, [
+      aRefreshToken,
+    ]);
 
     if (!row[0]) {
       return false;
@@ -86,11 +82,7 @@ export class AuthService {
 
   async isExistRefreshTokenByUserId(userId: number) {
     const row = await this.authRepository.query(
-      `
-      select a.refresh_token as refreshToken
-      from Auth a 
-      where a.user_id = ?
-      `,
+      AUTH_QUERY.FIND_REFRESH_TOKEN_BY_USER_ID,
       [userId],
     );
 
@@ -99,22 +91,16 @@ export class AuthService {
 
   async updateRefreshToken(userId: number, refreshToken: string | null) {
     return await this.authRepository.query(
-      `
-        update Auth set refresh_token = "${refreshToken}"
-        where user_id = ?
-        `,
+      AUTH_QUERY.UPDATE_REFRESH_TOKEN(refreshToken),
       [userId],
     );
   }
 
   async insertRefreshToken(userId: number, refreshToken: string) {
-    return await this.authRepository.query(
-      `
-        insert into Auth (user_id, refresh_token) 
-        values (?, ?)
-        `,
-      [userId, refreshToken],
-    );
+    return await this.authRepository.query(AUTH_QUERY.INSERT_REFRESH_TOKEN, [
+      userId,
+      refreshToken,
+    ]);
   }
 
   async getGithubTokenByCode(code: string) {

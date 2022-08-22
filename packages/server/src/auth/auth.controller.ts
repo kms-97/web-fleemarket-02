@@ -37,7 +37,7 @@ export class AuthController {
     @User() _user: TokenUser,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = await this.userService.getUserById(_user.id);
+    const { user } = await this.userService.getUserById(_user.id);
 
     if (!user) {
       throw new BadRequestException('존재하지 않는 유저입니다.');

@@ -1,7 +1,7 @@
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsNumberString, IsOptional } from 'class-validator';
 
 export class UserProductSearchDto {
   @IsOptional()
-  @IsNumber()
+  @IsNumberString()
   page?: number;
 }

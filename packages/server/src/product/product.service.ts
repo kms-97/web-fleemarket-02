@@ -57,7 +57,7 @@ export class ProductService {
             json_object('id', l.id, 'code', l.code, 'dong', l.dong) as location,
             json_object('id', c.id, 'name', c.name) as category,
             json_object('id', u.id, 'userId', u.user_id, 'name', u.name) as seller,
-            json_arrayagg(w.user_id) as likeUsers
+            if(count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
       from Product p
       join location l on p.location_id = l.id
       join user u on u.id = p.seller_id
@@ -219,8 +219,8 @@ export class ProductService {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
       `
-      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName,
-        seller_id as sellerId, json_arrayagg(w.user_id) as likeUsers
+      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
+        if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
       from Product p
       join location l on p.location_id = l.id
       left join wish w on w.product_id = p.id
@@ -236,8 +236,8 @@ export class ProductService {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
       `
-      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName,
-        seller_id as sellerId, json_arrayagg(w.user_id) as likeUsers
+      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
+        if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
       from Product p
       join location l on p.location_id = l.id
       left join wish w on w.product_id = p.id
@@ -246,6 +246,23 @@ export class ProductService {
       limit ?, ?;
       `,
       [location, offset, DEFAULT_LIMIT],
+    );
+  }
+
+  findProductBySellerId(id: number, page: number) {
+    const offset = (page - 1) * DEFAULT_LIMIT;
+    return this.productRepository.query(
+      `
+      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
+        if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
+      from Product p
+      join location l on p.location_id = l.id
+      left join wish w on w.product_id = p.id
+      where p.seller_id = ?
+      group by p.id
+      limit ?, ?;
+      `,
+      [id, offset, DEFAULT_LIMIT],
     );
   }
 

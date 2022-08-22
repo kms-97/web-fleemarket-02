@@ -4,6 +4,7 @@ import { productStatus } from '@src/constant/enum';
 import { Location } from '@src/location/entities/location.entity';
 import { User } from '@src/user/entities/user.entity';
 import {
+  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsNotEmpty,
@@ -16,18 +17,22 @@ import { Column, Entity, JoinColumn, ManyToOne, Repository } from 'typeorm';
 export class Product extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   @IsNotEmpty()
+  @IsString()
   title!: string;
 
   @Column({ type: 'text' })
   @IsNotEmpty()
+  @IsString()
   description!: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 0, default: 0 })
   @IsNotEmpty()
+  @IsNumber()
   price!: number;
 
   @Column({ type: 'json' })
   @IsArray()
+  @ArrayNotEmpty()
   @IsString({ each: true })
   imgUrl!: string[];
 

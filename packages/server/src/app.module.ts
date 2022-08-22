@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductModule } from './product/product.module';
 import { WishModule } from './wish/wish.module';
+import { UserLocationModule } from '@userLocation/userLocation.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { WishModule } from './wish/wish.module';
     UserModule,
     ProductModule,
     WishModule,
+    UserLocationModule,
   ],
 })
 export class AppModule {}

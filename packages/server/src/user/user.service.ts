@@ -1,26 +1,38 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
-
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
+import { LocationService } from '@src/location/location.service';
+import { UserLocationService } from '@userLocation/userLocation.service';
+import { User, UserRepository } from './entities/user.entity';
+import { CustomException } from '@src/base/CustomException';
+import { ErrorMessage } from '@src/constant/ErrorMessage';
+import { ProductService } from '@product/product.service';
+import { UserProductSearchDto } from './dto/userProductSearch.dto';
+import { WishService } from '@src/wish/wish.service';
+import { UserLocationDto } from './dto/userLocation.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: UserRepository,
+    private readonly locationService: LocationService,
+    private readonly userLocationService: UserLocationService,
+    @Inject(forwardRef(() => ProductService))
+    private readonly productService: ProductService,
+    private readonly wishService: WishService,
   ) {}
 
   async insertUser(dto: UserInsertDto) {
     const { userId, name, password, locations } = dto;
 
-
     const hashedPassword = await this.hashPassword(password);
 
     const { user } = await this.getUserByUserId(userId);
-    
-    if (user) {
+
+    if (user.id) {
       throw new CustomException(
         [ErrorMessage.DUPLICATED_USER_ID],
         HttpStatus.CONFLICT,
@@ -35,10 +47,70 @@ export class UserService {
       [userId, name, hashedPassword],
     );
 
+    const { user: createdUser } = await this.getUserByUserId(userId);
+    for (let i = 0; i < locations.length; i++) {
+      await this.userLocationService.insertUserLocation(
+        createdUser.id,
+        locations[i].locationId,
+        locations[i].isActive,
+      );
+    }
     // todo: locations user_location 테이블 추가 (트랜잭션 처리)
-    // todo: password bcrypt 암호화 필요 (완료)
   }
 
+  async insertUserLocationHandler(dto: UserLocationDto) {
+    const { userId, locationId, isActive } = dto;
+    if (isNaN(userId) || isNaN(locationId)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistUserById(userId);
+    await this.locationService.checkExistLocationById(locationId);
+
+    await this.userLocationService.checkExistUserLocation(userId, locationId);
+    await this.userLocationService.checkUserLocationMax(userId);
+    await this.userLocationService.insertUserLocation(
+      userId,
+      locationId,
+      isActive,
+    );
+  }
+
+  async updateActiveUserLocationHandler(userId: number, locationId: number) {
+    if (isNaN(userId) || isNaN(locationId)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistUserById(userId);
+    await this.locationService.checkExistLocationById(locationId);
+
+    await this.userLocationService.checkNotExistUserLocation(
+      userId,
+      locationId,
+    );
+    await this.userLocationService.activeUserLocation(userId, locationId);
+  }
+
+  async deleteUserLocationHandler(userId: number, locationId: number) {
+    if (isNaN(userId) || isNaN(locationId)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistUserById(userId);
+    await this.locationService.checkExistLocationById(locationId);
+
+    await this.userLocationService.checkUserLocationMin(userId);
+    await this.userLocationService.deleteUserLocation(userId, locationId);
+  }
 
   async getUserByUserIdOrGithubEmail(dto: UserSearchDto) {
     const { githubEmail, userId } = dto;
@@ -74,43 +146,91 @@ export class UserService {
 
     const [user] = await this.userRepository.query(
       `
-      select u.id, u.user_id as userId, u.name as name
+      select u.id, u.user_id as userId, u.name as name,
+            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
+            (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
+            from wish w
+            where w.user_id = u.id) as wishes
       from User u
+      left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
+                from userlocation ul
+                join location l on ul.location_id = l.id) as l on u.id = l.user_id
       where u.id = ?;
       `,
       [id],
     );
 
-    // todo: locations, likes 조인 필요.
     return { user: user ?? null };
   }
 
   async getUserByUserId(userId: string) {
     const [user] = await this.userRepository.query(
       `
-      select u.id, u.user_id as userId, u.name as name
+      select u.id, u.user_id as userId, u.name as name,
+            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
+            (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
+            from wish w
+            where w.user_id = u.id) as wishes
       from User u
+      left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
+                from userlocation ul
+                join location l on ul.location_id = l.id) as l on u.id = l.user_id
       where u.user_id = ?;
       `,
       [userId],
     );
 
-    // todo: locations, likes 조인 필요.
     return { user: user ?? null };
   }
 
   async getUserByGithubEmail(email: string) {
     const [user] = await this.userRepository.query(
       `
-      select u.id, u.user_id as userId, u.name as name
+      select u.id, u.user_id as userId, u.name as name,
+            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code)) as locations,
+            if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id)) as wishes
       from User u
+      left join userlocation ul on u.id = ul.user_id
+      left join wish w on w.user_id = u.id
+      left join location l on l.id = ul.id
       where u.github_email = ?;
       `,
       [email],
     );
 
-    // todo: locations, likes 조인 필요.
     return { user: user ?? null };
+  }
+
+  async getUserProductById(id: number, dto: UserProductSearchDto) {
+    if (isNaN(id)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistUserById(id);
+
+    const page = dto.page ?? 1;
+    const products = await this.productService.findProductBySellerId(id, page);
+
+    return { products, page };
+  }
+
+  async getUserWishById(id: number, dto: UserProductSearchDto) {
+    if (isNaN(id)) {
+      throw new CustomException(
+        [ErrorMessage.NOT_VALID_FORMAT],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.checkExistUserById(id);
+
+    const page = dto.page ?? 1;
+    const wishes = await this.wishService.findWishByUserId(id, page);
+
+    return { wishes, page };
   }
 
   async updateUser(id: number, dto: UserUpdateDto) {
@@ -185,7 +305,7 @@ export class UserService {
 
     return user[0] ?? null;
   }
-  
+
   async checkExistUserById(id: number) {
     const { user } = await this.getUserById(id);
     if (!user) {

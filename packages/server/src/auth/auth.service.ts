@@ -45,19 +45,21 @@ export class AuthService {
   }
 
   async validateUser(userId: string, password: string) {
-    const user = await this.userService.getUserWithHashPasswordByUserId(userId);
+    const _user = await this.userService.getUserWithHashPasswordByUserId(
+      userId,
+    );
     const isCompare = await this.userService.comparePassword(
       password,
-      user?.password ?? '',
+      _user?.password ?? '',
     );
 
-    if (!user || !isCompare) {
+    if (!_user || !isCompare) {
       return null;
     }
 
-    const result = await this.userService.getUserById(user.id);
+    const { user } = await this.userService.getUserById(_user.id);
 
-    return result;
+    return user;
   }
 
   async verifyRefresh(aRefreshToken: string) {

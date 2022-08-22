@@ -5,7 +5,7 @@ import { UserInsertDto } from './dto/userInsert.dto';
 import { UserSearchDto } from './dto/userSearch.dto';
 import { UserUpdateDto } from './dto/userUpdate.dto';
 import { LocationService } from '@src/location/location.service';
-import { UserLocationService } from '@src/userLocation/UserLocation.service';
+import { UserLocationService } from '@userLocation/userLocation.service';
 import { User, UserRepository } from './entities/user.entity';
 import { CustomException } from '@src/base/CustomException';
 import { ErrorMessage } from '@src/constant/ErrorMessage';
@@ -32,7 +32,7 @@ export class UserService {
 
     const { user } = await this.getUserByUserId(userId);
 
-    if (user) {
+    if (user.id) {
       throw new CustomException(
         [ErrorMessage.DUPLICATED_USER_ID],
         HttpStatus.CONFLICT,
@@ -147,12 +147,14 @@ export class UserService {
     const [user] = await this.userRepository.query(
       `
       select u.id, u.user_id as userId, u.name as name,
-            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code)) as locations,
-            if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id)) as wishes
+            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
+            (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
+            from wish w
+            where w.user_id = u.id) as wishes
       from User u
-      left join userlocation ul on u.id = ul.user_id
-      left join wish w on w.user_id = u.id
-      left join location l on l.id = ul.id
+      left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
+                from userlocation ul
+                join location l on ul.location_id = l.id) as l on u.id = l.user_id
       where u.id = ?;
       `,
       [id],
@@ -165,12 +167,14 @@ export class UserService {
     const [user] = await this.userRepository.query(
       `
       select u.id, u.user_id as userId, u.name as name,
-            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code)) as locations,
-            if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id)) as wishes
+            json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
+            (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
+            from wish w
+            where w.user_id = u.id) as wishes
       from User u
-      left join userlocation ul on u.id = ul.user_id
-      left join wish w on w.user_id = u.id
-      left join location l on l.id = ul.id
+      left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
+                from userlocation ul
+                join location l on ul.location_id = l.id) as l on u.id = l.user_id
       where u.user_id = ?;
       `,
       [userId],

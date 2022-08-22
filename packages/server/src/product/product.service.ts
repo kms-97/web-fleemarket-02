@@ -219,8 +219,8 @@ export class ProductService {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
       `
-      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName,
-        seller_id as sellerId, json_arrayagg(w.user_id) as likeUsers
+      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
+        if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
       from Product p
       join location l on p.location_id = l.id
       left join wish w on w.product_id = p.id
@@ -236,8 +236,8 @@ export class ProductService {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
       `
-      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName,
-        seller_id as sellerId, json_arrayagg(w.user_id) as likeUsers
+      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
+        if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
       from Product p
       join location l on p.location_id = l.id
       left join wish w on w.product_id = p.id
@@ -253,8 +253,8 @@ export class ProductService {
     const offset = (page - 1) * DEFAULT_LIMIT;
     return this.productRepository.query(
       `
-      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName,
-        seller_id as sellerId, json_arrayagg(w.user_id) as likeUsers
+      select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
+        if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
       from Product p
       join location l on p.location_id = l.id
       left join wish w on w.product_id = p.id

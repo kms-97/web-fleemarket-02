@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserLocation } from './entites/UserLocation.entity';
-import { UserLocationService } from './UserLocation.service';
+import { UserLocation } from './entites/userLocation.entity';
+import { UserLocationService } from './userLocation.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserLocation])],

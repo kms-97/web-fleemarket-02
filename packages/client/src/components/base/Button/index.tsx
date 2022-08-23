@@ -28,6 +28,7 @@ const StyledButton = styled.button<ButtonProps>`
 
   border-radius: 8px;
 
+  transition: background-color 0.2s;
   box-sizing: border-box;
   cursor: pointer;
 

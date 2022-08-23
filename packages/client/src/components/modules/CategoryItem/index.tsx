@@ -11,8 +11,12 @@ interface Props {
 const CategoryItem = ({ category, onClick }: Props) => {
   const { name, img } = category;
 
+  const onClickCategoryItem = () => {
+    onClick(name);
+  };
+
   return (
-    <StyledButton onClick={() => onClick(name)}>
+    <StyledButton onClick={onClickCategoryItem}>
       <Image size="sm" src={img} />
       <Text size="sm">{name}</Text>
     </StyledButton>

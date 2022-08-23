@@ -2,10 +2,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import styled from "@emotion/styled";
+import CategoryItem from "@components/modules/CategoryItem";
 import Header from "@components/modules/Header";
 import Text from "@base/Text";
-import CategoryItem from "@components/modules/CategoryItem";
-import Image from "@base/Image";
 
 const categories = [
   { name: "디지털기기", img: "empty.jpg" },

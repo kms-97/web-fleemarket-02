@@ -28,6 +28,13 @@ const GlobalStyle = ({ theme }: Props) => {
           margin: 0;
         }
 
+        #root {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
         * {
           box-sizing: border-box;
         }

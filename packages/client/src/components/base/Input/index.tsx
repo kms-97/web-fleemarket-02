@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import styled from "@emotion/styled";
 
 interface InputProps {
@@ -6,8 +6,8 @@ interface InputProps {
 }
 interface Props extends React.InputHTMLAttributes<HTMLInputElement>, InputProps {}
 
-const Input: React.FC<Props> = ({ iSize = "md", ...props }) => {
-  return <StyledInput iSize={iSize} {...props} />;
+const Input = ({ iSize = "md", ...props }: Props, ref: React.ForwardedRef<HTMLInputElement>) => {
+  return <StyledInput iSize={iSize} ref={ref} {...props} />;
 };
 
 const StyledInput = styled.input<InputProps>`
@@ -29,4 +29,4 @@ const StyledInput = styled.input<InputProps>`
   border-radius: 8px;
 `;
 
-export default Input;
+export default forwardRef(Input);

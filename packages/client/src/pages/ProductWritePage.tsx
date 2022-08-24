@@ -9,6 +9,7 @@ import Input from "@base/Input";
 import RButton from "@base/Button/RButton";
 import MapPinIcon from "@icons/MapPinIcon";
 import { usePriceInput } from "@src/hooks/usePriceInput";
+import { useImageInput } from "@src/hooks/useImageInput";
 
 const categories = [
   { name: "디지털기기", img: "empty.jpg" },
@@ -27,8 +28,11 @@ const categories = [
   { name: "기타 중고물품", img: "empty.jpg" },
 ];
 
+const MAX_IMAGE_LIMIT = 10;
+
 const ProductWritePage = () => {
   const { price, priceString, setPriceString } = usePriceInput("");
+  const { images, addImages, deleteImage } = useImageInput(MAX_IMAGE_LIMIT);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -38,8 +42,21 @@ const ProductWritePage = () => {
     checkValidate();
   }, [selectedCategory]);
 
-  const onClickSubmitButton = () => {
+  const onClickSubmitButton: React.FormEventHandler = (e) => {
+    e.preventDefault();
     console.log("");
+  };
+
+  const onChangeImageInput: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    addImages(files);
+  };
+
+  const onClickCategoryBtn: React.MouseEventHandler<HTMLInputElement> = (e) => {
+    const value = e.currentTarget.value;
+    setSelectedCategory(value);
   };
 
   const checkValidate = () => {
@@ -48,11 +65,6 @@ const ProductWritePage = () => {
 
     if (title && selectedCategory && description) setIsValid(true);
     else setIsValid(false);
-  };
-
-  const onClickCategoryBtn: React.MouseEventHandler<HTMLInputElement> = (e) => {
-    const value = e.currentTarget.value;
-    setSelectedCategory(value);
   };
 
   const CategoryNotice = () => {
@@ -65,11 +77,22 @@ const ProductWritePage = () => {
     );
   };
 
+  const SelectedImages = () => {
+    return (
+      <>
+        {images.map((image, idx) => (
+          <ImageButton type="delete" src={image} onClick={() => deleteImage(idx)} key={idx} />
+        ))}
+      </>
+    );
+  };
+
   return (
     <Container>
       <Header>
         <Text>글쓰기</Text>
         <FloatButton
+          type="submit"
           fixedPos="right"
           onClick={onClickSubmitButton}
           disabled={isValid ? false : true}
@@ -80,10 +103,15 @@ const ProductWritePage = () => {
       <Body>
         <ImageSection>
           <ImageInputLabel>
-            <input type="file" accept="image/png, image/jpeg" multiple />
-            <ImageButton type="add" count={1} />
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              multiple
+              onChange={onChangeImageInput}
+            />
+            <ImageButton type="add" count={images.length} />
           </ImageInputLabel>
-          <ImageButton type="delete" src="empty.jpg" />
+          <SelectedImages />
         </ImageSection>
         <TitleSection>
           <Input iSize="lg" placeholder="글 제목" ref={titleRef} onBlur={checkValidate} />

@@ -1,15 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import Header from "@components/modules/Header";
 import Text from "@base/Text";
-import FloatButton from "@components/modules/FloatButton";
-import CheckIcon from "@icons/CheckIcon";
-import ImageButton from "@base/Image/ImageButton";
 import Input from "@base/Input";
 import MapPinIcon from "@icons/MapPinIcon";
 import { usePriceInput } from "@src/hooks/usePriceInput";
 import { useImageInput } from "@src/hooks/useImageInput";
 import ProductWriteTitle from "@components/modules/ProductWriteTitle";
+import ProductWriteImage from "@components/modules/ProductWriteImage";
+import ProductWriteHeader from "@components/modules/ProductWriteHeader";
 
 const categories = [
   { name: "디지털기기", img: "empty.jpg" },
@@ -68,42 +66,15 @@ const ProductWritePage = () => {
     else setIsValid(false);
   };
 
-  const SelectedImages = () => {
-    return (
-      <>
-        {images.map((image, idx) => (
-          <ImageButton type="delete" src={image} onClick={() => deleteImage(idx)} key={idx} />
-        ))}
-      </>
-    );
-  };
-
   return (
     <Container>
-      <Header>
-        <Text>글쓰기</Text>
-        <FloatButton
-          type="submit"
-          fixedPos="right"
-          onClick={onClickSubmitButton}
-          disabled={isValid ? false : true}
-        >
-          <CheckIcon />
-        </FloatButton>
-      </Header>
+      <ProductWriteHeader isValid={isValid} onClick={onClickSubmitButton} />
       <Body>
-        <ImageSection>
-          <ImageInputLabel>
-            <input
-              type="file"
-              accept="image/png, image/jpeg"
-              multiple
-              onChange={onChangeImageInput}
-            />
-            <ImageButton type="add" count={images.length} />
-          </ImageInputLabel>
-          <SelectedImages />
-        </ImageSection>
+        <ProductWriteImage
+          images={images}
+          deleteImage={deleteImage}
+          onChange={onChangeImageInput}
+        />
         <ProductWriteTitle
           categories={categories}
           selectedCategory={selectedCategory}
@@ -166,29 +137,10 @@ const Body = styled.section`
   padding: 0 16px;
 `;
 
-const StyledSection = styled.section`
+const PriceSection = styled.section`
   padding: 24px 0;
   border-bottom: 1px solid ${({ theme }) => theme.COLOR.GRAY3};
-`;
 
-const ImageSection = styled(StyledSection)`
-  display: flex;
-  flex-direction: row;
-  column-gap: 16px;
-  overflow: auto;
-
-  > * {
-    flex-shrink: 0;
-  }
-`;
-
-const ImageInputLabel = styled.label`
-  > input {
-    display: none;
-  }
-`;
-
-const PriceSection = styled(StyledSection)`
   > input {
     border: solid 1px transparent;
     padding: 0;

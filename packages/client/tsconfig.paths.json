@@ -13,6 +13,7 @@
       "@modals/*": ["src/components/modals/*"],
       "@constants/*": ["src/constants/*"],
       "@components/*": ["src/components/*"],
+      "types/*": ["src/types/*"],
       "@src/*": ["src/*"]
     }
   },

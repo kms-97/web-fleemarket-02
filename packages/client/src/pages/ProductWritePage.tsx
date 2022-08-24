@@ -40,7 +40,7 @@ const ProductWritePage = () => {
 
   useEffect(() => {
     checkValidate();
-  }, [selectedCategory]);
+  }, [selectedCategory, images]);
 
   const onClickSubmitButton: React.FormEventHandler = (e) => {
     e.preventDefault();
@@ -62,8 +62,9 @@ const ProductWritePage = () => {
   const checkValidate = () => {
     const title = titleRef.current?.value;
     const description = descriptionRef.current?.value;
+    const imageCount = images.length;
 
-    if (title && selectedCategory && description) setIsValid(true);
+    if (title && selectedCategory && description && imageCount) setIsValid(true);
     else setIsValid(false);
   };
 

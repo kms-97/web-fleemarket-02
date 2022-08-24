@@ -55,6 +55,16 @@ const ProductWritePage = () => {
     setSelectedCategory(value);
   };
 
+  const CategoryNotice = () => {
+    return selectedCategory ? (
+      <></>
+    ) : (
+      <Text fColor="GRAY2" size="sm">
+        {"(필수) 카테고리를 선택해주세요"}
+      </Text>
+    );
+  };
+
   return (
     <Container>
       <Header>
@@ -77,13 +87,7 @@ const ProductWritePage = () => {
         </ImageSection>
         <TitleSection>
           <Input iSize="lg" placeholder="글 제목" ref={titleRef} onBlur={checkValidate} />
-          {selectedCategory ? (
-            ""
-          ) : (
-            <Text fColor="GRAY2" size="sm">
-              {"(필수) 카테고리를 선택해주세요"}
-            </Text>
-          )}
+          <CategoryNotice />
           <CategoryList>
             {categories.map(({ name }) => (
               <RButton name="category" value={name} key={name} onClick={onClickCategoryBtn} />

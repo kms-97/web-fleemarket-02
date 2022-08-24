@@ -4,6 +4,8 @@ import Template from "@components/template";
 import CoverPage from "./pages/CoverPage";
 import LoginPage from "./pages/LoginPage";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import SignUpPage from "./pages/SignUpPage";
+import SigninUpLoPage from "@pages/SigninUpLoPage";
 
 const App = () => {
   const location = useLocation();
@@ -19,9 +21,12 @@ const App = () => {
           <Routes location={location}>
             <Route path="/" element={<CoverPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/signup/location" element={<SigninUpLoPage />} />
           </Routes>
         </CSSTransition>
       </TransitionGroup>
+      <div id="modal" />
     </Template>
   );
 };

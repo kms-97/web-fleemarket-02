@@ -4,12 +4,13 @@ import styled from "@emotion/styled";
 interface Props {
   name: string;
   value: string;
+  onClick: React.MouseEventHandler<HTMLInputElement>;
 }
 
-const Radio: React.FC<Props> = ({ name, value }) => {
+const Radio: React.FC<Props> = ({ name, value, onClick }) => {
   return (
     <>
-      <Input type="radio" id={value} value={value} name={name} />
+      <Input type="radio" id={value} value={value} name={name} onClick={onClick} />
       <Label htmlFor={value}>{value}</Label>
     </>
   );

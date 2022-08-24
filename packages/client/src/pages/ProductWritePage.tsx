@@ -102,7 +102,11 @@ const ProductWritePage = () => {
             onChange={({ target: { value } }) => setPriceString(value)}
           />
         </PriceSection>
-        <StyledTextArea placeholder="게시글 내용을 작성해주세요" ref={descriptionRef} />
+        <StyledTextArea
+          placeholder="게시글 내용을 작성해주세요"
+          ref={descriptionRef}
+          onBlur={checkValidate}
+        />
       </Body>
       <Footer>
         <MapPinIcon />

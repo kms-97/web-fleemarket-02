@@ -1,32 +1,44 @@
-import React, { useCallback, useRef } from "react";
-import Button from "@base/Button";
-import Input from "@base/Input";
-import styled from "@emotion/styled";
-import Text from "@base/Text";
+import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import styled from "@emotion/styled";
+
+import Button from "@base/Button";
+import Text from "@base/Text";
+import { useInput } from "@src/hooks/useInput";
+import GithubLoginButton from "@modules/GithubLoginButton";
+import InputBox from "../InputBox";
 
 const LoginForm = () => {
   const navigation = useNavigate();
-  const idRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const [userId, onChangeUserId] = useInput();
+  const [password, onChangePassword] = useInput();
 
-  const onSubmit: React.FormEventHandler = useCallback(
-    (e) => {
-      e.preventDefault();
-    },
-    [idRef, passwordRef],
-  );
+  const onSubmit: React.FormEventHandler = useCallback((e) => {
+    e.preventDefault();
+  }, []);
 
-  const moveToSignupPape = () => {
+  const moveToSignUpPage = () => {
     navigation("/signup");
   };
 
   return (
     <Container onSubmit={onSubmit}>
-      <Input iSize="lg" ref={idRef} placeholder="아이디를 입력하세요." />
-      <Input iSize="lg" ref={passwordRef} placeholder="비밀번호를를 입력하세요." type="password" />
+      <InputBox
+        value={userId}
+        onChange={onChangeUserId}
+        iSize="lg"
+        placeholder="아이디를 입력하세요."
+      />
+      <InputBox
+        value={password}
+        onChange={onChangePassword}
+        iSize="lg"
+        placeholder="비밀번호를 입력하세요."
+      />
+
       <Button size="lg">로그인</Button>
-      <Text size="lg" isBold={true} onClick={moveToSignupPape}>
+      <GithubLoginButton />
+      <Text size="lg" isBold={true} onClick={moveToSignUpPage}>
         회원가입
       </Text>
     </Container>
@@ -44,6 +56,10 @@ const Container = styled.form`
   justify-content: flex-start;
 
   row-gap: 24px;
+
+  & > p:last-child {
+    cursor: pointer;
+  }
 `;
 
 export default LoginForm;

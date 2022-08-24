@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 interface InputProps {
   iSize?: "lg" | "md";
 }
-interface Props extends React.InputHTMLAttributes<HTMLInputElement>, InputProps {}
+export interface Props extends React.InputHTMLAttributes<HTMLInputElement>, InputProps {}
 
 const Input = ({ iSize = "md", ...props }: Props, ref: React.ForwardedRef<HTMLInputElement>) => {
   return <StyledInput iSize={iSize} ref={ref} {...props} />;

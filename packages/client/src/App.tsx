@@ -4,11 +4,12 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import SigninUpLoPage from "@pages/SigninUpLoPage";
 import Template from "@components/template";
+import ProductWritePage from "./pages/ProductWritePage";
+import CategroyPage from "./pages/CategoryPage";
 import CoverPage from "./pages/CoverPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import MainPage from "./pages/MainPage";
-import CategroyPage from "./pages/CategoryPage";
 
 const App = () => {
   const location = useLocation();
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/signup/location" element={<SigninUpLoPage />} />
             <Route path="/main" element={<MainPage />} />
             <Route path="/category" element={<CategroyPage />} />
+            <Route path="/product/write" element={<ProductWritePage />} />
           </Routes>
         </CSSTransition>
       </TransitionGroup>

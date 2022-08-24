@@ -3,12 +3,11 @@ import styled from "@emotion/styled";
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
-  onClick: () => void;
   fixedPos?: "left" | "right";
 }
 
-const FloatButton = ({ fixedPos = "left", onClick, children, ...props }: Props) => (
-  <StyleFloatButton {...props} fixedPos={fixedPos} onClick={onClick}>
+const FloatButton = ({ fixedPos = "left", children, type = "button", ...props }: Props) => (
+  <StyleFloatButton {...props} fixedPos={fixedPos} type={type}>
     {children}
   </StyleFloatButton>
 );

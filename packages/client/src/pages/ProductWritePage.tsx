@@ -27,6 +27,8 @@ const categories = [
 ];
 
 const ProductWritePage = () => {
+  const { price, priceString, setPriceString } = usePriceInput("");
+
   const onClickSubmitButton = () => {
     console.log("");
   };
@@ -59,7 +61,12 @@ const ProductWritePage = () => {
           </CategoryList>
         </TitleSection>
         <PriceSection>
-          <Input iSize="lg" placeholder="가격(선택 사항)" />
+          <Input
+            iSize="lg"
+            placeholder="가격(선택 사항)"
+            value={priceString}
+            onChange={({ target: { value } }) => setPriceString(value)}
+          />
         </PriceSection>
         <StyledTextArea placeholder="게시글 내용을 작성해주세요" />
       </Body>

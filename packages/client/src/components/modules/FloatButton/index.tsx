@@ -1,5 +1,5 @@
-import styled from "@emotion/styled";
 import React from "react";
+import styled from "@emotion/styled";
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
@@ -20,6 +20,10 @@ const StyleFloatButton = styled.button<{ fixedPos?: "left" | "right" }>`
 
   & path {
     transition: stroke 0.2s;
+  }
+
+  &:disabled & path {
+    stroke: ${({ theme }) => theme.COLOR.GRAY1};
   }
 `;
 

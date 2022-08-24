@@ -72,4 +72,10 @@ export const reset = css`
   button {
     cursor: pointer;
   }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;

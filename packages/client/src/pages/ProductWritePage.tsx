@@ -6,10 +6,10 @@ import FloatButton from "@components/modules/FloatButton";
 import CheckIcon from "@icons/CheckIcon";
 import ImageButton from "@base/Image/ImageButton";
 import Input from "@base/Input";
-import RButton from "@base/Button/RButton";
 import MapPinIcon from "@icons/MapPinIcon";
 import { usePriceInput } from "@src/hooks/usePriceInput";
 import { useImageInput } from "@src/hooks/useImageInput";
+import ProductWriteTitle from "@components/modules/ProductWriteTitle";
 
 const categories = [
   { name: "디지털기기", img: "empty.jpg" },
@@ -68,16 +68,6 @@ const ProductWritePage = () => {
     else setIsValid(false);
   };
 
-  const CategoryNotice = () => {
-    return selectedCategory ? (
-      <></>
-    ) : (
-      <Text fColor="GRAY2" size="sm">
-        {"(필수) 카테고리를 선택해주세요"}
-      </Text>
-    );
-  };
-
   const SelectedImages = () => {
     return (
       <>
@@ -114,15 +104,12 @@ const ProductWritePage = () => {
           </ImageInputLabel>
           <SelectedImages />
         </ImageSection>
-        <TitleSection>
-          <Input iSize="lg" placeholder="글 제목" ref={titleRef} onBlur={checkValidate} />
-          <CategoryNotice />
-          <CategoryList>
-            {categories.map(({ name }) => (
-              <RButton name="category" value={name} key={name} onClick={onClickCategoryBtn} />
-            ))}
-          </CategoryList>
-        </TitleSection>
+        <ProductWriteTitle
+          categories={categories}
+          selectedCategory={selectedCategory}
+          checkValidate={checkValidate}
+          onClickCategoryBtn={onClickCategoryBtn}
+        />
         <PriceSection>
           <Input
             iSize="lg"
@@ -197,32 +184,6 @@ const ImageSection = styled(StyledSection)`
 const ImageInputLabel = styled.label`
   > input {
     display: none;
-  }
-`;
-
-const TitleSection = styled(StyledSection)`
-  display: flex;
-  flex-direction: column;
-  row-gap: 8px;
-  align-items: flex-start;
-
-  > input {
-    border: solid 1px transparent;
-    padding: 0;
-  }
-`;
-
-const CategoryList = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  column-gap: 4px;
-  overflow: auto;
-
-  label {
-    width: 120px;
-    font-size: 14px;
-    flex-shrink: 0;
   }
 `;
 

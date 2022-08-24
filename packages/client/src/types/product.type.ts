@@ -1,4 +1,5 @@
 import { ICategory } from "./category.type";
+import { ICoreResponse } from "./core.type";
 import { ILocation } from "./location.type";
 import { IUser } from "./user.type";
 
@@ -23,13 +24,12 @@ interface IProductItem
     IProduct,
     "id" | "title" | "imgUrl" | "price" | "likeUsers" | "chatCount" | "createdAt"
   > {
-  location: string;
-  seller: number;
-  category: string;
+  sellerId: number;
+  locationName: string;
+  categoryName: string;
 }
 
-interface IRequestProduct
-  extends Pick<IProduct, "id" | "title" | "description" | "imgUrl" | "price"> {
+interface IRequestProduct extends Pick<IProduct, "title" | "description" | "imgUrl" | "price"> {
   locationId: number;
   sellerId: number;
   categoryName: string;
@@ -39,4 +39,29 @@ interface IUpdateProductStatus {
   status: "판매중" | "예약중" | "거래완료";
 }
 
-export type { IProduct, IProductItem, IRequestProduct, IUpdateProductStatus };
+interface IResGetProduct extends ICoreResponse {
+  product: IProduct;
+}
+
+interface IResUpdateProduct extends ICoreResponse {
+  productId: IProduct;
+}
+
+interface IResGetProducts extends ICoreResponse {
+  products: IProductItem[];
+}
+
+interface IResAddImage extends ICoreResponse {
+  imgUrls: string[];
+}
+
+export type {
+  IProduct,
+  IProductItem,
+  IRequestProduct,
+  IUpdateProductStatus,
+  IResGetProducts,
+  IResGetProduct,
+  IResUpdateProduct,
+  IResAddImage,
+};

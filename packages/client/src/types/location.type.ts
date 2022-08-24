@@ -1,3 +1,5 @@
+import { ICoreResponse } from "./core.type";
+
 interface ILocation {
   id: string;
   sido: string;
@@ -15,4 +17,11 @@ interface IAddUserLocation extends Pick<IUserLocation, "isActive"> {
   locationId: number;
 }
 
-export type { ILocation, IUserLocation, IAddUserLocation };
+interface IResLocation extends ICoreResponse {
+  location: ILocation;
+}
+interface IResLocations extends ICoreResponse {
+  locations: ILocation[];
+}
+
+export type { ILocation, IUserLocation, IAddUserLocation, IResLocation, IResLocations };

@@ -14,7 +14,7 @@ const Fab = ({ ...props }: Props) => {
 };
 
 const StyledButton = styled(Button)`
-  position: fixed;
+  position: absolute;
   bottom: 10px;
   right: 10px;
   z-index: 1;

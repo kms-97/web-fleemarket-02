@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import Header from "@components/modules/Header";
 import Text from "@base/Text";
@@ -8,6 +8,7 @@ import ImageButton from "@base/Image/ImageButton";
 import Input from "@base/Input";
 import RButton from "@base/Button/RButton";
 import MapPinIcon from "@icons/MapPinIcon";
+import { usePriceInput } from "@src/hooks/usePriceInput";
 
 const categories = [
   { name: "디지털기기", img: "empty.jpg" },
@@ -28,16 +29,41 @@ const categories = [
 
 const ProductWritePage = () => {
   const { price, priceString, setPriceString } = usePriceInput("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [isValid, setIsValid] = useState<boolean>(false);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    checkValidate();
+  }, [selectedCategory]);
 
   const onClickSubmitButton = () => {
     console.log("");
+  };
+
+  const checkValidate = () => {
+    const title = titleRef.current?.value;
+    const description = descriptionRef.current?.value;
+
+    if (title && selectedCategory && description) setIsValid(true);
+    else setIsValid(false);
+  };
+
+  const onClickCategoryBtn: React.MouseEventHandler<HTMLInputElement> = (e) => {
+    const value = e.currentTarget.value;
+    setSelectedCategory(value);
   };
 
   return (
     <Container>
       <Header>
         <Text>글쓰기</Text>
-        <FloatButton fixedPos="right" onClick={onClickSubmitButton} disabled>
+        <FloatButton
+          fixedPos="right"
+          onClick={onClickSubmitButton}
+          disabled={isValid ? false : true}
+        >
           <CheckIcon />
         </FloatButton>
       </Header>
@@ -50,13 +76,17 @@ const ProductWritePage = () => {
           <ImageButton type="delete" src="empty.jpg" />
         </ImageSection>
         <TitleSection>
-          <Input iSize="lg" placeholder="글 제목" />
-          <Text fColor="GRAY2" size="sm">
-            {"(필수) 카테고리를 선택해주세요"}
-          </Text>
+          <Input iSize="lg" placeholder="글 제목" ref={titleRef} onBlur={checkValidate} />
+          {selectedCategory ? (
+            ""
+          ) : (
+            <Text fColor="GRAY2" size="sm">
+              {"(필수) 카테고리를 선택해주세요"}
+            </Text>
+          )}
           <CategoryList>
             {categories.map(({ name }) => (
-              <RButton name="category" value={name} key={name} />
+              <RButton name="category" value={name} key={name} onClick={onClickCategoryBtn} />
             ))}
           </CategoryList>
         </TitleSection>
@@ -68,7 +98,7 @@ const ProductWritePage = () => {
             onChange={({ target: { value } }) => setPriceString(value)}
           />
         </PriceSection>
-        <StyledTextArea placeholder="게시글 내용을 작성해주세요" />
+        <StyledTextArea placeholder="게시글 내용을 작성해주세요" ref={descriptionRef} />
       </Body>
       <Footer>
         <MapPinIcon />
@@ -88,9 +118,12 @@ const Container = styled.form`
 
   > header {
     button {
-      stroke: ${({ theme }) => theme.COLOR.PRIMARY1};
+      svg path {
+        stroke: ${({ theme }) => theme.COLOR.PRIMARY1};
+      }
 
       &:disabled {
+        cursor: default;
         svg path {
           stroke: ${({ theme }) => theme.COLOR.GRAY3};
         }

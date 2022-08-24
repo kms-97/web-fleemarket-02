@@ -109,6 +109,7 @@ const ProductWritePage = () => {
           selectedCategory={selectedCategory}
           checkValidate={checkValidate}
           onClickCategoryBtn={onClickCategoryBtn}
+          ref={titleRef}
         />
         <PriceSection>
           <Input

@@ -7,10 +7,12 @@ export const request = async <T extends ICoreResponse>(
 ): Promise<T> => {
   try {
     const response = await fetch(`${BASE_URL}${url}`, {
+      ...options,
+      credentials: "include",
+
       headers: {
         "Content-Type": "application/json",
       },
-      ...options,
     });
 
     const result = (await response.json()) as T;

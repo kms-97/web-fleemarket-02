@@ -1,7 +1,7 @@
 import { ICoreResponse } from "./core.type";
 
 interface ILocation {
-  id: string;
+  id: number;
   sido: string;
   gungu: string;
   dong: string;
@@ -9,7 +9,7 @@ interface ILocation {
 }
 
 interface IUserLocation extends Pick<ILocation, "id" | "dong" | "code"> {
-  isActive: number;
+  isActive: number | boolean;
 }
 
 interface IAddUserLocation extends Pick<IUserLocation, "isActive"> {

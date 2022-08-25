@@ -9,6 +9,7 @@ export interface CacheOption<T> {
   cacheExpiredTime?: number;
   cacheClear?: boolean;
   isCacheSave?: boolean;
+  overrideCache?: boolean;
   onError?: (error: string) => void;
   onSuccess?: (data: T) => void;
 }
@@ -24,9 +25,11 @@ interface ICacheState {
 interface ICacheAction {
   init: (key: string) => void;
   clear: () => void;
-  set: <T>(key: string, data: T, time: number) => void;
+  set: <T>(key: string, data: T | T[], options: CacheOption<T>) => void;
   get: <T>(key: string) => T | null;
   subscribe: (key: string, notify: () => void) => void;
+  unsubscribe: (key: string, notify: () => void) => void;
+  notify: (keys: string[]) => void;
 }
 
 export const CacheContext = createContext({});
@@ -34,7 +37,7 @@ export const CacheActionContext = createContext<ICacheAction>({
   clear: () => {
     return;
   },
-  set: (key, data, time) => {
+  set: (key, data, options) => {
     return;
   },
   get: (key) => {
@@ -43,7 +46,13 @@ export const CacheActionContext = createContext<ICacheAction>({
   subscribe: (key, notify) => {
     return;
   },
+  unsubscribe: (key, notify) => {
+    return;
+  },
   init: (key) => {
+    return;
+  },
+  notify: (keys) => {
     return;
   },
 });
@@ -59,11 +68,17 @@ export const CacheProvider = ({ children }: Props) => {
       clear: () => {
         storeRef.current = {};
       },
-      set: (key, data, expiredTime) => {
+      set: (key, data, options) => {
         const currentTime = new Date().getTime();
+        const { overrideCache, cacheExpiredTime } = options;
+        const prevCacheData = storeRef.current[key].data;
+
+        if (overrideCache && Array.isArray(prevCacheData) && Array.isArray(data)) {
+          storeRef.current[key].data = [...prevCacheData, ...data];
+        }
 
         storeRef.current[key].data = data;
-        storeRef.current[key].expiredTime = currentTime + expiredTime;
+        storeRef.current[key].expiredTime = currentTime + (cacheExpiredTime ?? 30000);
         storeRef.current[key].observer?.forEach((notify) => notify());
       },
       get: (key) => {
@@ -97,6 +112,12 @@ export const CacheProvider = ({ children }: Props) => {
         }
 
         storeRef.current[key].observer?.add(notify);
+      },
+      unsubscribe: (key, notify) => {
+        storeRef.current[key].observer?.delete(notify);
+      },
+      notify: (keys) => {
+        keys.forEach((key) => storeRef.current[key].observer?.forEach((ntf) => ntf()));
       },
     }),
     [],

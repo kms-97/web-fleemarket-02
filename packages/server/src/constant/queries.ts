@@ -54,10 +54,10 @@ const PRODUCT_QUERY = {
           json_object('id', u.id, 'userId', u.user_id, 'name', u.name) as seller,
           if(count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
     from Product p
-    join location l on p.location_id = l.id
-    join user u on u.id = p.seller_id
-    join category c on c.name = p.category_name
-    left join wish w on w.product_id = p.id
+    join Location l on p.location_id = l.id
+    join User u on u.id = p.seller_id
+    join Category c on c.name = p.category_name
+    left join Wish w on w.product_id = p.id
     where p.id = ?;
     `,
   INSERT_PRODUCT: `
@@ -65,24 +65,24 @@ const PRODUCT_QUERY = {
     values (?, ?, ?, ?, ?, ?, ?)
     `,
   UPDATE_PRODUCT: `
-    update product
+    update Product
     set title = ?, description = ?, price = ?, imgUrl = ?, location_id = ?, seller_id = ?, category_name = ?
     where id = ?
     `,
   UPDATE_PRODUCT_STATUS: `
-    update product
+    update Product
     set status = ?
     where id = ?
     `,
   DELETE_PRODUCT: `
-    delete from product where id = ?
+    delete from Product where id = ?
     `,
   FIND_PRODUCT_BY_CATEGORY: `
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
       if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
     from Product p
-    join location l on p.location_id = l.id
-    left join wish w on w.product_id = p.id
+    join Location l on p.location_id = l.id
+    left join Wish w on w.product_id = p.id
     where p.category_name = ? and p.location_id = ?
     group by p.id
     limit ?, ?;
@@ -91,8 +91,8 @@ const PRODUCT_QUERY = {
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
       if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
     from Product p
-    join location l on p.location_id = l.id
-    left join wish w on w.product_id = p.id
+    join Location l on p.location_id = l.id
+    left join Wish w on w.product_id = p.id
     where p.location_id = ?
     group by p.id
     limit ?, ?;
@@ -101,13 +101,13 @@ const PRODUCT_QUERY = {
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
       if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
     from Product p
-    join location l on p.location_id = l.id
-    left join wish w on w.product_id = p.id
+    join Location l on p.location_id = l.id
+    left join Wish w on w.product_id = p.id
     where p.seller_id = ?
     group by p.id
     limit ?, ?;
     `,
-  GET_PRODUCT_BY_ID: `select * from product where id = ?`,
+  GET_PRODUCT_BY_ID: `select * from Product where id = ?`,
 };
 
 const USER_QUERY = {
@@ -119,24 +119,24 @@ const USER_QUERY = {
     select u.id, u.user_id as userId, u.name as name,
           json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
           (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
-          from wish w
+          from Wish w
           where w.user_id = u.id) as wishes
     from User u
     left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
-              from userlocation ul
-              join location l on ul.location_id = l.id) as l on u.id = l.user_id
+              from UserLocation ul
+              join Location l on ul.location_id = l.id) as l on u.id = l.user_id
     where u.id = ?;
     `,
   GET_USER_BY_USER_ID: `
     select u.id, u.user_id as userId, u.name as name,
           json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
           (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
-          from wish w
+          from Wish w
           where w.user_id = u.id) as wishes
     from User u
     left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
-              from userlocation ul
-              join location l on ul.location_id = l.id) as l on u.id = l.user_id
+              from UserLocation ul
+              join Location l on ul.location_id = l.id) as l on u.id = l.user_id
     where u.user_id = ?;
     `,
   GET_USER_BY_GITHUB_EMAIL: `
@@ -144,9 +144,9 @@ const USER_QUERY = {
           json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code)) as locations,
           if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id)) as wishes
     from User u
-    left join userlocation ul on u.id = ul.user_id
-    left join wish w on w.user_id = u.id
-    left join location l on l.id = ul.id
+    left join UserLocation ul on u.id = ul.user_id
+    left join Wish w on w.user_id = u.id
+    left join Location l on l.id = ul.id
     where u.github_email = ?;
     `,
   UPDATE_USER: `
@@ -167,36 +167,36 @@ const USER_QUERY = {
 
 const USER_LOCATION_QUERY = {
   INSERT_U_L: `
-    insert into userlocation (user_id, location_id, is_active)
+    insert into UserLocation (user_id, location_id, is_active)
     values (?, ?, ?);
     `,
   DELETE_U_L: `
-    delete from userlocation
+    delete from UserLocation
     where user_id = ? and location_id = ?;
     `,
   UPDATE_U_L: `
-    update userlocation
+    update UserLocation
     set is_active = true
     where user_id = ? and location_id = ?
     `,
   GET_COUNT_U_L: `
     select count(*) as count
-    from userlocation
+    from UserLocation
     where user_id = ?
     `,
   UPDATE_ALL_U_L_TO_FALSE: `
-    update userlocation
+    update UserLocation
     set is_active = false
     where user_id = ?
     `,
   UPDATE_ALL_U_L_TO_TRUE: `
-    update userlocation
+    update UserLocation
     set is_active = true
     where user_id = ?
     `,
   GET_U_L_BY_UID_LID: `
     select user_id as userId, location_id as locationId
-    from userlocation
+    from UserLocation
     where user_id = ? and location_id = ?;
     `,
 };
@@ -205,23 +205,23 @@ const WISH_QUERY = {
   GET_WISH_BY_UID: `
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName,
       seller_id as sellerId, json_arrayagg(w.user_id) as likeUsers
-    from wish w
-    left join product p on w.product_id = p.id
-    left join location l on p.location_id = l.id
+    from Wish w
+    left join Product p on w.product_id = p.id
+    left join Location l on p.location_id = l.id
     where w.user_id = ?
     group by p.id
     limit ?, ?;
     `,
   INSERT_WISH: `
-    insert into wish (user_id, product_id)
+    insert into Wish (user_id, product_id)
     values (?, ?)
     `,
   DELETE_WISH: `
-    delete from wish where user_id = ? and product_id = ?
+    delete from Wish where user_id = ? and product_id = ?
     `,
   GET_WISH_BY_UID_PID: `
     select user_id as userId, product_id as productId
-    from wish
+    from Wish
     where user_id = ? and product_id = ?
     `,
 };

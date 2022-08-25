@@ -27,9 +27,10 @@ const CATEGORY_QUERY = {
 
 const LOCATION_QUERY = {
   FIND_LOCATION_BY_KEYWORD: `
-    select id, sido, gungu, dong, code from Location l
-    where l.sido like ? or l.gungu like ? or l.dong like ?
-    limit ?, ?
+    select id, sido, gungu, dong, code
+    from (select CONCAT(sido, ' ', gungu, ' ', dong) as name, id, sido, gungu, dong, code from Location ) l
+    where l.name like ? and l.id > ?
+    limit 0, 20
     `,
   FIND_LOCATION_BY_CODE: `
     select id, sido, gungu, dong, code from Location l
@@ -112,8 +113,8 @@ const PRODUCT_QUERY = {
 
 const USER_QUERY = {
   INSERT_USER: `
-    insert into User (user_id, name, password)
-    values (?, ?, ?)
+    insert into User (user_id, name, password, github)
+    values (?, ?, ?, ?)
     `,
   GET_USER_BY_ID: `
     select u.id, u.user_id as userId, u.name as name,

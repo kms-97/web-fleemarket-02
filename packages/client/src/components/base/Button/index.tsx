@@ -23,7 +23,7 @@ const StyledButton = styled.button<ButtonProps>`
   border: 1px solid ${({ theme }) => theme.COLOR.PRIMARY1};
   color: ${({ theme }) => theme.COLOR.WHITE};
 
-  font-size: ${({ size }) => (size === "lg" ? "16px" : "14px")};
+  font-size: ${({ size }) => (size === "lg" ? "18px" : "16px")};
   padding: ${({ size }) => (size === "lg" ? "10px" : "8px")} 16px;
 
   border-radius: 8px;
@@ -36,6 +36,7 @@ const StyledButton = styled.button<ButtonProps>`
     background-color: ${({ theme }) => theme.COLOR.PRIMARY3};
   }
   &:disabled {
+    border: 1px solid ${({ theme }) => theme.COLOR.PRIMARY2};
     background-color: ${({ theme }) => theme.COLOR.PRIMARY2};
   }
   &:focus {

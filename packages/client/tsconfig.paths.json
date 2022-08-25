@@ -3,9 +3,17 @@
     "baseUrl": "./",
     "paths": {
       "@theme/*": ["src/theme/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@utils/*": ["src/utils/*"],
+      "@pages/*": ["src/pages/*"],
+      "@contexts/*": ["src/contexts/*"],
       "@base/*": ["src/components/base/*"],
       "@icons/*": ["src/components/icons/*"],
+      "@modules/*": ["src/components/modules/*"],
+      "@modals/*": ["src/components/modals/*"],
+      "@constants/*": ["src/constants/*"],
       "@components/*": ["src/components/*"],
+      "types/*": ["src/types/*"],
       "@src/*": ["src/*"]
     }
   },

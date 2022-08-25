@@ -13,7 +13,7 @@ const CoverPage = () => {
   };
 
   const moveToSignUpPage = () => {
-    navigation("/login");
+    navigation("/signup");
   };
 
   return (

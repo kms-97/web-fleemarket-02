@@ -10,6 +10,7 @@ const Template = ({ children }: Props) => {
 };
 
 const StyledTemplate = styled.div`
+  position: relative;
   width: 480px;
   height: 844px;
 

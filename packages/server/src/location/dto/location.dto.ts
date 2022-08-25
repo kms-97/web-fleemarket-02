@@ -9,4 +9,8 @@ export class LocationDto extends PaginationDto {
   @IsOptional()
   @IsString()
   keyword?: string;
+
+  @IsOptional()
+  @IsNumberString()
+  lastId?: number;
 }

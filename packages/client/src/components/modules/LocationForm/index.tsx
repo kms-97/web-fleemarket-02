@@ -1,18 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "@emotion/styled";
-import Button from "@base/Button";
 import LButton from "@base/Button/LButton";
 import Text from "@base/Text";
 import { useModal } from "@hooks/useModal";
 import SearchLocationModal from "@modals/SearchLocationModal";
+import { IUserLocation } from "types/location.type";
 
 interface Props {
-  locations: any[];
-  addLocation: any;
-  deleteLocation: any;
+  locations: IUserLocation[];
+  addLocation: (location: IUserLocation) => void;
+  deleteLocation: (locationId: number) => void;
+  activeLocation: (locationId: number) => void;
 }
 
-const LocationForm = ({ locations, deleteLocation, addLocation }: Props) => {
+const LocationForm = ({ locations, deleteLocation, addLocation, activeLocation }: Props) => {
   const [isOpen, openModal, closeModal] = useModal();
 
   return (
@@ -27,7 +28,8 @@ const LocationForm = ({ locations, deleteLocation, addLocation }: Props) => {
             <LButton
               key={location.id}
               location={location}
-              onDelete={() => deleteLocation(location.id)}
+              onDelete={deleteLocation}
+              onClick={() => activeLocation(location.id)}
             />
           ))}
         </LocationList>
@@ -40,7 +42,6 @@ const LocationForm = ({ locations, deleteLocation, addLocation }: Props) => {
 const Container = styled.section`
   flex: 1;
   width: 100%;
-  padding: 24px 15px;
 
   display: flex;
   flex-direction: column;
@@ -48,17 +49,12 @@ const Container = styled.section`
   justify-content: flex-start;
   text-align: center;
   row-gap: 24px;
-
-  & > button:last-child {
-    margin-top: auto;
-  }
 `;
 
 const LocationList = styled.div`
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 
   & > button {

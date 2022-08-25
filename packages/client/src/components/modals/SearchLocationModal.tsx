@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
 import Input from "@base/Input";
-import { DUMMY_LOCATION } from "@src/dummy/location";
 
 import ModalPortal from "./ModalPortal";
 import LeftIcon from "@icons/LeftIcon";
@@ -16,7 +15,6 @@ interface Props {
 
 const SearchLocationModal = ({ onClose, addLocation }: Props) => {
   const [value, onChangeValue] = useInput();
-  const { locations } = DUMMY_LOCATION;
 
   const selectedLocation = (location: any) => {
     const { id, dong, code } = location;
@@ -44,7 +42,7 @@ const SearchLocationModal = ({ onClose, addLocation }: Props) => {
 
         {value && <Text>{`"${value}"`} 검색결과</Text>}
         <SearchedLocations>
-          {locations.map(({ id, sido, gungu, dong }, idx) => (
+          {[].map(({ id, sido, gungu, dong }, idx) => (
             <li key={id + String(idx)} onClick={() => selectedLocation({ id, sido, gungu, dong })}>
               <CloseIcon />
               <Text>{`${sido} ${gungu} ${dong}`}</Text>

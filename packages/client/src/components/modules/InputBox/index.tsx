@@ -82,4 +82,4 @@ const StyledInputBox = styled.section<{ isError: boolean }>`
     `}
 `;
 
-export default memo(InputBox);
+export default InputBox;

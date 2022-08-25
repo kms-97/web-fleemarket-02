@@ -5,12 +5,8 @@ import GithubIcon from "@icons/GithubIcon";
 import { AUTH } from "@constants/auth";
 
 const GithubLoginButton = () => {
-  const onClick = () => {
-    window.location.href = AUTH.GITHUB_LOGIN;
-  };
-
   return (
-    <StyledButton onClick={onClick}>
+    <StyledButton href={AUTH.GITHUB_LOGIN}>
       <Text size="lg" isBold={true} fColor="WHITE">
         깃허브로 로그인
       </Text>
@@ -19,7 +15,7 @@ const GithubLoginButton = () => {
   );
 };
 
-const StyledButton = styled.button`
+const StyledButton = styled.a`
   width: 100%;
 
   display: flex;

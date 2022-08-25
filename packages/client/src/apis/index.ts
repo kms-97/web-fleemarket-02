@@ -21,7 +21,7 @@ export const request = async <T extends ICoreResponse>(
       if (typeof message === "string") {
         throw new Error(message);
       } else {
-        throw new Error(message?.[0]);
+        throw new Error(message?.[0] ?? "");
       }
     }
 

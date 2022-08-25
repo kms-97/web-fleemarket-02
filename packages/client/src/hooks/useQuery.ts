@@ -1,12 +1,13 @@
 import { FETCH_FAILURE, FETCH_REQUEST, FETCH_SUCCESS } from "@constants/actions";
 import { CacheOption, useCacheActionContext } from "@contexts/CacheContext";
-import { fetchReducer, initialState } from "@src/reducers/fetchReducer";
+import { fetchReducer, IFetchInitialState, initialState } from "@src/reducers/fetchReducer";
 import { useCallback, useEffect, useReducer, useState } from "react";
 
 const initialQueryOptions: CacheOption<any> = {
   cacheExpiredTime: 30000,
   cacheClear: false,
   isCacheSave: true,
+  overrideCache: false,
   onError: (error: string) => error,
   onSuccess: (data: any) => data,
 };
@@ -19,13 +20,13 @@ export const useQuery = <T>(
   const [notify, setNotify] = useState<number>(NaN);
   const [state, dispatch] = useReducer(fetchReducer, initialState);
 
-  const { onError, onSuccess, cacheClear, cacheExpiredTime, isCacheSave } = {
+  const { onError, onSuccess, cacheClear, isCacheSave, ..._options } = {
     ...initialQueryOptions,
     ...options,
   };
-  const { clear, set, get, subscribe, init } = useCacheActionContext();
+  const { clear, set, get, subscribe, unsubscribe, init } = useCacheActionContext();
 
-  const { data, error, loading } = state;
+  const { data, error, loading } = state as IFetchInitialState<T>;
 
   const refetch = async () => {
     dispatch({ type: FETCH_REQUEST });
@@ -34,7 +35,7 @@ export const useQuery = <T>(
       const result = await callback();
 
       if (isCacheSave) {
-        set<T>(key, result, cacheExpiredTime ?? 30000);
+        set<T>(key, result, _options);
       }
 
       onSuccess?.(result);
@@ -51,10 +52,11 @@ export const useQuery = <T>(
 
   useEffect(() => {
     init(key);
-    subscribe(key, onNotify);
   }, []);
 
   useEffect(() => {
+    subscribe(key, onNotify);
+
     const fetchCallback = async () => {
       if (cacheClear) {
         clear();
@@ -74,7 +76,7 @@ export const useQuery = <T>(
         const result = await callback();
 
         if (isCacheSave) {
-          set<T>(key, result, cacheExpiredTime ?? 30000);
+          set<T>(key, result, _options);
         }
 
         onSuccess?.(result);
@@ -86,6 +88,10 @@ export const useQuery = <T>(
     };
 
     fetchCallback();
+
+    return () => {
+      unsubscribe(key, onNotify);
+    };
   }, [notify]);
 
   return { data, error, loading, refetch };

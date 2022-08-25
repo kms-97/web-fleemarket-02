@@ -5,13 +5,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filter/HttpException.filter';
 import { TransformInterceptor } from './interceptor/transform.interceptor';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: '*',
-      credentials: true,
-    },
+  const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
+  app.enableCors({
+    origin: configService.get<string>('HOST'),
+    credentials: true,
   });
 
   app.use(cookieParser());

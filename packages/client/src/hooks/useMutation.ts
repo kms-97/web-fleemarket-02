@@ -1,10 +1,11 @@
 import { useReducer } from "react";
-import { CacheOption, useCacheActionContext } from "@contexts/CacheContext";
+import { CacheOption, useCacheAction } from "@contexts/CacheContext";
 import { fetchReducer, IFetchInitialState, initialState } from "@src/reducers/fetchReducer";
 import { FETCH_FAILURE, FETCH_REQUEST, FETCH_SUCCESS } from "@constants/actions";
 
 const initialMutationOptions: CacheOption<any> = {
   cacheClear: false,
+  overrideCache: false,
   onError: (error: string) => error,
   onSuccess: (data: any) => data,
 };
@@ -12,7 +13,7 @@ const initialMutationOptions: CacheOption<any> = {
 type MutationReturn<T> = [(...arg: any) => void, IFetchInitialState<T>];
 
 export const useMutation = <T>(
-  callback: (...arg: any) => T,
+  callback: (...arg: any) => Promise<T>,
   options: CacheOption<T> = initialMutationOptions,
   keys: string[] = [],
 ): MutationReturn<T> => {
@@ -22,7 +23,7 @@ export const useMutation = <T>(
     ...initialMutationOptions,
     ...options,
   };
-  const { notify, clear } = useCacheActionContext();
+  const { notify, clear } = useCacheAction();
 
   const { data, error, loading } = state as IFetchInitialState<T>;
 

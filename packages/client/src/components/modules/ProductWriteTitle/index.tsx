@@ -3,9 +3,10 @@ import Input from "@base/Input";
 import Text from "@base/Text";
 import styled from "@emotion/styled";
 import React from "react";
+import { ICategory } from "types/category.type";
 
 interface Props {
-  categories: { name: string }[];
+  categories: ICategory[];
   selectedCategory: string;
   checkValidate: () => void;
   onClickCategoryBtn: React.MouseEventHandler;
@@ -30,9 +31,10 @@ const ProductWriteTitle = (
       <Input iSize="lg" placeholder="글 제목" ref={ref} onBlur={checkValidate} />
       <CategoryNotice />
       <CategoryList>
-        {categories.map(({ name }) => (
-          <RButton name="category" value={name} key={name} onClick={onClickCategoryBtn} />
-        ))}
+        {categories &&
+          categories.map(({ name }) => (
+            <RButton name="category" value={name} key={name} onClick={onClickCategoryBtn} />
+          ))}
       </CategoryList>
     </Container>
   );

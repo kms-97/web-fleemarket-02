@@ -4,18 +4,24 @@ import Image from "@base/Image";
 import styled from "@emotion/styled";
 import HeartIcon from "@icons/HeartIcon";
 import MessageIcon from "@icons/MessageIcon";
+import { IProductItem } from "types/product.type";
+import { getExpriedTime } from "@utils/timeCalculate";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
-  title?: string;
-  location?: string;
-  timestamp?: string;
-  price?: number;
-  chatCount: number;
-  wishCount: number;
+  product: IProductItem;
   isActive: boolean;
 }
 
-const ProductItem = ({ isActive, chatCount, wishCount }: Props) => {
+const ProductItem = ({ product, isActive }: Props) => {
+  const navigation = useNavigate();
+  const { id, title, locationName, createdAt, price, likeUsers, chatCount } = product;
+  const wishCount = likeUsers.length;
+
+  const moveToDetailPage = (id: number) => {
+    navigation(`/product/${id}`);
+  };
+
   const ChatIcon = () => {
     return (
       <IconBox>
@@ -39,17 +45,17 @@ const ProductItem = ({ isActive, chatCount, wishCount }: Props) => {
   };
 
   return (
-    <Container>
+    <Container onClick={() => moveToDetailPage(id)}>
       <Image size="lg" src="empty.jpg" />
       <div className="description">
         <Text size="lg" isBold={true}>
-          파랑 선풍기
+          {title}
         </Text>
         <Text size="sm" fColor="GRAY1">
-          역삼동 ∙ 2시간 전
+          {locationName} ∙ {getExpriedTime(createdAt)}
         </Text>
         <Text size="md" isBold={true}>
-          24,500원
+          {Number(price).toLocaleString()}원
         </Text>
       </div>
       <WishButton isActive={isActive}>

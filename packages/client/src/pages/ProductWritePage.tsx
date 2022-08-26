@@ -3,46 +3,60 @@ import styled from "@emotion/styled";
 import Text from "@base/Text";
 import Input from "@base/Input";
 import MapPinIcon from "@icons/MapPinIcon";
-import { usePriceInput } from "@src/hooks/usePriceInput";
-import { useImageInput } from "@src/hooks/useImageInput";
+import { usePriceInput, useImageInput } from "@src/hooks";
 import ProductWriteTitle from "@components/modules/ProductWriteTitle";
 import ProductWriteImage from "@components/modules/ProductWriteImage";
 import ProductWriteHeader from "@components/modules/ProductWriteHeader";
-
-const categories = [
-  { name: "디지털기기", img: "empty.jpg" },
-  { name: "생활가전", img: "empty.jpg" },
-  { name: "가구/인테리어", img: "empty.jpg" },
-  { name: "게임/취미", img: "empty.jpg" },
-  { name: "생활/가공식품", img: "empty.jpg" },
-  { name: "스포츠/레저", img: "empty.jpg" },
-  { name: "여성패션/잡화", img: "empty.jpg" },
-  { name: "남성패션/잡화", img: "empty.jpg" },
-  { name: "유아동", img: "empty.jpg" },
-  { name: "뷰티/미용", img: "empty.jpg" },
-  { name: "반려동물", img: "empty.jpg" },
-  { name: "도서/티켓/음반", img: "empty.jpg" },
-  { name: "식물", img: "empty.jpg" },
-  { name: "기타 중고물품", img: "empty.jpg" },
-];
+import { useMutation } from "@hooks/useMutation";
+import { requestAddProduct } from "@src/apis/product";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@hooks/useQuery";
+import { ICategory } from "types/category.type";
+import { requestGetCategory } from "@src/apis/category";
 
 const MAX_IMAGE_LIMIT = 10;
 
 const ProductWritePage = () => {
+  const navigation = useNavigate();
   const { price, priceString, setPriceString } = usePriceInput("");
-  const { images, addImages, deleteImage } = useImageInput(MAX_IMAGE_LIMIT);
+  const { imgUrl, addImages, deleteImage } = useImageInput(MAX_IMAGE_LIMIT);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const { data: categories } = useQuery<ICategory[]>(["category"], requestGetCategory);
+  const [mutate] = useMutation(requestAddProduct, {
+    cacheClear: true,
+    onSuccess() {
+      moveToMainPage();
+    },
+  });
 
   useEffect(() => {
     checkValidate();
-  }, [selectedCategory, images]);
+  }, [selectedCategory, imgUrl]);
+
+  const moveToMainPage = () => {
+    navigation("/main");
+  };
 
   const onClickSubmitButton: React.FormEventHandler = (e) => {
     e.preventDefault();
-    console.log("");
+    const title = titleRef.current?.value;
+    const description = descriptionRef.current?.value;
+    const sellerId = 1;
+    const locationId = 2;
+    const product = {
+      title,
+      description,
+      imgUrl,
+      price,
+      sellerId,
+      locationId,
+      categoryName: selectedCategory,
+    };
+
+    mutate(product);
   };
 
   const onChangeImageInput: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -60,7 +74,7 @@ const ProductWritePage = () => {
   const checkValidate = () => {
     const title = titleRef.current?.value;
     const description = descriptionRef.current?.value;
-    const imageCount = images.length;
+    const imageCount = imgUrl.length;
 
     if (title && selectedCategory && description && imageCount) setIsValid(true);
     else setIsValid(false);
@@ -71,12 +85,12 @@ const ProductWritePage = () => {
       <ProductWriteHeader isValid={isValid} onClick={onClickSubmitButton} />
       <Body>
         <ProductWriteImage
-          images={images}
+          images={imgUrl}
           deleteImage={deleteImage}
           onChange={onChangeImageInput}
         />
         <ProductWriteTitle
-          categories={categories}
+          categories={categories!}
           selectedCategory={selectedCategory}
           checkValidate={checkValidate}
           onClickCategoryBtn={onClickCategoryBtn}

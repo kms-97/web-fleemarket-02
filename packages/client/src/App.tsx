@@ -10,6 +10,7 @@ import CoverPage from "./pages/CoverPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import MainPage from "./pages/MainPage";
+import ProductDetailPage from "@pages/ProductDetailPage";
 
 const App = () => {
   const location = useLocation();
@@ -29,6 +30,7 @@ const App = () => {
             <Route path="/signup/location" element={<SignUpLoPage />} />
             <Route path="/main" element={<MainPage />} />
             <Route path="/category" element={<CategroyPage />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
             <Route path="/product/write" element={<ProductWritePage />} />
           </Routes>
         </CSSTransition>

@@ -30,6 +30,7 @@ interface ICacheAction {
   subscribe: (key: string, notify: () => void) => void;
   unsubscribe: (key: string, notify: () => void) => void;
   notify: (keys: string[]) => void;
+  no: (key: string) => void;
 }
 
 export const CacheContext = createContext({});
@@ -58,7 +59,6 @@ export const CacheProvider = ({ children }: Props) => {
         }
 
         storeRef.current[key].expiredTime = currentTime + (cacheExpiredTime ?? 30000);
-        storeRef.current[key].observer?.forEach((notify) => notify());
       },
       get: (key) => {
         const { data, expiredTime } = storeRef.current[key];
@@ -97,6 +97,9 @@ export const CacheProvider = ({ children }: Props) => {
       },
       notify: (keys) => {
         keys.forEach((key) => storeRef.current[key].observer?.forEach((ntf) => ntf()));
+      },
+      no: (key) => {
+        storeRef.current[key].observer?.forEach((notify) => notify());
       },
     }),
     [],

@@ -49,7 +49,7 @@ const LOCATION_QUERY = {
 
 const PRODUCT_QUERY = {
   GET_PRODUCT_DETAIL_BY_ID: `
-    select p.id as id, title, description, price, p.imgUrl as imgUrl, status, hits,
+    select p.id as id, title, description, price, p.imgUrl as imgUrl, status, hits, p.createdAt as createdAt,
           json_object('id', l.id, 'code', l.code, 'dong', l.dong) as location,
           json_object('id', c.id, 'name', c.name) as category,
           json_object('id', u.id, 'userId', u.user_id, 'name', u.name) as seller,
@@ -79,7 +79,7 @@ const PRODUCT_QUERY = {
     delete from Product where id = ?
     `,
   FIND_PRODUCT_BY_CATEGORY: `
-    select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
+    select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId, p.createdAt as createdAt,
       if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
     from Product p
     join Location l on p.location_id = l.id
@@ -89,7 +89,7 @@ const PRODUCT_QUERY = {
     limit ?, ?;
     `,
   FIND_PRODUCT_BY_LOCATION: `
-    select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
+    select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId, p.createdAt as createdAt,
       if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
     from Product p
     join Location l on p.location_id = l.id
@@ -99,7 +99,7 @@ const PRODUCT_QUERY = {
     limit ?, ?;
     `,
   FIND_PRODUCT_BY_SELLER_ID: `
-    select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId,
+    select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId, p.createdAt as createdAt,
       if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
     from Product p
     join Location l on p.location_id = l.id

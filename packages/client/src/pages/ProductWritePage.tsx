@@ -15,10 +15,13 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@hooks/useQuery";
 import { ICategory } from "types/category.type";
 import { requestGetCategory } from "@src/apis/category";
+import auth from "@hoc/auth";
+import { IUser } from "types/user.type";
+import { requestGetLoginUserInfo } from "@apis/auth";
 
 const MAX_IMAGE_LIMIT = 10;
 
-const ProductWritePage = () => {
+const ProductWritePage = auth(() => {
   const navigation = useNavigate();
   const { price, priceString, setPriceString } = usePriceInput("");
   const { imgUrl, addImages, deleteImage } = useImageInput(MAX_IMAGE_LIMIT);
@@ -27,6 +30,7 @@ const ProductWritePage = () => {
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const { data: categories } = useQuery<ICategory[]>(["category"], requestGetCategory);
+  const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
   const [mutate] = useMutation(requestAddProduct, {
     cacheClear: true,
     onSuccess() {
@@ -42,12 +46,18 @@ const ProductWritePage = () => {
     navigation("/main");
   };
 
+  const getActiveLocation = (user: IUser) => {
+    const locations = user.locations;
+    return locations.filter(({ isActive }) => isActive)[0];
+  };
+
   const onClickSubmitButton: React.FormEventHandler = (e) => {
     e.preventDefault();
+    if (!user) return;
     const title = titleRef.current?.value;
     const description = descriptionRef.current?.value;
-    const sellerId = 1;
-    const locationId = 2;
+    const sellerId = user.id;
+    const locationId = getActiveLocation(user).id;
     const product = {
       title,
       description,
@@ -114,11 +124,11 @@ const ProductWritePage = () => {
       </Body>
       <Footer>
         <MapPinIcon />
-        <Text size="sm">장곡동</Text>
+        <Text size="sm">{user && getActiveLocation(user).dong}</Text>
       </Footer>
     </Container>
   );
-};
+});
 
 const Container = styled.form`
   width: 100%;

@@ -10,9 +10,12 @@ import Fab from "@base/Fab";
 import auth from "@hoc/auth";
 
 import { requestGetProducts } from "@apis/product";
+
 import { useQuery } from "@hooks/useQuery";
 import { useSearchParam } from "@hooks/useSearchParam";
 import { IProductItem } from "types/product.type";
+import { requestGetLoginUserInfo } from "@apis/auth";
+import { IUser } from "types/user.type";
 
 const MainPage = auth(() => {
   const navigation = useNavigate();
@@ -23,6 +26,7 @@ const MainPage = auth(() => {
       setProducts(data);
     },
   });
+  const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
 
   const moveToLocationPage = () => {
     navigation("/location");
@@ -32,13 +36,21 @@ const MainPage = auth(() => {
     navigation("/product/write");
   };
 
+  const getActiveLocation = (user: IUser) => {
+    const locations = user.locations;
+    return locations.filter(({ isActive }) => isActive)[0];
+  };
+
   useEffect(() => {
+    if (!user) return;
+    const activeLocation = getActiveLocation(user);
+
     if (params.category) {
-      refetch({ category: params.category, location: 2 });
+      refetch({ category: params.category, location: activeLocation.id });
     } else {
-      refetch({ location: 2 });
+      refetch({ location: activeLocation.id });
     }
-  }, [params.category]);
+  }, [params.category, user]);
 
   return (
     <>
@@ -46,7 +58,9 @@ const MainPage = auth(() => {
         <MainHeader>
           <button onClick={moveToLocationPage}>
             <MapPinIcon />
-            <Text size="lg" fColor="WHITE"></Text>
+            <Text size="lg" fColor="WHITE">
+              {user && getActiveLocation(user).dong}
+            </Text>
           </button>
         </MainHeader>
         <ProductList>

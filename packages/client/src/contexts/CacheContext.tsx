@@ -90,16 +90,16 @@ export const CacheProvider = ({ children }: Props) => {
           storeRef.current[key].observer = new Set();
         }
 
-        storeRef.current[key].observer?.add(notify);
+        storeRef.current[key]?.observer?.add(notify);
       },
       unsubscribe: (key, notify) => {
-        storeRef.current[key].observer?.delete(notify);
+        storeRef.current[key]?.observer?.delete(notify);
       },
       notify: (keys) => {
-        keys.forEach((key) => storeRef.current[key].observer?.forEach((ntf) => ntf()));
+        keys.forEach((key) => storeRef.current[key]?.observer?.forEach((ntf) => ntf()));
       },
       no: (key) => {
-        storeRef.current[key].observer?.forEach((notify) => notify());
+        storeRef.current[key]?.observer?.forEach((notify) => notify());
       },
     }),
     [],

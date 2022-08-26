@@ -2,7 +2,7 @@ import { ICoreResponse } from "./core.type";
 
 interface ICategory {
   id: number;
-  name: number;
+  name: string;
   img: string;
 }
 

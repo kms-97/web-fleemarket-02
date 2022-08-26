@@ -47,7 +47,6 @@ const StyledImage = styled.div<ImageProps>`
     width: 100%;
     height: 100%;
     border-radius: 8px;
-    z-index: 1;
     position: absolute;
     background: linear-gradient(
       180deg,

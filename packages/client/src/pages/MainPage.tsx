@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import styled from "@emotion/styled";
@@ -9,8 +9,20 @@ import Text from "@base/Text";
 import Fab from "@base/Fab";
 import auth from "@hoc/auth";
 
+import { requestGetProducts } from "@apis/product";
+import { useQuery } from "@hooks/useQuery";
+import { useSearchParam } from "@hooks/useSearchParam";
+import { IProductItem } from "types/product.type";
+
 const MainPage = auth(() => {
   const navigation = useNavigate();
+  const params = useSearchParam();
+  const [products, setProducts] = useState<IProductItem[]>();
+  const { refetch } = useQuery(["products"], requestGetProducts, {
+    onSuccess(data) {
+      setProducts(data);
+    },
+  });
 
   const moveToLocationPage = () => {
     navigation("/location");
@@ -20,22 +32,28 @@ const MainPage = auth(() => {
     navigation("/product/write");
   };
 
+  useEffect(() => {
+    if (params.category) {
+      refetch({ category: params.category, location: 2 });
+    } else {
+      refetch({ location: 2 });
+    }
+  }, [params.category]);
+
   return (
     <>
       <Container>
         <MainHeader>
           <button onClick={moveToLocationPage}>
             <MapPinIcon />
-            <Text size="lg" fColor="WHITE">
-              장곡동
-            </Text>
+            <Text size="lg" fColor="WHITE"></Text>
           </button>
         </MainHeader>
         <ProductList>
-          <ProductItem isActive={true} chatCount={1} wishCount={3} />
-          <ProductItem isActive={false} chatCount={0} wishCount={0} />
-          <ProductItem isActive={true} chatCount={1} wishCount={3} />
-          <ProductItem isActive={false} chatCount={0} wishCount={0} />
+          {products &&
+            products.map((product) => (
+              <ProductItem key={product.id} product={product} isActive={true} />
+            ))}
         </ProductList>
         <Layer>
           <Fab onClick={moveToProductWritePage} />

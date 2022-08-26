@@ -44,6 +44,15 @@ const ProductItem = ({ product, isActive }: Props) => {
     );
   };
 
+  const PriceSection = () => {
+    const numberPrice = Number(price);
+    return (
+      <Text size="md" isBold={true}>
+        {numberPrice ? `${numberPrice.toLocaleString()} 원` : `가격 미정`}
+      </Text>
+    );
+  };
+
   return (
     <Container onClick={() => moveToDetailPage(id)}>
       <Image size="lg" src="empty.jpg" />
@@ -54,9 +63,7 @@ const ProductItem = ({ product, isActive }: Props) => {
         <Text size="sm" fColor="GRAY1">
           {locationName} ∙ {getExpriedTime(createdAt)}
         </Text>
-        <Text size="md" isBold={true}>
-          {Number(price).toLocaleString()}원
-        </Text>
+        <PriceSection />
       </div>
       <WishButton isActive={isActive}>
         <HeartIcon />

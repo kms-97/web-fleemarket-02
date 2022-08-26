@@ -60,19 +60,19 @@ export class UserController {
   }
 
   @UseGuards(AccessJwtAuthGuard)
-  @Patch(':id')
-  async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
-    await this.userService.updateUser(id, dto);
-  }
-
-  @UseGuards(AccessJwtAuthGuard)
   @Patch('location')
   async updateActiveUserLocation(
     @User() user: TokenUser,
-    @Param('locationId') locationId: number,
+    @Body('locationId') locationId: number,
   ) {
     const userId = user.id;
     await this.userService.updateActiveUserLocationHandler(userId, locationId);
+  }
+
+  @UseGuards(AccessJwtAuthGuard)
+  @Patch(':id')
+  async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
+    await this.userService.updateUser(id, dto);
   }
 
   @UseGuards(AccessJwtAuthGuard)

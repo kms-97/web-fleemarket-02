@@ -1,3 +1,4 @@
+import { AccessJwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { PaginationDto } from '@base/Pagination.dto';
 import {
   Controller,
@@ -9,6 +10,7 @@ import {
   Query,
   HttpCode,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UserInsertDto } from './dto/userInsert.dto';
 import { UserLocationDto } from './dto/userLocation.dto';
@@ -26,6 +28,7 @@ export class UserController {
     await this.userService.insertUser(dto);
   }
 
+  @UseGuards(AccessJwtAuthGuard)
   @Post('/location')
   @HttpCode(201)
   async insertUserLocation(@Body() dto: UserLocationDto) {
@@ -55,11 +58,13 @@ export class UserController {
     return this.userService.getUserWishById(id, dto);
   }
 
+  @UseGuards(AccessJwtAuthGuard)
   @Patch(':id')
   async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
     await this.userService.updateUser(id, dto);
   }
 
+  @UseGuards(AccessJwtAuthGuard)
   @Patch(':userId/location/:locationId')
   async updateActiveUserLocation(
     @Param('userId') userId: number,
@@ -68,6 +73,7 @@ export class UserController {
     await this.userService.updateActiveUserLocationHandler(userId, locationId);
   }
 
+  @UseGuards(AccessJwtAuthGuard)
   @Delete(':userId/location/:locationId')
   async deleteUserLocation(
     @Param('userId') userId: number,

@@ -4,6 +4,8 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import SignUpLoPage from "@pages/SignUpLoPage";
 import Template from "@components/template";
+import ProductDetailPage from "@pages/ProductDetailPage";
+import ToastMessage from "@modules/ToastMessage";
 import ProductWritePage from "./pages/ProductWritePage";
 import CategroyPage from "./pages/CategoryPage";
 import CoverPage from "./pages/CoverPage";
@@ -37,6 +39,7 @@ const App = () => {
           </Routes>
         </CSSTransition>
       </TransitionGroup>
+      <ToastMessage />
       <div id="modal" />
     </Template>
   );

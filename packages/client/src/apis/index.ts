@@ -1,7 +1,6 @@
 import { BASE_URL } from "@constants/api";
 import { ICoreResponse } from "types/core.type";
 import { END_POINT } from "@constants/api";
-import { requestRefresh } from "./auth";
 
 const { REFRESH } = END_POINT;
 

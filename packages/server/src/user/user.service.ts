@@ -85,12 +85,22 @@ export class UserService {
 
     await this.userLocationService.checkExistUserLocation(userId, locationId);
     await this.userLocationService.checkUserLocationMax(userId);
-    await this.userLocationService.insertUserLocation(
-      null,
-      userId,
-      locationId,
-      isActive,
-    );
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    try {
+      await this.userLocationService.insertUserLocation(
+        queryRunner,
+        userId,
+        locationId,
+        isActive,
+      );
+      return;
+    } catch (e) {
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async updateActiveUserLocationHandler(userId: number, locationId: number) {
@@ -118,6 +128,9 @@ export class UserService {
         userId,
         locationId,
       );
+
+      await queryRunner.commitTransaction();
+      return;
     } catch (e) {
       await queryRunner.rollbackTransaction();
       throw e;
@@ -148,6 +161,9 @@ export class UserService {
         userId,
         locationId,
       );
+
+      await queryRunner.commitTransaction();
+      return;
     } catch (e) {
       await queryRunner.rollbackTransaction();
       throw e;

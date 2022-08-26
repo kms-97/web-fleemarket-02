@@ -12,6 +12,8 @@ import CoverPage from "./pages/CoverPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import MainPage from "./pages/MainPage";
+import ProductDetailPage from "@pages/ProductDetailPage";
+import LocationPage from "@pages/LocationPage";
 
 const App = () => {
   const location = useLocation();
@@ -33,6 +35,7 @@ const App = () => {
             <Route path="/category" element={<CategroyPage />} />
             <Route path="/product/:id" element={<ProductDetailPage />} />
             <Route path="/product/write" element={<ProductWritePage />} />
+            <Route path="/location" element={<LocationPage />} />
           </Routes>
         </CSSTransition>
       </TransitionGroup>

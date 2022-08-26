@@ -70,7 +70,7 @@ export class RefreshJwtAuthGuard extends AuthGuard('jwt') {
     const refreshToken = req.cookies[config.get('JWT_REFRESH_TOKEN')];
 
     if (!refreshToken) {
-      throw new UnauthorizedException('no auth token');
+      throw new UnauthorizedException('로그인이 필요합니다.');
     }
 
     const isValid = await this.authService.verifyRefresh(
@@ -78,7 +78,7 @@ export class RefreshJwtAuthGuard extends AuthGuard('jwt') {
     );
 
     if (!isValid) {
-      throw new UnauthorizedException('만료된 토큰입니다.');
+      throw new UnauthorizedException('다시 로그인 해주세요.');
     }
 
     super.canActivate(context);

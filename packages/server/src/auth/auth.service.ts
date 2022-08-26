@@ -1,5 +1,5 @@
 import { verify } from 'jsonwebtoken';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -55,7 +55,7 @@ export class AuthService {
     );
 
     if (!_user || !isCompare) {
-      return null;
+      throw new BadRequestException('아이디 또는 비밀번호가 틀렸습니다.');
     }
 
     const { user } = await this.userService.getUserById(_user.id);
@@ -136,6 +136,6 @@ export class AuthService {
       },
     });
 
-    return data;
+    return { id: data.id, name: data.name };
   }
 }

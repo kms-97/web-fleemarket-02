@@ -35,34 +35,39 @@ export class UserService {
   ) {}
 
   async insertUser(dto: UserInsertDto) {
-    const { userId, name, password, locations } = dto;
+    const { userId, name, password, locations, github } = dto;
     const hashedPassword = await this.hashPassword(password);
 
     this.checkExistUserByUserId(userId);
 
-    const queryRunnner = this.dataSource.createQueryRunner();
-    await queryRunnner.connect();
-    await queryRunnner.startTransaction();
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      const { insertId } = await queryRunnner.query(USER_QUERY.INSERT_USER, [
+      const { insertId } = await queryRunner.query(USER_QUERY.INSERT_USER, [
         userId,
         name,
         hashedPassword,
+        JSON.stringify(github),
       ]);
 
       for (let i = 0; i < locations.length; i++) {
         await this.userLocationService.insertUserLocation(
-          queryRunnner,
+          queryRunner,
           insertId,
           locations[i].locationId,
           locations[i].isActive,
         );
       }
+
+      await queryRunner.commitTransaction();
+
+      return;
     } catch (e) {
-      await queryRunnner.rollbackTransaction();
+      await queryRunner.rollbackTransaction();
       throw new BadRequestException();
     } finally {
-      await queryRunnner.release();
+      await queryRunner.release();
     }
   }
 

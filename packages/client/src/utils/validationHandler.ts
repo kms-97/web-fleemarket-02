@@ -1,6 +1,5 @@
 function checkEnAndNum(value: string) {
-  const reg = /^[A-Za-z0-9]/;
-  return !reg.test(value) ? "영문, 한글만 입력 가능합니다." : "";
+  return value.replaceAll(/[A-Za-z0-9]/gi, "").length !== 0;
 }
 
 function checkLengthByValue(value: string) {
@@ -10,8 +9,8 @@ function checkLengthByValue(value: string) {
 
   const isNotNumberOrEn = checkEnAndNum(value);
 
-  if (isNotNumberOrEn.length > 0) {
-    return isNotNumberOrEn;
+  if (isNotNumberOrEn) {
+    return "영문, 숫자만 입력 가능합니다.";
   }
 
   if (value.length < 5) {

@@ -3,26 +3,28 @@ import styled from "@emotion/styled";
 import CloseIcon from "@icons/CloseIcon";
 import PlusIcon from "@icons/PlusIcon";
 import React from "react";
-
-interface ILocation {
-  name: string;
-  isActive: boolean;
-}
+import { IUserLocation } from "types/location.type";
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  location?: ILocation;
-  onDelete?: any;
+  location?: IUserLocation;
+  onDelete?: (locationId: number) => void;
 }
 
 const LButton: React.FC<Props> = ({ location, onDelete, ...props }) => {
   if (location) {
-    const { isActive, name } = location;
+    const { isActive, dong } = location;
+
+    const onDeleteLocation = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onDelete?.(location?.id);
+    };
+
     return (
       <StyledButton location={location} {...props}>
         <Text size="sm" isBold={true} fColor={isActive ? "OFF_WHITE" : "PRIMARY1"}>
-          {name}
+          {dong}
         </Text>
-        <CloseIcon onClick={onDelete} />
+        <CloseIcon onClick={onDeleteLocation} />
       </StyledButton>
     );
   }
@@ -33,7 +35,7 @@ const LButton: React.FC<Props> = ({ location, onDelete, ...props }) => {
   );
 };
 
-const StyledButton = styled.button<{ location?: ILocation }>`
+const StyledButton = styled.button<{ location?: IUserLocation }>`
   min-width: 136px;
 
   display: flex;
@@ -49,6 +51,7 @@ const StyledButton = styled.button<{ location?: ILocation }>`
 
   & svg,
   & path {
+    z-index: 1;
     transition: stroke 0.2s;
     stroke: ${({ theme }) => theme.COLOR.PRIMARY2};
   }

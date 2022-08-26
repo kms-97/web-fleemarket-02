@@ -84,6 +84,7 @@ const Container = styled.div`
   column-gap: 16px;
 
   border-bottom: 1px solid ${({ theme }) => theme.COLOR.GRAY3};
+  cursor: pointer;
 
   > .description {
     display: flex;

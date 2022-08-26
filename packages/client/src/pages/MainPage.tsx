@@ -7,8 +7,9 @@ import ProductItem from "@components/modules/ProductItem";
 import MapPinIcon from "@icons/MapPinIcon";
 import Text from "@base/Text";
 import Fab from "@base/Fab";
+import auth from "@hoc/auth";
 
-const MainPage = () => {
+const MainPage = auth(() => {
   const navigation = useNavigate();
 
   const moveToLocationPage = () => {
@@ -42,7 +43,7 @@ const MainPage = () => {
       </Container>
     </>
   );
-};
+});
 
 const Container = styled.div`
   position: relative;

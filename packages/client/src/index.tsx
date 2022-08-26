@@ -7,14 +7,17 @@ import App from "./App";
 import { theme } from "./theme";
 import { BrowserRouter } from "react-router-dom";
 import { CacheProvider } from "@contexts/CacheContext";
+import { ToastProvider } from "@contexts/ToastMessageContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <BrowserRouter>
     <ThemeProvider theme={theme}>
       <CacheProvider>
-        <GlobalStyle theme={theme} />
-        <App />
+        <ToastProvider>
+          <GlobalStyle theme={theme} />
+          <App />
+        </ToastProvider>
       </CacheProvider>
     </ThemeProvider>
   </BrowserRouter>,

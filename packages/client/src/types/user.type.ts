@@ -6,7 +6,7 @@ interface IUser {
   name: string;
   userId: string;
   wises: number[];
-  locations: IUserLocation;
+  locations: IUserLocation[];
   github?: {
     id: number;
     name: string;
@@ -18,7 +18,7 @@ interface ISignUpUser extends Pick<IUser, "userId" | "name" | "github"> {
   locations: ISignUpUserLocation[];
 }
 
-interface IGetGetUser extends ICoreResponse {
+interface IGetUser extends ICoreResponse {
   user: IUser | null;
 }
 
@@ -29,4 +29,4 @@ interface ISignUpUserLocation {
 
 type ISignInUser = Pick<ISignUpUser, "userId" | "password">;
 
-export type { IUser, ISignUpUser, ISignInUser, IGetGetUser, ISignUpUserLocation };
+export type { IUser, ISignUpUser, ISignInUser, IGetUser, ISignUpUserLocation };

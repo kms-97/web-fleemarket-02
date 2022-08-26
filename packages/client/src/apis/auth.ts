@@ -1,11 +1,11 @@
 import { END_POINT } from "@constants/api";
-import { IGetGetUser, ISignInUser } from "types/user.type";
+import { IGetUser, ISignInUser } from "types/user.type";
 import { request } from ".";
 
 const { LOGIN, LOGOUT, REFRESH, GET_LOGIN_USER } = END_POINT;
 
 const requestGetLoginUserInfo = async () => {
-  const result = await request<IGetGetUser>(GET_LOGIN_USER);
+  const result = await request<IGetUser>(GET_LOGIN_USER);
 
   const { user } = result;
 

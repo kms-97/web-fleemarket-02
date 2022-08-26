@@ -1,7 +1,7 @@
-import Image from "@base/Image";
+import React from "react";
 import Text from "@base/Text";
 import styled from "@emotion/styled";
-import React from "react";
+import CategorySvg from "@icons/CategorySvg";
 
 interface Props {
   category: any;
@@ -17,7 +17,7 @@ const CategoryItem = ({ category, onClick }: Props) => {
 
   return (
     <StyledButton onClick={onClickCategoryItem}>
-      <Image size="sm" src={`data:image/svg+xml;${imgUrl}`} />
+      <CategorySvg svg={imgUrl} />
       <Text size="sm">{name}</Text>
     </StyledButton>
   );

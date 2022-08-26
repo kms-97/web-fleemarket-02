@@ -15,7 +15,7 @@ const initialQueryOptions: CacheOption<any> = {
 export const useQuery = <T>(
   keys: (string | number)[],
   callback: (...arg: any) => Promise<T>,
-  options: CacheOption<T>,
+  options: CacheOption<T> = {},
 ) => {
   const [notify, setNotify] = useState<number>(0);
   const [state, dispatch] = useReducer(fetchReducer, initialState);
@@ -57,10 +57,6 @@ export const useQuery = <T>(
   }, [keys]);
 
   useEffect(() => {
-    if (notify === 0) {
-      return;
-    }
-
     const fetchCallback = async (...args: any) => {
       if (cacheClear) {
         clear();
@@ -96,7 +92,7 @@ export const useQuery = <T>(
     return () => {
       unsubscribe(keyValue, onNotify);
     };
-  }, []);
+  }, [notify]);
 
   return { data, error, loading, refetch };
 };

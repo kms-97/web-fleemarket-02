@@ -24,7 +24,7 @@ export const useQuery = <T>(
     ...initialQueryOptions,
     ...options,
   };
-  const { clear, set, get, subscribe, unsubscribe, init } = useCacheAction();
+  const { clear, set, get, subscribe, unsubscribe, init, no } = useCacheAction();
 
   const { data, error, loading } = state as IFetchInitialState<T>;
   const keyValue = keys.join(" ");
@@ -40,6 +40,7 @@ export const useQuery = <T>(
 
       if (isCacheSave) {
         set<T>(keyValue, result, _options);
+        no(keyValue);
       }
     } catch (error: any) {
       onError?.(error.message);

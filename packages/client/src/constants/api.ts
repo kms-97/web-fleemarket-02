@@ -4,6 +4,7 @@ export const BASE_URL =
     : process.env.REACT_APP_BASE_URL;
 
 export const END_POINT = {
+  GET_LOGIN_USER: "/auth",
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
   REFRESH: "/auth/refresh",

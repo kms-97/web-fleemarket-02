@@ -31,6 +31,12 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @UseGuards(AccessJwtAuthGuard)
+  @Get('/')
+  async getUserInfo(@User() _user: TokenUser) {
+    return this.userService.getUserById(_user.id);
+  }
+
   @UseGuards(LocalAuthGuard)
   @Post('/login')
   async login(
@@ -111,10 +117,8 @@ export class AuthController {
 
     if (user) {
       await this.login(user, res);
-      return res.redirect('http://localhost:3000');
+      return res.redirect('http://localhost:3000/main');
     }
-
-    // 회원가입 경로로 바꿔주고 query params를 상태로 저장해야함
 
     res.cookie('github', userInfo, {
       maxAge: EXPIRED_ACCESS_TOKEN,

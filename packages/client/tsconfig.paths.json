@@ -14,6 +14,8 @@
       "@constants/*": ["src/constants/*"],
       "@components/*": ["src/components/*"],
       "@apis/*": ["src/apis/*"],
+      "@hoc/*": ["src/hoc/*"],
+      "@reducers/*": ["src/reducers/*"],
       "types/*": ["src/types/*"],
       "@src/*": ["src/*"]
     }

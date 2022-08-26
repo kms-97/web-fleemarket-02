@@ -7,12 +7,14 @@ import ProductItem from "@components/modules/ProductItem";
 import MapPinIcon from "@icons/MapPinIcon";
 import Text from "@base/Text";
 import Fab from "@base/Fab";
-import { IProductItem } from "@src/types/product.type";
-import { requestGetProducts } from "@src/apis/product";
+import auth from "@hoc/auth";
+
+import { requestGetProducts } from "@apis/product";
 import { useQuery } from "@hooks/useQuery";
 import { useSearchParam } from "@hooks/useSearchParam";
+import { IProductItem } from "types/product.type";
 
-const MainPage = () => {
+const MainPage = auth(() => {
   const navigation = useNavigate();
   const params = useSearchParam();
   const [products, setProducts] = useState<IProductItem[]>();
@@ -59,7 +61,7 @@ const MainPage = () => {
       </Container>
     </>
   );
-};
+});
 
 const Container = styled.div`
   position: relative;

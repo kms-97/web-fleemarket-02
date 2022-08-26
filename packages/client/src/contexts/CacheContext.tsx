@@ -11,7 +11,7 @@ export interface CacheOption<T> {
   isCacheSave?: boolean;
   overrideCache?: boolean;
   onError?: (error: string) => void;
-  onSuccess?: (data: T) => void;
+  onSuccess?: (data: T, ...arg: any) => void;
 }
 
 interface ICacheState {
@@ -33,29 +33,7 @@ interface ICacheAction {
 }
 
 export const CacheContext = createContext({});
-export const CacheActionContext = createContext<ICacheAction>({
-  clear: () => {
-    return;
-  },
-  set: (key, data, options) => {
-    return;
-  },
-  get: (key) => {
-    return null;
-  },
-  subscribe: (key, notify) => {
-    return;
-  },
-  unsubscribe: (key, notify) => {
-    return;
-  },
-  init: (key) => {
-    return;
-  },
-  notify: (keys) => {
-    return;
-  },
-});
+export const CacheActionContext = createContext<ICacheAction | null>(null);
 
 export const useCacheContext = () => useContext(CacheContext);
 export const useCacheActionContext = () => useContext(CacheActionContext);
@@ -75,9 +53,10 @@ export const CacheProvider = ({ children }: Props) => {
 
         if (overrideCache && Array.isArray(prevCacheData) && Array.isArray(data)) {
           storeRef.current[key].data = [...prevCacheData, ...data];
+        } else {
+          storeRef.current[key].data = data;
         }
 
-        storeRef.current[key].data = data;
         storeRef.current[key].expiredTime = currentTime + (cacheExpiredTime ?? 30000);
         storeRef.current[key].observer?.forEach((notify) => notify());
       },
@@ -105,7 +84,7 @@ export const CacheProvider = ({ children }: Props) => {
         };
       },
       subscribe: (key, notify) => {
-        const observers = storeRef.current[key].observer;
+        const observers = storeRef.current[key]?.observer;
 
         if (!observers) {
           storeRef.current[key].observer = new Set();
@@ -128,4 +107,14 @@ export const CacheProvider = ({ children }: Props) => {
       <CacheActionContext.Provider value={action}>{children}</CacheActionContext.Provider>
     </CacheContext.Provider>
   );
+};
+
+export const useCacheAction = () => {
+  const actions = useCacheActionContext();
+
+  if (!actions) {
+    throw new Error();
+  }
+
+  return actions;
 };

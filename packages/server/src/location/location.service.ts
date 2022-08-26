@@ -6,7 +6,7 @@ import { ErrorMessage } from '@constant/ErrorMessage';
 import { LocationDto } from './dto/location.dto';
 import { Location, LocationRepository } from './entities/location.entity';
 
-const DEFAULT_LIMIT = 10;
+const DEFAULT_LIMIT = 30;
 
 @Injectable()
 export class LocationService {
@@ -16,8 +16,8 @@ export class LocationService {
   ) {}
 
   async findLocation(dto: LocationDto) {
-    const { keyword, code } = dto;
-    const page = dto.page ?? 1;
+    const { keyword, code, lastId } = dto;
+
     let locations: Location;
 
     if (keyword && code) {
@@ -35,20 +35,20 @@ export class LocationService {
     }
 
     if (keyword) {
-      locations = await this.findLocationByKeyword(keyword, page);
+      locations = await this.findLocationByKeyword(keyword, lastId);
     }
     if (code) {
-      locations = await this.findLocationByCode(code, page);
+      locations = await this.findLocationByCode(code, lastId);
     }
 
-    return { locations, page };
+    return { locations, lastId };
   }
 
-  findLocationByKeyword(keyword: string, page: number) {
-    const offset = (page - 1) * DEFAULT_LIMIT;
+  findLocationByKeyword(keyword: string, lastId: number) {
     return this.locationRepository.query(
       LOCATION_QUERY.FIND_LOCATION_BY_KEYWORD,
-      [`%${keyword}%`, `%${keyword}%`, `%${keyword}%`, offset, DEFAULT_LIMIT],
+      // [`%${keyword}%`, offset, DEFAULT_LIMIT],
+      [`%${keyword}%`, lastId ?? 0],
     );
   }
 

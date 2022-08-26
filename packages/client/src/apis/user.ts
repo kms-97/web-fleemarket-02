@@ -3,6 +3,7 @@ import { IGetGetUser, ISignUpUser } from "types/user.type";
 import { IAddUserLocation } from "types/location.type";
 import { IResGetProducts } from "types/product.type";
 import { request } from ".";
+import { getQueryParams } from "@utils/queryStringHandler";
 
 interface IUserLocationId {
   locationId: number;
@@ -25,6 +26,16 @@ const requestGetUser = async () => {
 
 const requestGetUserById = async (userId: number) => {
   const result = await request<IGetGetUser>(`${GET_USER}/${userId}`);
+
+  const { user } = result;
+
+  return user;
+};
+
+const requestGetUserByUserId = async (query: any) => {
+  const queryParams = getQueryParams(query);
+
+  const result = await request<IGetGetUser>(`${GET_USER}?${queryParams}`);
 
   const { user } = result;
 
@@ -97,4 +108,5 @@ export {
   requestAddUserLocation,
   requestDeleteUserLocation,
   requestUpdateUserLocation,
+  requestGetUserByUserId,
 };

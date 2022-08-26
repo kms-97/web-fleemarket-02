@@ -115,6 +115,11 @@ export class AuthController {
     }
 
     // 회원가입 경로로 바꿔주고 query params를 상태로 저장해야함
-    return res.redirect('http://localhost:3000?githubname=' + userInfo.name);
+
+    res.cookie('github', userInfo, {
+      maxAge: EXPIRED_ACCESS_TOKEN,
+    });
+
+    return res.redirect('http://localhost:3000/signup');
   }
 }

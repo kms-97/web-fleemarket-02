@@ -12,6 +12,7 @@ interface FormDataProps {
 }
 
 interface SignUpFormProps {
+  name: FormDataProps;
   userId: FormDataProps;
   password: FormDataProps;
   confirmPassword: FormDataProps;
@@ -19,6 +20,7 @@ interface SignUpFormProps {
 
 interface ActionProps {
   handler: (e: React.ChangeEvent<HTMLInputElement>, validate?: any) => void;
+  clearState: () => void;
 }
 
 interface SignUpFormState {
@@ -27,6 +29,11 @@ interface SignUpFormState {
 }
 
 const initialFormState = {
+  name: {
+    value: "",
+    isValid: false,
+    validate: null,
+  },
   userId: {
     value: "",
     isValid: false,
@@ -46,6 +53,9 @@ const initialFormState = {
 
 const initialActionState = {
   handler: (e: React.ChangeEvent<HTMLInputElement>, validate?: any) => {
+    return;
+  },
+  clearState: () => {
     return;
   },
 };
@@ -87,17 +97,19 @@ export const SignUpFormProvider = ({ children }: Props) => {
     const values = Object.values(state.current) as FormDataProps[];
 
     return values.every(({ value, validate }) => {
-      if (!validate) {
+      if (!validate || !value.length) {
         return false;
       }
       return Boolean(!validate(value));
     });
   };
 
-  initialActionState.handler = handler;
+  const clearState = () => {
+    state.current = initialFormState;
+  };
 
   const formState = { data: state.current, isValid };
-  const action = { handler };
+  const action = { handler, clearState };
 
   return (
     <SignUpFormActionContext.Provider value={action}>

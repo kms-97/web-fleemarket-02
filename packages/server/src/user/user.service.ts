@@ -35,7 +35,7 @@ export class UserService {
   ) {}
 
   async insertUser(dto: UserInsertDto) {
-    const { userId, name, password, locations } = dto;
+    const { userId, name, password, locations, github } = dto;
     const hashedPassword = await this.hashPassword(password);
 
     this.checkExistUserByUserId(userId);
@@ -48,6 +48,7 @@ export class UserService {
         userId,
         name,
         hashedPassword,
+        JSON.stringify(github),
       ]);
 
       for (let i = 0; i < locations.length; i++) {

@@ -4,10 +4,12 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsObject,
+  IsOptional,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { User } from '../entities/user.entity';
+import { GithubUser, User } from '../entities/user.entity';
 import { UserLocationDto } from './userLocation.dto';
 
 export class UserInsertDto extends PickType(User, [
@@ -21,4 +23,8 @@ export class UserInsertDto extends PickType(User, [
   @ArrayMaxSize(2, { message: ErrorMessage.EXCEED_USER_LOCATION_LIMIT })
   @Type(() => UserLocationDto)
   locations: UserLocationDto[];
+
+  @IsObject()
+  @IsOptional()
+  github?: GithubUser;
 }

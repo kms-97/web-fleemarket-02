@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import Input from "@base/Input";
 
@@ -7,16 +7,38 @@ import LeftIcon from "@icons/LeftIcon";
 import Text from "@base/Text";
 import { useInput } from "@hooks/useInput";
 import CloseIcon from "@icons/CloseIcon";
+import { requestGetLocations } from "@apis/location";
+import useDebounce from "@hooks/useDebounce";
+import { useQuery } from "@hooks/useQuery";
+import { ILocation, IUserLocation } from "types/location.type";
 
 interface Props {
   onClose: () => void;
-  addLocation: any;
+  addLocation: (location: IUserLocation) => void;
 }
 
 const SearchLocationModal = ({ onClose, addLocation }: Props) => {
-  const [value, onChangeValue] = useInput();
+  const ref = useRef(null);
+  const [keyword, onChangeKeyword] = useInput("");
+  const [locations, setLocations] = useState<ILocation[]>([]);
 
-  const selectedLocation = (location: any) => {
+  const { refetch } = useQuery(["/searchLocation", keyword], requestGetLocations, {
+    overrideCache: true,
+    isCacheSave: false,
+    onSuccess(data) {
+      setLocations(data);
+    },
+  });
+
+  const getLocationByKeyword = useCallback(() => {
+    if (keyword.length === 0) {
+      return;
+    }
+
+    refetch({ keyword });
+  }, [keyword]);
+
+  const selectedLocation = (location: ILocation) => {
     const { id, dong, code } = location;
 
     const data = {
@@ -30,6 +52,8 @@ const SearchLocationModal = ({ onClose, addLocation }: Props) => {
     onClose();
   };
 
+  useDebounce(getLocationByKeyword, 500);
+
   return (
     <ModalPortal>
       <Container>
@@ -37,17 +61,21 @@ const SearchLocationModal = ({ onClose, addLocation }: Props) => {
           <button onClick={onClose}>
             <LeftIcon />
           </button>
-          <Input onChange={onChangeValue} value={value} />
+          <Input onChange={onChangeKeyword} value={keyword} />
         </InputForm>
 
-        {value && <Text>{`"${value}"`} 검색결과</Text>}
-        <SearchedLocations>
-          {[].map(({ id, sido, gungu, dong }, idx) => (
-            <li key={id + String(idx)} onClick={() => selectedLocation({ id, sido, gungu, dong })}>
-              <CloseIcon />
-              <Text>{`${sido} ${gungu} ${dong}`}</Text>
-            </li>
-          ))}
+        {keyword && <Text>{`"${keyword}"`} 검색결과</Text>}
+        <SearchedLocations ref={ref}>
+          {locations.map((location, idx) => {
+            const { id, sido, gungu, dong } = location;
+
+            return (
+              <li key={id + String(idx)} onClick={() => selectedLocation(location)}>
+                <CloseIcon />
+                <Text>{`${sido} ${gungu} ${dong} ${idx}`}</Text>
+              </li>
+            );
+          })}
         </SearchedLocations>
       </Container>
     </ModalPortal>
@@ -57,6 +85,7 @@ const SearchLocationModal = ({ onClose, addLocation }: Props) => {
 const Container = styled.div`
   position: absolute;
   top: 0;
+  z-index: 100;
 
   width: 100%;
   height: 100%;

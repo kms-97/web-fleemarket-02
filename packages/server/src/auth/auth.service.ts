@@ -136,6 +136,6 @@ export class AuthService {
       },
     });
 
-    return data;
+    return { id: data.id, name: data.name };
   }
 }

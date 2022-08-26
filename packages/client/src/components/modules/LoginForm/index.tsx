@@ -1,21 +1,37 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 
 import Button from "@base/Button";
 import Text from "@base/Text";
-import { useInput } from "@src/hooks/useInput";
+import Input from "@base/Input";
 import GithubLoginButton from "@modules/GithubLoginButton";
-import InputBox from "../InputBox";
+
+import { useInput } from "@hooks/useInput";
+import { useMutation } from "@hooks/useMutation";
+import { requestLogIn } from "@apis/auth";
 
 const LoginForm = () => {
   const navigation = useNavigate();
   const [userId, onChangeUserId] = useInput();
   const [password, onChangePassword] = useInput();
+  const [error, setError] = useState<string | null>(null);
+  const [mutateSignIn] = useMutation(requestLogIn, {
+    onSuccess() {
+      navigation("/main");
+    },
+    onError(_error) {
+      setError(_error);
+    },
+  });
 
-  const onSubmit: React.FormEventHandler = useCallback((e) => {
-    e.preventDefault();
-  }, []);
+  const onSubmit: React.FormEventHandler = useCallback(
+    (e) => {
+      e.preventDefault();
+      mutateSignIn({ userId, password });
+    },
+    [userId, password],
+  );
 
   const moveToSignUpPage = () => {
     navigation("/signup");
@@ -23,19 +39,24 @@ const LoginForm = () => {
 
   return (
     <Container onSubmit={onSubmit}>
-      <InputBox
+      <Input
         value={userId}
         onChange={onChangeUserId}
         iSize="lg"
         placeholder="아이디를 입력하세요."
       />
-      <InputBox
+      <Input
         value={password}
+        type="password"
         onChange={onChangePassword}
         iSize="lg"
         placeholder="비밀번호를 입력하세요."
       />
-
+      {error && (
+        <Text size="xsm" fColor="ERROR">
+          {error}
+        </Text>
+      )}
       <Button size="lg">로그인</Button>
       <GithubLoginButton />
       <Text size="lg" isBold={true} onClick={moveToSignUpPage}>

@@ -10,10 +10,11 @@ const auth = (WrappedComponent: React.ComponentType) => {
       onError() {
         navigation("/login", { replace: true });
       },
-      cacheExpiredTime: 1000 * 60 * 60,
+      cacheExpiredTime: Infinity,
     });
 
-    return <WrappedComponent />;
+    if (data) return <WrappedComponent />;
+    else return <></>;
   };
   return Component;
 };

@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 import { CacheOption, useCacheAction } from "@contexts/CacheContext";
-import { fetchReducer, IFetchInitialState, initialState } from "@src/reducers/fetchReducer";
+import { fetchReducer, IFetchInitialState, initialState } from "@reducers/fetchReducer";
 import { FETCH_FAILURE, FETCH_REQUEST, FETCH_SUCCESS } from "@constants/actions";
 
 const initialMutationOptions: CacheOption<any> = {

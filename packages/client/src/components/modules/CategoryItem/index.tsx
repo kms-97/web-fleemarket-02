@@ -9,7 +9,7 @@ interface Props {
 }
 
 const CategoryItem = ({ category, onClick }: Props) => {
-  const { name, img } = category;
+  const { name, imgUrl } = category;
 
   const onClickCategoryItem = () => {
     onClick(name);
@@ -17,7 +17,7 @@ const CategoryItem = ({ category, onClick }: Props) => {
 
   return (
     <StyledButton onClick={onClickCategoryItem}>
-      <Image size="sm" src={img} />
+      <Image size="sm" src={`data:image/svg+xml;${imgUrl}`} />
       <Text size="sm">{name}</Text>
     </StyledButton>
   );

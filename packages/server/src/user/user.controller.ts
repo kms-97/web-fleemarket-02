@@ -1,5 +1,6 @@
 import { AccessJwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { PaginationDto } from '@base/Pagination.dto';
+import { TokenUser, User } from '@decorator/user.decorator';
 import {
   Controller,
   Param,
@@ -65,20 +66,22 @@ export class UserController {
   }
 
   @UseGuards(AccessJwtAuthGuard)
-  @Patch(':userId/location/:locationId')
+  @Patch('location')
   async updateActiveUserLocation(
-    @Param('userId') userId: number,
+    @User() user: TokenUser,
     @Param('locationId') locationId: number,
   ) {
+    const userId = user.id;
     await this.userService.updateActiveUserLocationHandler(userId, locationId);
   }
 
   @UseGuards(AccessJwtAuthGuard)
-  @Delete(':userId/location/:locationId')
+  @Delete('location')
   async deleteUserLocation(
-    @Param('userId') userId: number,
-    @Param('locationId') locationId: number,
+    @User() user: TokenUser,
+    @Body('locationId') locationId: number,
   ) {
+    const userId = user.id;
     await this.userService.deleteUserLocationHandler(userId, locationId);
   }
 }

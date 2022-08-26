@@ -12,12 +12,15 @@ import { useMutation } from "@hooks/useMutation";
 import { requestSignUp } from "@apis/user";
 import { IUserLocation } from "types/location.type";
 import { ISignUpUser } from "types/user.type";
+import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const SignUpLoPage = () => {
   const navigation = useNavigate();
   const { clearState } = useSignUpFormAction();
   const { data } = useSignUpForm();
   const [cookies] = useCookies();
+  const { addToastMessage } = useToastMessageAction();
+
   const [locations, setLocations] = useState<IUserLocation[]>([]);
   const [signUpMutation] = useMutation(requestSignUp, {
     onSuccess(_) {
@@ -25,8 +28,7 @@ const SignUpLoPage = () => {
       navigation("/login");
     },
     onError(error) {
-      // toast
-      console.log();
+      addToastMessage({ type: "error", message: error, isVisible: true });
     },
   });
 
@@ -40,6 +42,7 @@ const SignUpLoPage = () => {
   const onClickSignUpButton = useCallback(() => {
     if (locations.length === 0) {
       // toast
+      addToastMessage({ type: "error", message: "지역이 선택되지 않았습니다.", isVisible: true });
       return;
     }
 
@@ -66,7 +69,7 @@ const SignUpLoPage = () => {
     const isExist = locations.find((_location) => _location.id === location.id);
 
     if (isExist) {
-      // toast
+      addToastMessage({ type: "error", message: "이미 선택된 지역입니다.", isVisible: true });
       return;
     }
     const newLocations = locations.map((location) => {

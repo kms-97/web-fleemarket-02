@@ -1,5 +1,5 @@
 import { END_POINT } from "@constants/api";
-import { IGetGetUser, ISignUpUser } from "types/user.type";
+import { IGetUser, ISignUpUser } from "types/user.type";
 import { IAddUserLocation } from "types/location.type";
 import { IResGetProducts } from "types/product.type";
 import { request } from ".";
@@ -17,7 +17,7 @@ const { GET_USER, SIGNUP, GET_USER_LOCATION, GET_USER_PRODUCT, GET_USER_PRODUCT_
   END_POINT;
 
 const requestGetUser = async () => {
-  const result = await request<IGetGetUser>(GET_USER);
+  const result = await request<IGetUser>(GET_USER);
 
   const { user } = result;
 
@@ -25,7 +25,7 @@ const requestGetUser = async () => {
 };
 
 const requestGetUserById = async (userId: number) => {
-  const result = await request<IGetGetUser>(`${GET_USER}/${userId}`);
+  const result = await request<IGetUser>(`${GET_USER}/${userId}`);
 
   const { user } = result;
 
@@ -35,7 +35,7 @@ const requestGetUserById = async (userId: number) => {
 const requestGetUserByUserId = async (query: any) => {
   const queryParams = getQueryParams(query);
 
-  const result = await request<IGetGetUser>(`${GET_USER}?${queryParams}`);
+  const result = await request<IGetUser>(`${GET_USER}?${queryParams}`);
 
   const { user } = result;
 

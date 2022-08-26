@@ -11,10 +11,9 @@ const Template = ({ children }: Props) => {
 
 const StyledTemplate = styled.div`
   position: relative;
-  width: 480px;
-  height: 844px;
+  width: 768px;
+  height: 100%;
 
-  border: 1px solid ${({ theme }) => theme.COLOR.GRAY3};
   background-color: ${({ theme }) => theme.COLOR.WHITE};
   border-radius: 8px;
   overflow-x: hidden;
@@ -46,6 +45,10 @@ const StyledTemplate = styled.div`
   .fade-exit-active {
     transform: translateX(50%);
     transition: transform 0.35s ease-out;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
   }
 `;
 

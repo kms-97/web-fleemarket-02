@@ -10,18 +10,21 @@ import GithubLoginButton from "@modules/GithubLoginButton";
 import { useInput } from "@hooks/useInput";
 import { useMutation } from "@hooks/useMutation";
 import { requestLogIn } from "@apis/auth";
+import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const LoginForm = () => {
   const navigation = useNavigate();
   const [userId, onChangeUserId] = useInput();
   const [password, onChangePassword] = useInput();
   const [error, setError] = useState<string | null>(null);
+  const { addToastMessage } = useToastMessageAction();
   const [mutateSignIn] = useMutation(requestLogIn, {
     onSuccess() {
       navigation("/main");
     },
     onError(_error) {
       setError(_error);
+      addToastMessage({ type: "error", message: _error, isVisible: true });
     },
   });
 
@@ -57,7 +60,9 @@ const LoginForm = () => {
           {error}
         </Text>
       )}
-      <Button size="lg">로그인</Button>
+      <Button size="lg" disabled={!(userId && password)}>
+        로그인
+      </Button>
       <GithubLoginButton />
       <Text size="lg" isBold={true} onClick={moveToSignUpPage}>
         회원가입

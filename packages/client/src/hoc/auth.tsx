@@ -6,7 +6,8 @@ import { useQuery } from "@hooks/useQuery";
 const auth = (WrappedComponent: React.ComponentType) => {
   const Component = () => {
     const navigation = useNavigate();
-    const { data } = useQuery(["userinfo"], requestGetLoginUserInfo, {
+
+    useQuery(["userinfo"], requestGetLoginUserInfo, {
       onError() {
         navigation("/login", { replace: true });
       },

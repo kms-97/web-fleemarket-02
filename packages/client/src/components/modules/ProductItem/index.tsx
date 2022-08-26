@@ -15,7 +15,7 @@ interface Props {
 
 const ProductItem = ({ product, isActive }: Props) => {
   const navigation = useNavigate();
-  const { id, title, locationName, createdAt, price, likeUsers, chatCount } = product;
+  const { id, title, locationName, createdAt, price, likeUsers, chatCount, imgUrl } = product;
   const wishCount = likeUsers.length;
 
   const moveToDetailPage = (id: number) => {
@@ -55,7 +55,7 @@ const ProductItem = ({ product, isActive }: Props) => {
 
   return (
     <Container onClick={() => moveToDetailPage(id)}>
-      <Image size="lg" src="empty.jpg" />
+      <Image size="lg" src={imgUrl[0]} />
       <div className="description">
         <Text size="lg" isBold={true}>
           {title}

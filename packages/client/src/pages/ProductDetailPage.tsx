@@ -1,46 +1,62 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Header from "@components/modules/Header";
 import styled from "@emotion/styled";
 import Text from "@base/Text";
 import FloatButton from "@components/modules/FloatButton";
 import VerticalIcon from "@icons/VerticalIcon";
-import HeartIcon from "@icons/HeartIcon";
 import Button from "@base/Button";
 import ProductDetailContent from "@components/modules/ProductDetailContent";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@hooks/useQuery";
-import { requestGetProduct } from "@src/apis/product";
-import { IProduct } from "@src/types/product.type";
+import { requestDeleteProduct, requestGetProduct } from "@src/apis/product";
+import DropDown from "@modules/DropDown";
+import { useMutation } from "@hooks/useMutation";
 
 const ProductDetailPage = () => {
+  const navigation = useNavigate();
   const { id } = useParams();
-  const [product, setProduct] = useState<IProduct | null>(null);
-  const { refetch } = useQuery(["product", id!], requestGetProduct, {
-    onSuccess: (data) => {
-      setProduct(data);
+  const [showDotDropdown, setShowDotDropdown] = useState<boolean>(false);
+  const { data: product } = useQuery(["product", id!], async () => requestGetProduct(Number(id)));
+
+  const [deleteMutate] = useMutation(requestDeleteProduct, {
+    onSuccess: () => {
+      navigation("/main");
     },
   });
 
   const onClickDotButton = () => {
-    console.log("123");
+    setShowDotDropdown((prev) => !prev);
   };
 
-  useEffect(() => {
-    refetch(id);
-  }, []);
+  const onClickDeleteButton = () => {
+    deleteMutate(id);
+  };
 
+  const onClickUpdateButton = () => {
+    navigation(`/product/update/${id}`);
+  };
+
+  const DotDropdown = () => {
+    if (!showDotDropdown) return <></>;
+    return (
+      <DropDown>
+        <li onClick={onClickUpdateButton}>수정하기</li>
+        <li onClick={onClickDeleteButton}>삭제하기</li>
+      </DropDown>
+    );
+  };
+
+  if (!product) return <></>;
   return (
     <Container>
       <Header>
         <FloatButton fixedPos="right" onClick={onClickDotButton}>
           <VerticalIcon />
         </FloatButton>
+        <DotDropdown />
       </Header>
-      {product && <ProductDetailContent product={product} />}
+      <ProductDetailContent product={product} />
       <Footer>
-        <WishButton isActive={true}>
-          <HeartIcon />
-        </WishButton>
         <Text size="lg">
           {product && Number(product.price).toLocaleString()}원<Button>문의하기</Button>
         </Text>
@@ -69,6 +85,11 @@ const Container = styled.div`
     border: none;
     position: absolute;
     z-index: 1;
+
+    ul {
+      top: 50px;
+      right: 0px;
+    }
   }
 `;
 
@@ -84,16 +105,6 @@ const Footer = styled.footer`
   > p {
     display: flex;
     column-gap: 8px;
-  }
-`;
-
-const WishButton = styled.button<{ isActive: boolean }>`
-  > svg {
-    fill: ${({ theme, isActive }) => (isActive ? theme.COLOR.PRIMARY1 : "")};
-
-    > path {
-      stroke: ${({ theme }) => theme.COLOR.PRIMARY1};
-    }
   }
 `;
 

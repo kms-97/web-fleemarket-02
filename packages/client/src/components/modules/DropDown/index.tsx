@@ -5,8 +5,8 @@ interface Props {
   children?: React.ReactNode;
 }
 
-const DropDown = ({ children }: Props) => {
-  return <Container>{children}</Container>;
+const DropDown = ({ children }: Props, ref: React.ForwardedRef<HTMLUListElement>) => {
+  return <Container ref={ref}>{children}</Container>;
 };
 
 const Container = styled.ul`
@@ -26,7 +26,7 @@ const Container = styled.ul`
 
   & > li {
     width: 100%;
-    padding: 16px;
+    padding: 10px;
     text-decoration: none;
     list-style: none;
     cursor: pointer;
@@ -42,4 +42,4 @@ const Container = styled.ul`
   }
 `;
 
-export default DropDown;
+export default React.forwardRef(DropDown);

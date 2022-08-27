@@ -51,6 +51,10 @@ interface IResGetProducts extends ICoreResponse {
   products: IProductItem[];
 }
 
+interface IResGetProductsByWishes extends ICoreResponse {
+  wishes: IProductItem[];
+}
+
 interface IResAddImage extends ICoreResponse {
   imgUrls: string[];
 }
@@ -64,4 +68,5 @@ export type {
   IResGetProduct,
   IResUpdateProduct,
   IResAddImage,
+  IResGetProductsByWishes,
 };

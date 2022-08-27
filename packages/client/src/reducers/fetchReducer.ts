@@ -6,7 +6,7 @@ export interface IFetchInitialState<T> {
   loading: boolean;
 }
 
-export const initialState: IFetchInitialState<any> = {
+export const initialQueryState: IFetchInitialState<any> = {
   data: null,
   error: null,
   loading: false,

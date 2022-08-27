@@ -7,7 +7,6 @@ import ProductItem from "@components/modules/ProductItem";
 import MapPinIcon from "@icons/MapPinIcon";
 import Text from "@base/Text";
 import Fab from "@base/Fab";
-import auth from "@hoc/auth";
 
 import { requestGetProducts } from "@apis/product";
 
@@ -17,16 +16,33 @@ import { IProductItem } from "types/product.type";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { IUser } from "types/user.type";
 
-const MainPage = auth(() => {
+const MainPage = () => {
   const navigation = useNavigate();
   const params = useSearchParam();
   const [products, setProducts] = useState<IProductItem[]>();
-  const { refetch } = useQuery(["products"], requestGetProducts, {
-    onSuccess(data) {
-      setProducts(data);
-    },
-  });
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
+
+  const { refetch } = useQuery(
+    ["products", user?.id ?? 0],
+    async () => {
+      if (!user) {
+        return;
+      }
+
+      const activeLocation = getActiveLocation(user);
+
+      if (params.category) {
+        return await requestGetProducts({ category: params.category, location: activeLocation.id });
+      } else {
+        return await requestGetProducts({ location: activeLocation.id });
+      }
+    },
+    {
+      onSuccess(data) {
+        setProducts(data);
+      },
+    },
+  );
 
   const moveToLocationPage = () => {
     navigation("/location");
@@ -40,17 +56,6 @@ const MainPage = auth(() => {
     const locations = user.locations;
     return locations.filter(({ isActive }) => isActive)[0];
   };
-
-  useEffect(() => {
-    if (!user) return;
-    const activeLocation = getActiveLocation(user);
-
-    if (params.category) {
-      refetch({ category: params.category, location: activeLocation.id });
-    } else {
-      refetch({ location: activeLocation.id });
-    }
-  }, [params.category, user]);
 
   return (
     <>
@@ -75,7 +80,7 @@ const MainPage = auth(() => {
       </Container>
     </>
   );
-});
+};
 
 const Container = styled.div`
   position: relative;

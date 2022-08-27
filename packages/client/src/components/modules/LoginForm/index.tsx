@@ -26,6 +26,7 @@ const LoginForm = () => {
       setError(_error);
       addToastMessage({ type: "error", message: _error, isVisible: true });
     },
+    cacheClear: true,
   });
 
   const onSubmit: React.FormEventHandler = useCallback(

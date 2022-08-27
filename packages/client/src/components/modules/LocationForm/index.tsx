@@ -23,7 +23,6 @@ const LocationForm = ({ locations, deleteLocation, addLocation, activeLocation }
           지역은 최소 1개 이상 <br /> 최대 2개까지 설정 가능해요
         </Text>
         <LocationList>
-          {locations.length < 2 && <LButton onClick={openModal} />}
           {locations.map((location) => (
             <LButton
               key={location.id}
@@ -32,6 +31,7 @@ const LocationForm = ({ locations, deleteLocation, addLocation, activeLocation }
               onClick={() => activeLocation(location.id)}
             />
           ))}
+          {locations.length < 2 && <LButton onClick={openModal} />}
         </LocationList>
       </Container>
       {isOpen && <SearchLocationModal onClose={closeModal} addLocation={addLocation} />}

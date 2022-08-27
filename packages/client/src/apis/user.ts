@@ -1,7 +1,7 @@
 import { END_POINT } from "@constants/api";
 import { IGetUser, ISignUpUser } from "types/user.type";
 import { IAddUserLocation } from "types/location.type";
-import { IResGetProducts } from "types/product.type";
+import { IResGetProducts, IResGetProductsByWishes } from "types/product.type";
 import { request } from ".";
 import { getQueryParams } from "@utils/queryStringHandler";
 
@@ -59,11 +59,11 @@ const requestGetUserProduct = async (userId: number) => {
 };
 
 const requestGetUserProductByWish = async (userId: number) => {
-  const result = await request<IResGetProducts>(GET_USER_PRODUCT_BY_WISH(userId));
+  const result = await request<IResGetProductsByWishes>(GET_USER_PRODUCT_BY_WISH(userId));
 
-  const { products } = result;
+  const { wishes } = result;
 
-  return products;
+  return wishes;
 };
 
 const requestSignUp = async (data: ISignUpUser) => {

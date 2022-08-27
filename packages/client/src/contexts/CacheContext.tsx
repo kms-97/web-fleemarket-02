@@ -10,6 +10,7 @@ export interface CacheOption<T> {
   cacheClear?: boolean;
   isCacheSave?: boolean;
   overrideCache?: boolean;
+  firstFetch?: boolean;
   onError?: (error: string) => void;
   onSuccess?: (data: T, ...arg: any) => void;
 }
@@ -18,12 +19,13 @@ interface ICacheState {
   [key: string]: {
     data: any;
     expiredTime: number;
+    isFetch: boolean;
     observer: Set<() => void> | null;
   };
 }
 
 interface ICacheAction {
-  init: (key: string) => void;
+  init: <T>(key: string, options: CacheOption<T>) => void;
   clear: () => void;
   set: <T>(key: string, data: T | T[], options: CacheOption<T>) => void;
   get: <T>(key: string) => T | null;
@@ -31,6 +33,8 @@ interface ICacheAction {
   unsubscribe: (key: string, notify: () => void) => void;
   notify: (keys: string[]) => void;
   no: (key: string) => void;
+  fetchFn: <T>(key: string, fn: () => Promise<T>) => Promise<T> | undefined;
+  fetchStart: (key: string) => void;
 }
 
 export const CacheContext = createContext({});
@@ -48,8 +52,7 @@ export const CacheProvider = ({ children }: Props) => {
         storeRef.current = {};
       },
       set: (key, data, options) => {
-        const currentTime = new Date().getTime();
-        const { overrideCache, cacheExpiredTime } = options;
+        const { overrideCache } = options;
         const prevCacheData = storeRef.current[key].data;
 
         if (overrideCache && Array.isArray(prevCacheData) && Array.isArray(data)) {
@@ -57,8 +60,6 @@ export const CacheProvider = ({ children }: Props) => {
         } else {
           storeRef.current[key].data = data;
         }
-
-        storeRef.current[key].expiredTime = currentTime + (cacheExpiredTime ?? 30000);
       },
       get: (key) => {
         const { data, expiredTime } = storeRef.current[key];
@@ -72,15 +73,38 @@ export const CacheProvider = ({ children }: Props) => {
 
         return data;
       },
-      init: (key) => {
+      fetchFn: (key, fn) => {
+        const observe = storeRef.current[key];
+
+        if (!observe || observe.isFetch) {
+          return;
+        }
+
+        storeRef.current[key].isFetch = true;
+
+        return fn();
+      },
+      fetchStart: (key) => {
+        const observe = storeRef.current[key];
+
+        if (!observe) {
+          return;
+        }
+        observe.isFetch = false;
+      },
+      init: (key, options) => {
         if (storeRef.current[key]) {
           return;
         }
 
+        const currentTime = new Date().getTime();
+        const { cacheExpiredTime } = options;
+
         storeRef.current[key] = {
           data: null,
-          expiredTime: 30000,
+          expiredTime: currentTime + (cacheExpiredTime ?? 30000),
           observer: null,
+          isFetch: false,
         };
       },
       subscribe: (key, notify) => {

@@ -23,7 +23,7 @@ const SignUpLoPage = () => {
 
   const [locations, setLocations] = useState<IUserLocation[]>([]);
   const [signUpMutation] = useMutation(requestSignUp, {
-    onSuccess(_) {
+    onSuccess() {
       clearState();
       navigation("/login");
     },
@@ -83,7 +83,12 @@ const SignUpLoPage = () => {
 
   const deleteLocation = (locationId: number) => {
     if (locations.length === 1) {
-      // toast
+      addToastMessage({
+        type: "error",
+        message: "관심 지역은 최소 1개 설정되어야 합니다.",
+        isVisible: true,
+      });
+
       return;
     }
 

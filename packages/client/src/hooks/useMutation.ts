@@ -7,10 +7,10 @@ const initialMutationOptions: CacheOption<any> = {
   cacheClear: false,
   overrideCache: false,
   onError: (error: string) => error,
-  onSuccess: (data: any) => data,
+  onSuccess: (data: any, ...args: any) => data,
 };
 
-type MutationReturn<T> = [(...arg: any) => void, IFetchInitialState<T>];
+type MutationReturn<T> = [(...arg: any) => Promise<T | undefined>, IFetchInitialState<T>];
 
 export const useMutation = <T>(
   callback: (...arg: any) => Promise<T>,
@@ -28,18 +28,20 @@ export const useMutation = <T>(
   const { data, error, loading } = state as IFetchInitialState<T>;
 
   const mutate = async (...args: any) => {
-    if (cacheClear) {
-      clear();
-    }
-
-    dispatch({ type: FETCH_REQUEST });
-
     try {
+      if (cacheClear) {
+        clear();
+      }
+
+      dispatch({ type: FETCH_REQUEST });
+
       const result = await callback(...args);
 
-      onSuccess?.(result);
+      onSuccess?.(result, ...args);
       dispatch({ type: FETCH_SUCCESS, payload: result });
       notify(keys);
+
+      return result;
     } catch (error: any) {
       onError?.(error.message);
       dispatch({ type: FETCH_FAILURE, error: error.message });

@@ -29,6 +29,7 @@ const SignUpForm = () => {
     onError(error) {
       setError(error);
     },
+    cacheClear: true,
   });
 
   const checkPassword = () => checkConfirmPassword(password.value, confirmPassword.value);

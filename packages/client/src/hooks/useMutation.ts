@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 import { CacheOption, useCacheAction } from "@contexts/CacheContext";
-import { fetchReducer, IFetchInitialState, initialState } from "@reducers/fetchReducer";
+import { fetchReducer, IFetchInitialState, initialQueryState } from "@reducers/fetchReducer";
 import { FETCH_FAILURE, FETCH_REQUEST, FETCH_SUCCESS } from "@constants/actions";
 
 const initialMutationOptions: CacheOption<any> = {
@@ -17,7 +17,7 @@ export const useMutation = <T>(
   options: CacheOption<T> = initialMutationOptions,
   keys: string[] = [],
 ): MutationReturn<T> => {
-  const [state, dispatch] = useReducer(fetchReducer, initialState);
+  const [state, dispatch] = useReducer(fetchReducer, initialQueryState);
 
   const { onError, onSuccess, cacheClear } = {
     ...initialMutationOptions,

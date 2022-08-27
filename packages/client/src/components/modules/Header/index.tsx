@@ -1,18 +1,19 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { To, useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import LeftIcon from "@icons/LeftIcon";
 import FloatButton from "../FloatButton";
 
 interface Props {
   children?: React.ReactNode;
+  backPath?: To | number;
 }
 
-const Header = ({ children }: Props) => {
+const Header = ({ children, backPath = -1 }: Props) => {
   const navigation = useNavigate();
 
   const moveToBack = () => {
-    navigation(-1);
+    navigation(backPath as To);
   };
 
   return (

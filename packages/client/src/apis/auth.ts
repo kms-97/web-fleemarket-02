@@ -1,6 +1,5 @@
 import { END_POINT } from "@constants/api";
 import { IGetUser, ISignInUser } from "types/user.type";
-import { IGetGetUser, ISignInUser } from "types/user.type";
 import { request } from ".";
 
 const { LOGIN, LOGOUT, REFRESH, GET_LOGIN_USER } = END_POINT;

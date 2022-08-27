@@ -104,7 +104,7 @@ const WishButton = styled.button<{ isActive: boolean }>`
     fill: ${({ theme, isActive }) => (isActive ? theme.COLOR.PRIMARY1 : "")};
 
     > path {
-      stroke: ${({ theme }) => theme.COLOR.PRIMARY1};
+      stroke: ${({ theme, isActive }) => (isActive ? theme.COLOR.PRIMARY1 : theme.COLOR.GRAY1)};
     }
   }
 `;

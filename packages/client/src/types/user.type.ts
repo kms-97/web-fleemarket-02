@@ -5,7 +5,7 @@ interface IUser {
   id: number;
   name: string;
   userId: string;
-  wises: number[];
+  wishes: number[];
   locations: IUserLocation[];
   github?: {
     id: number;

@@ -43,7 +43,7 @@ export class ProductController {
     @User() user: TokenUser,
     @Param('id') productId: number,
   ) {
-    const userId = 1; // todo: auth를 통해 접속한 유저 아이디 전달받기.
+    const userId = user.id;
     await this.productService.insertProductWish(userId, productId);
   }
 
@@ -70,8 +70,11 @@ export class ProductController {
 
   @UseGuards(AccessJwtAuthGuard)
   @Delete(':id/wish')
-  async deleteProductWish(@Param('id') productId: number) {
-    const userId = 1; // todo: auth를 통해 접속한 유저 아이디 전달받기.
+  async deleteProductWish(
+    @User() user: TokenUser,
+    @Param('id') productId: number,
+  ) {
+    const userId = user.id;
     await this.productService.deleteProductWish(userId, productId);
   }
 }

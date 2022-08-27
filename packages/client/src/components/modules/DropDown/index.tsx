@@ -9,10 +9,8 @@ const DropDown = ({ children }: Props) => {
   return <Container>{children}</Container>;
 };
 
-const Container = styled.div`
+const Container = styled.ul`
   position: absolute;
-  top: 0;
-  left: 0;
   width: 165px;
 
   background-color: ${({ theme }) => theme.COLOR.OFF_WHITE};

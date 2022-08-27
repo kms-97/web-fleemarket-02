@@ -22,6 +22,7 @@ const ProductDetailPage = () => {
     onSuccess: () => {
       navigation("/main");
     },
+    cacheClear: true,
   });
 
   const onClickDotButton = () => {

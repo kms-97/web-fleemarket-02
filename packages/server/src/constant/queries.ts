@@ -205,7 +205,10 @@ const USER_LOCATION_QUERY = {
 const WISH_QUERY = {
   GET_WISH_BY_UID: `
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName,
-      seller_id as sellerId, json_arrayagg(w.user_id) as likeUsers
+      seller_id as sellerId, p.createdAt as createdAt,
+      (select if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id))
+      from Wish w
+      where w.product_id = p.id) as likeUsers
     from Wish w
     left join Product p on w.product_id = p.id
     left join Location l on p.location_id = l.id

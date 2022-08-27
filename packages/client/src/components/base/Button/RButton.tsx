@@ -4,13 +4,21 @@ import styled from "@emotion/styled";
 interface Props {
   name: string;
   value: string;
+  defaultChecked: boolean;
   onClick: React.MouseEventHandler<HTMLInputElement>;
 }
 
-const Radio: React.FC<Props> = ({ name, value, onClick }) => {
+const Radio: React.FC<Props> = ({ name, value, onClick, defaultChecked }) => {
   return (
     <>
-      <Input type="radio" id={value} value={value} name={name} onClick={onClick} />
+      <Input
+        type="radio"
+        id={value}
+        value={value}
+        name={name}
+        onClick={onClick}
+        defaultChecked={defaultChecked}
+      />
       <Label htmlFor={value}>{value}</Label>
     </>
   );

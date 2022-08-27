@@ -10,10 +10,21 @@ interface Props {
   selectedCategory: string;
   checkValidate: () => void;
   onClickCategoryBtn: React.MouseEventHandler;
+  onChangeTitle?: React.ChangeEventHandler<HTMLInputElement>;
+  titleValue: string;
+  defaultCategory?: string;
 }
 
 const ProductWriteTitle = (
-  { categories, selectedCategory, onClickCategoryBtn, checkValidate }: Props,
+  {
+    categories,
+    selectedCategory,
+    onClickCategoryBtn,
+    checkValidate,
+    defaultCategory = "",
+    titleValue = "",
+    onChangeTitle,
+  }: Props,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) => {
   const CategoryNotice = () => {
@@ -28,12 +39,25 @@ const ProductWriteTitle = (
 
   return (
     <Container>
-      <Input iSize="lg" placeholder="글 제목" ref={ref} onBlur={checkValidate} />
+      <Input
+        iSize="lg"
+        placeholder="글 제목"
+        ref={ref}
+        onBlur={checkValidate}
+        value={titleValue}
+        onChange={onChangeTitle}
+      />
       <CategoryNotice />
       <CategoryList>
         {categories &&
           categories.map(({ name }) => (
-            <RButton name="category" value={name} key={name} onClick={onClickCategoryBtn} />
+            <RButton
+              name="category"
+              value={name}
+              key={name}
+              onClick={onClickCategoryBtn}
+              defaultChecked={name === defaultCategory ? true : false}
+            />
           ))}
       </CategoryList>
     </Container>

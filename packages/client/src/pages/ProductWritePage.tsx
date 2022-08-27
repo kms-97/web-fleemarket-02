@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import Text from "@base/Text";
 import Input from "@base/Input";
@@ -18,17 +18,18 @@ import { requestGetCategory } from "@src/apis/category";
 import auth from "@hoc/auth";
 import { IUser } from "types/user.type";
 import { requestGetLoginUserInfo } from "@apis/auth";
+import { useInput } from "@hooks/useInput";
 
 const MAX_IMAGE_LIMIT = 10;
 
 const ProductWritePage = auth(() => {
   const navigation = useNavigate();
-  const { price, priceString, setPriceString } = usePriceInput("");
+  const { price, priceString, changePriceString } = usePriceInput("");
   const { imgUrl, addImages, deleteImage } = useImageInput(MAX_IMAGE_LIMIT);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const titleRef = useRef<HTMLInputElement>(null);
+  const [description, descriptionHandler] = useInput("");
+  const [title, titleHandler] = useInput("");
   const { data: categories } = useQuery<ICategory[]>(["category"], requestGetCategory);
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
   const [mutate] = useMutation(requestAddProduct, {
@@ -54,8 +55,6 @@ const ProductWritePage = auth(() => {
   const onClickSubmitButton: React.FormEventHandler = (e) => {
     e.preventDefault();
     if (!user) return;
-    const title = titleRef.current?.value;
-    const description = descriptionRef.current?.value;
     const sellerId = user.id;
     const locationId = getActiveLocation(user).id;
     const product = {
@@ -84,8 +83,6 @@ const ProductWritePage = auth(() => {
   };
 
   const checkValidate = () => {
-    const title = titleRef.current?.value;
-    const description = descriptionRef.current?.value;
     const imageCount = imgUrl.length;
 
     if (title && selectedCategory && description && imageCount) setIsValid(true);
@@ -106,20 +103,22 @@ const ProductWritePage = auth(() => {
           selectedCategory={selectedCategory}
           checkValidate={checkValidate}
           onClickCategoryBtn={onClickCategoryBtn}
-          ref={titleRef}
+          onChangeTitle={titleHandler}
+          titleValue={title}
         />
         <PriceSection>
           <Input
             iSize="lg"
             placeholder="가격(선택 사항)"
             value={priceString}
-            onChange={({ target: { value } }) => setPriceString(value)}
+            onChange={({ target: { value } }) => changePriceString(value)}
           />
         </PriceSection>
         <StyledTextArea
           placeholder="게시글 내용을 작성해주세요"
-          ref={descriptionRef}
           onBlur={checkValidate}
+          value={description}
+          onChange={descriptionHandler}
         />
       </Body>
       <Footer>

@@ -25,7 +25,7 @@ export const useQuery = <T>(
     ...initialQueryOptions,
     ...options,
   };
-  const { clear, set, get, subscribe, unsubscribe, init, no, fetchFn, fetchStart } =
+  const { clear, set, get, subscribe, unsubscribe, init, no, fetchFn, fetchStart, updateCache } =
     useCacheAction();
 
   const { data, error, loading } = state as IFetchInitialState<T>;
@@ -122,5 +122,5 @@ export const useQuery = <T>(
     }
   }, [notify]);
 
-  return { data, error, loading, refetch };
+  return { data, error, loading, refetch, updateCache };
 };

@@ -1,14 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import styled from "@emotion/styled";
 import MainHeader from "@components/modules/MainHeader";
-import ProductItem from "@components/modules/ProductItem";
 import MapPinIcon from "@icons/MapPinIcon";
 import Text from "@base/Text";
 import Fab from "@base/Fab";
 
-import { requestAddWishProduct, requestDeleteWishProduct, requestGetProducts } from "@apis/product";
+import {
+  requestAddWishProduct,
+  requestDeleteWishProduct,
+  requestGetProducts,
+  requestDeleteProduct,
+} from "@apis/product";
 
 import { useQuery } from "@hooks/useQuery";
 import { useSearchParam } from "@hooks/useSearchParam";
@@ -16,16 +20,18 @@ import { requestGetLoginUserInfo } from "@apis/auth";
 import { IUser } from "types/user.type";
 import { useMutation } from "@hooks/useMutation";
 import { IProductItem } from "types/product.type";
+import ProductList from "@modules/ProductList";
 
 const MainPage = () => {
   const navigation = useNavigate();
   const params = useSearchParam();
+  const [products, setProducts] = useState<IProductItem[]>([]);
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
-  const { data: products, updateCache } = useQuery(
+  const { data, updateCache } = useQuery(
     ["products", user?.id ?? -1],
     async () => {
       if (!user) {
-        return;
+        return [];
       }
 
       const activeLocation = getActiveLocation(user);
@@ -36,7 +42,28 @@ const MainPage = () => {
       }
     },
     {
-      overrideCache: true,
+      onSuccess(data) {
+        setProducts(data);
+      },
+      cacheExpiredTime: 0,
+    },
+  );
+  const [deleteProduct] = useMutation(
+    async (product: IProductItem) => {
+      return await requestDeleteProduct(product.id);
+    },
+    {
+      onSuccess: (data, ...args) => {
+        if (!user || !products) return;
+        const [product] = args;
+        const newProducts = [...products];
+        const index = newProducts.findIndex((p) => p.id === product.id);
+        if (index >= 0) newProducts.splice(index, 1);
+
+        updateCache(["products", user?.id ?? -1], newProducts);
+        setProducts(newProducts);
+      },
+      cacheClear: true,
     },
   );
   const [toggleWish] = useMutation(
@@ -93,12 +120,9 @@ const MainPage = () => {
             </Text>
           </button>
         </MainHeader>
-        <ProductList>
-          {products &&
-            products.map((product) => (
-              <ProductItem key={product.id} product={product} toggleWish={toggleWish} />
-            ))}
-        </ProductList>
+        {products && (
+          <ProductList products={products} toggleWish={toggleWish} deleteProduct={deleteProduct} />
+        )}
         <Layer>
           <Fab onClick={moveToProductWritePage} />
         </Layer>
@@ -122,10 +146,6 @@ const Layer = styled.div`
   right: 0px;
   bottom: 0px;
   z-index: 1;
-`;
-
-const ProductList = styled.div`
-  overflow: auto;
 `;
 
 export default MainPage;

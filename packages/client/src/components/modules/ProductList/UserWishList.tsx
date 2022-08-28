@@ -4,7 +4,11 @@ import { requestGetUserProductByWish } from "@apis/user";
 import { useQuery } from "@hooks/useQuery";
 import ProductItem from "@modules/ProductItem";
 import { useMutation } from "@hooks/useMutation";
-import { requestAddWishProduct, requestDeleteWishProduct } from "@apis/product";
+import {
+  requestAddWishProduct,
+  requestDeleteProduct,
+  requestDeleteWishProduct,
+} from "@apis/product";
 import { IProductItem } from "types/product.type";
 
 const UserWishList = () => {
@@ -23,6 +27,23 @@ const UserWishList = () => {
         setUserProducts(data);
       },
       cacheExpiredTime: 0,
+    },
+  );
+  const [deleteProduct] = useMutation(
+    async (product: IProductItem) => {
+      return await requestDeleteProduct(product.id);
+    },
+    {
+      onSuccess: (data, ...args) => {
+        if (!user || !userProducts) return;
+        const [product] = args;
+        const newUserProducts = [...userProducts];
+        const index = newUserProducts.findIndex((p) => p.id === product.id);
+        if (index >= 0) newUserProducts.splice(index, 1);
+
+        setUserProducts(newUserProducts);
+      },
+      cacheClear: true,
     },
   );
   const [toggleWish] = useMutation(
@@ -59,7 +80,12 @@ const UserWishList = () => {
   return (
     <>
       {userProducts?.map((product) => (
-        <ProductItem key={product.id} product={product} toggleWish={toggleWish} />
+        <ProductItem
+          key={product.id}
+          product={product}
+          toggleWish={toggleWish}
+          deleteProduct={deleteProduct}
+        />
       ))}
     </>
   );

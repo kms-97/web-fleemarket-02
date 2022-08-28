@@ -15,9 +15,10 @@ import DotDropdown from "@modules/DropDown/Dot";
 interface Props {
   product: IProductItem;
   toggleWish: any;
+  deleteProduct: (...arg: any) => Promise<boolean | undefined>;
 }
 
-const ProductItem = ({ product, toggleWish }: Props) => {
+const ProductItem = ({ product, toggleWish, deleteProduct }: Props) => {
   const navigation = useNavigate();
   const { id, title, locationName, createdAt, price, likeUsers, chatCount, imgUrl } = product;
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
@@ -85,7 +86,7 @@ const ProductItem = ({ product, toggleWish }: Props) => {
       </div>
       <ButtonContainer>
         <WishButton isActive={isWishProduct} className="heart" onClick={onClickWishButton} />
-        {isMyProduct ? <DotDropdown product={product} /> : ""}
+        {isMyProduct && <DotDropdown product={product} deleteProduct={deleteProduct} />}
       </ButtonContainer>
       <ChatLike>
         {chatCount ? <ChatIcon /> : ""}

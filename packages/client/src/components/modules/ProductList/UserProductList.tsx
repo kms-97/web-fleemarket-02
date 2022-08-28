@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import { requestGetUserProduct } from "@apis/user";
 import { useQuery } from "@hooks/useQuery";
 import { requestGetLoginUserInfo } from "@apis/auth";
-import ProductItem from "@modules/ProductItem";
 import { useMutation } from "@hooks/useMutation";
-import { requestAddWishProduct, requestDeleteWishProduct } from "@apis/product";
+import {
+  requestAddWishProduct,
+  requestDeleteProduct,
+  requestDeleteWishProduct,
+} from "@apis/product";
 import { IProductItem } from "types/product.type";
+import ProductList from "./";
 
 const UserProductList = () => {
   const [userProducts, setUserProducts] = useState<IProductItem[]>([]);
@@ -23,6 +27,23 @@ const UserProductList = () => {
         setUserProducts(data);
       },
       cacheExpiredTime: 0,
+    },
+  );
+  const [deleteProduct] = useMutation(
+    async (product: IProductItem) => {
+      return await requestDeleteProduct(product.id);
+    },
+    {
+      onSuccess: (data, ...args) => {
+        if (!user || !userProducts) return;
+        const [product] = args;
+        const newUserProducts = [...userProducts];
+        const index = newUserProducts.findIndex((p) => p.id === product.id);
+        if (index >= 0) newUserProducts.splice(index, 1);
+
+        setUserProducts(newUserProducts);
+      },
+      cacheClear: true,
     },
   );
   const [toggleWish] = useMutation(
@@ -58,9 +79,13 @@ const UserProductList = () => {
 
   return (
     <>
-      {userProducts?.map((product) => (
-        <ProductItem key={product.id} product={product} toggleWish={toggleWish} />
-      ))}
+      {userProducts && (
+        <ProductList
+          products={userProducts}
+          toggleWish={toggleWish}
+          deleteProduct={deleteProduct}
+        />
+      )}
     </>
   );
 };

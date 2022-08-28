@@ -4,36 +4,31 @@ import VerticalIcon from "@icons/VerticalIcon";
 import DropDown from "./";
 import { IProduct, IProductItem } from "types/product.type";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@hooks/useMutation";
-import { requestDeleteProduct } from "@apis/product";
 import useDetectOutsideClick from "@hooks/useDetectOutside";
 import Text from "@base/Text";
+import { useQuery } from "@hooks/useQuery";
+import { requestGetLoginUserInfo } from "@apis/auth";
 
 interface Props {
   className?: string;
   product: IProduct | IProductItem;
+  deleteProduct: (...args: any[]) => Promise<boolean | undefined>;
 }
 
-const DotDropdown = ({ className, product }: Props) => {
+const DotDropdown = ({ className, product, deleteProduct }: Props) => {
+  const navigation = useNavigate();
   const dropDownRef = useRef<HTMLUListElement>(null);
   const [isActive, onChangeActive] = useDetectOutsideClick(dropDownRef, false);
-  const navigation = useNavigate();
+  const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
 
   const toggle: MouseEventHandler = (e) => {
     e.stopPropagation();
     onChangeActive();
   };
 
-  const [deleteMutate] = useMutation(requestDeleteProduct, {
-    onSuccess: () => {
-      navigation("/main");
-    },
-    cacheClear: true,
-  });
-
   const onClickDelete: MouseEventHandler = (e) => {
     e.stopPropagation();
-    deleteMutate(product.id);
+    deleteProduct(product);
   };
 
   const onClickModify: MouseEventHandler = (e) => {

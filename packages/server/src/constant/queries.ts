@@ -85,8 +85,7 @@ const PRODUCT_QUERY = {
     join Location l on p.location_id = l.id
     left join Wish w on w.product_id = p.id
     where p.category_name = ? and p.location_id = ?
-    group by p.id
-    limit ?, ?;
+    group by p.id;
     `,
   FIND_PRODUCT_BY_LOCATION: `
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId, p.createdAt as createdAt,
@@ -95,8 +94,7 @@ const PRODUCT_QUERY = {
     join Location l on p.location_id = l.id
     left join Wish w on w.product_id = p.id
     where p.location_id = ?
-    group by p.id
-    limit ?, ?;
+    group by p.id;
     `,
   FIND_PRODUCT_BY_SELLER_ID: `
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId, p.createdAt as createdAt,
@@ -105,8 +103,7 @@ const PRODUCT_QUERY = {
     join Location l on p.location_id = l.id
     left join Wish w on w.product_id = p.id
     where p.seller_id = ?
-    group by p.id
-    limit ?, ?;
+    group by p.id;
     `,
   GET_PRODUCT_BY_ID: `select * from Product where id = ?`,
 };
@@ -213,8 +210,7 @@ const WISH_QUERY = {
     left join Product p on w.product_id = p.id
     left join Location l on p.location_id = l.id
     where w.user_id = ?
-    group by p.id
-    limit ?, ?;
+    group by p.id;
     `,
   INSERT_WISH: `
     insert into Wish (user_id, product_id)

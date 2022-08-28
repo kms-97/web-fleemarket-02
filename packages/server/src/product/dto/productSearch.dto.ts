@@ -1,7 +1,6 @@
-import { PaginationDto } from '@base/Pagination.dto';
 import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
-export class ProductSearchDto extends PaginationDto {
+export class ProductSearchDto {
   @IsOptional()
   @IsString()
   category?: string;

@@ -1,5 +1,4 @@
 import { AccessJwtAuthGuard } from '@auth/guards/jwt-auth.guard';
-import { PaginationDto } from '@base/Pagination.dto';
 import { TokenUser, User } from '@decorator/user.decorator';
 import {
   Controller,
@@ -51,16 +50,13 @@ export class UserController {
   }
 
   @Get(':id/product')
-  async getUserProductById(
-    @Param('id') id: number,
-    @Query() dto: PaginationDto,
-  ) {
-    return this.userService.getUserProductById(id, dto);
+  async getUserProductById(@Param('id') id: number) {
+    return this.userService.getUserProductById(id);
   }
 
   @Get(':id/wish')
-  async getUserWishById(@Param('id') id: number, @Query() dto: PaginationDto) {
-    return this.userService.getUserWishById(id, dto);
+  async getUserWishById(@Param('id') id: number) {
+    return this.userService.getUserWishById(id);
   }
 
   @UseGuards(AccessJwtAuthGuard)

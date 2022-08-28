@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LocationService } from '@location/location.service';
-import { PaginationDto } from '@base/Pagination.dto';
 import { UserLocationService } from '@userLocation/userLocation.service';
 import { CustomException } from '@base/CustomException';
 import { ErrorMessage } from '@constant/ErrorMessage';
@@ -229,7 +228,7 @@ export class UserService {
     return { user: user ?? null };
   }
 
-  async getUserProductById(id: number, dto: PaginationDto) {
+  async getUserProductById(id: number) {
     if (isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
@@ -238,14 +237,12 @@ export class UserService {
     }
 
     await this.checkExistUserById(id);
+    const products = await this.productService.findProductBySellerId(id);
 
-    const page = dto.page ?? 1;
-    const products = await this.productService.findProductBySellerId(id, page);
-
-    return { products, page };
+    return { products };
   }
 
-  async getUserWishById(id: number, dto: PaginationDto) {
+  async getUserWishById(id: number) {
     if (isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
@@ -254,11 +251,9 @@ export class UserService {
     }
 
     await this.checkExistUserById(id);
+    const wishes = await this.wishService.findWishByUserId(id);
 
-    const page = dto.page ?? 1;
-    const wishes = await this.wishService.findWishByUserId(id, page);
-
-    return { wishes, page };
+    return { wishes };
   }
 
   async updateUser(id: number, dto: UserUpdateDto) {

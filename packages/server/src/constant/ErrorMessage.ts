@@ -11,4 +11,5 @@ export const ErrorMessage = {
   EXCEED_USER_LOCATION_LIMIT: '관심 지역은 최대 2개까지 설정 가능합니다.',
   NOT_EMPTY_USER_LOCATION: '관심 지역은 최소 1개 설정되어야 합니다.',
   NOT_FOUND_TARGET: (target: string) => `존재하지 않는 ${target}입니다.`,
+  NO_AUTHORITY: `권한이 없습니다.`,
 };

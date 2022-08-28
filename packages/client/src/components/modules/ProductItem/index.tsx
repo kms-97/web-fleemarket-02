@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Text from "@base/Text";
 import Image from "@base/Image";
 import styled from "@emotion/styled";
@@ -7,16 +7,29 @@ import MessageIcon from "@icons/MessageIcon";
 import { IProductItem } from "types/product.type";
 import { getExpriedTime } from "@utils/timeCalculate";
 import { useNavigate } from "react-router-dom";
+import WishButton from "@modules/WishButton";
+import { useQuery } from "@hooks/useQuery";
+import { requestGetLoginUserInfo } from "@apis/auth";
+import DotDropdown from "@modules/DropDown/Dot";
 
 interface Props {
   product: IProductItem;
-  isActive: boolean;
+  toggleWish: any;
 }
 
-const ProductItem = ({ product, isActive }: Props) => {
+const ProductItem = ({ product, toggleWish }: Props) => {
   const navigation = useNavigate();
   const { id, title, locationName, createdAt, price, likeUsers, chatCount, imgUrl } = product;
+  const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
+  const [isMyProduct, setIsMyProduct] = useState<boolean>(false);
+  const [isWishProduct, setIsWishProduct] = useState<boolean>(false);
   const wishCount = likeUsers.length;
+
+  useEffect(() => {
+    if (!user) return;
+    setIsWishProduct(product.likeUsers.includes(user.id));
+    setIsMyProduct(product.sellerId === user.id);
+  }, [user]);
 
   const moveToDetailPage = (id: number) => {
     navigation(`/product/${id}`);
@@ -53,6 +66,11 @@ const ProductItem = ({ product, isActive }: Props) => {
     );
   };
 
+  const onClickWishButton: React.MouseEventHandler = (e) => {
+    e.stopPropagation();
+    toggleWish(isWishProduct, setIsWishProduct, product);
+  };
+
   return (
     <Container onClick={() => moveToDetailPage(id)}>
       <Image size="lg" src={imgUrl[0]} />
@@ -65,9 +83,10 @@ const ProductItem = ({ product, isActive }: Props) => {
         </Text>
         <PriceSection />
       </div>
-      <WishButton isActive={isActive}>
-        <HeartIcon />
-      </WishButton>
+      <ButtonContainer>
+        <WishButton isActive={isWishProduct} className="heart" onClick={onClickWishButton} />
+        {isMyProduct ? <DotDropdown product={product} /> : ""}
+      </ButtonContainer>
       <ChatLike>
         {chatCount ? <ChatIcon /> : ""}
         {wishCount ? <WishIcon /> : ""}
@@ -95,18 +114,13 @@ const Container = styled.div`
   }
 `;
 
-const WishButton = styled.button<{ isActive: boolean }>`
+const ButtonContainer = styled.div`
   position: absolute;
   top: 19px;
   right: 18px;
 
-  > svg {
-    fill: ${({ theme, isActive }) => (isActive ? theme.COLOR.PRIMARY1 : "")};
-
-    > path {
-      stroke: ${({ theme, isActive }) => (isActive ? theme.COLOR.PRIMARY1 : theme.COLOR.GRAY1)};
-    }
-  }
+  display: flex;
+  column-gap: 8px;
 `;
 
 const ChatLike = styled.div`

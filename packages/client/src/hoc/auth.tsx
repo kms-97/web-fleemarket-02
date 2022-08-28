@@ -7,7 +7,7 @@ const auth = (WrappedComponent: React.ComponentType) => {
   const Component = () => {
     const navigation = useNavigate();
 
-    useQuery(["userinfo"], requestGetLoginUserInfo, {
+    const { data } = useQuery(["userinfo"], requestGetLoginUserInfo, {
       onError() {
         navigation("/login", { replace: true });
       },

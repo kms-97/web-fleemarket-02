@@ -19,11 +19,13 @@ import auth from "@hoc/auth";
 import { IUser } from "types/user.type";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { useInput } from "@hooks/useInput";
+import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const MAX_IMAGE_LIMIT = 10;
 
 const ProductWritePage = auth(() => {
   const navigation = useNavigate();
+  const { addToastMessage } = useToastMessageAction();
   const { price, priceString, changePriceString } = usePriceInput("");
   const { imgUrl, addImages, deleteImage } = useImageInput(MAX_IMAGE_LIMIT);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -32,10 +34,14 @@ const ProductWritePage = auth(() => {
   const [title, titleHandler] = useInput("");
   const { data: categories } = useQuery<ICategory[]>(["category"], requestGetCategory);
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
-  const [mutate] = useMutation(requestAddProduct, {
+  const [addProductMutation] = useMutation(requestAddProduct, {
     cacheClear: true,
-    onSuccess() {
-      moveToMainPage();
+    onSuccess(data) {
+      moveToDetailPage(data.id);
+      addToastMessage({ type: "notice", message: "등록하였습니다.", isVisible: true });
+    },
+    onError() {
+      addToastMessage({ type: "error", message: "등록에 실패하였습니다.", isVisible: true });
     },
   });
 
@@ -43,8 +49,8 @@ const ProductWritePage = auth(() => {
     checkValidate();
   }, [selectedCategory, imgUrl]);
 
-  const moveToMainPage = () => {
-    navigation("/main");
+  const moveToDetailPage = (id: number) => {
+    navigation(`/product/${id}`, { replace: true });
   };
 
   const getActiveLocation = (user: IUser) => {
@@ -67,7 +73,7 @@ const ProductWritePage = auth(() => {
       categoryName: selectedCategory,
     };
 
-    mutate(product);
+    addProductMutation(product);
   };
 
   const onChangeImageInput: React.ChangeEventHandler<HTMLInputElement> = (e) => {

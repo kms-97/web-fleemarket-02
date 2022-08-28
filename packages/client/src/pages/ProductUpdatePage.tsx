@@ -19,10 +19,12 @@ import { requestGetCategory } from "@src/apis/category";
 import { IUser } from "types/user.type";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { IProduct } from "types/product.type";
+import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const MAX_IMAGE_LIMIT = 10;
 
 const ProductUpdatePage = () => {
+  const { addToastMessage } = useToastMessageAction();
   const navigation = useNavigate();
   const { productId } = useParams();
   const [product, setProduct] = useState<IProduct | null>(null);
@@ -38,7 +40,11 @@ const ProductUpdatePage = () => {
   const [mutate] = useMutation(requestUpdateProduct, {
     cacheClear: true,
     onSuccess() {
-      moveToMainPage();
+      moveToDetailPage();
+      addToastMessage({ type: "notice", message: "수정되었습니다.", isVisible: true });
+    },
+    onError(error) {
+      addToastMessage({ type: "error", message: error, isVisible: true });
     },
   });
 
@@ -46,8 +52,12 @@ const ProductUpdatePage = () => {
     ["product", productId!],
     async () => requestGetProduct(Number(productId)),
     {
-      onSuccess: (data) => {
+      onSuccess(data) {
         setProduct(data);
+      },
+      onError(error) {
+        navigation(-1);
+        addToastMessage({ type: "error", message: error, isVisible: true });
       },
     },
   );
@@ -65,8 +75,8 @@ const ProductUpdatePage = () => {
     checkValidate();
   }, [selectedCategory, imgUrl]);
 
-  const moveToMainPage = () => {
-    navigation("/main");
+  const moveToDetailPage = () => {
+    navigation(`/product/${productId}`, { replace: true });
   };
 
   const getActiveLocation = (user: IUser) => {
@@ -125,7 +135,6 @@ const ProductUpdatePage = () => {
           selectedCategory={selectedCategory}
           checkValidate={checkValidate}
           onClickCategoryBtn={onClickCategoryBtn}
-          defaultCategory={selectedCategory}
           titleValue={title}
           onChangeTitle={titleHandler}
         />

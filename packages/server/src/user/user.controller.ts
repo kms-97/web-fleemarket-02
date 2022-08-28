@@ -36,7 +36,8 @@ export class UserController {
     @User() user: TokenUser,
     @Body() dto: UserLocationDto,
   ) {
-    await this.userService.insertUserLocationHandler(dto);
+    const userId = user.id;
+    await this.userService.insertUserLocationHandler(userId, dto);
   }
 
   @Get()

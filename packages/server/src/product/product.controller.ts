@@ -49,23 +49,31 @@ export class ProductController {
 
   @UseGuards(AccessJwtAuthGuard)
   @Put(':id')
-  async updateProduct(@Param('id') id: number, @Body() dto: ProductInsertDto) {
-    await this.productService.updateProduct(id, dto);
+  async updateProduct(
+    @User() user: TokenUser,
+    @Param('id') id: number,
+    @Body() dto: ProductInsertDto,
+  ) {
+    const userId = user.id;
+    await this.productService.updateProduct(userId, id, dto);
   }
 
   @UseGuards(AccessJwtAuthGuard)
   @Patch(':id')
   async updateProductStatus(
+    @User() user: TokenUser,
     @Param('id') id: number,
     @Body('status') newStatus: productStatus,
   ) {
-    await this.productService.updateProductStatus(id, newStatus);
+    const userId = user.id;
+    await this.productService.updateProductStatus(userId, id, newStatus);
   }
 
   @UseGuards(AccessJwtAuthGuard)
   @Delete(':id')
-  async deleteProduct(@Param('id') id: number) {
-    await this.productService.deleteProduct(id);
+  async deleteProduct(@User() user: TokenUser, @Param('id') id: number) {
+    const userId = user.id;
+    await this.productService.deleteProduct(userId, id);
   }
 
   @UseGuards(AccessJwtAuthGuard)

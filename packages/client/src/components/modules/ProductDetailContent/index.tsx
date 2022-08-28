@@ -96,7 +96,7 @@ const DetailTitle = styled.div`
 `;
 
 const DetailDesc = styled.div`
-  white-space: pre-wrap;
+  word-break: break-word;
   flex-grow: 1;
 
   > p {

@@ -153,8 +153,8 @@ export class ProductService {
       );
     }
 
-    await this.checkAuthor(userId, id);
     await this.checkExistProductById(id);
+    await this.checkAuthor(userId, id);
     await this.productRepository.query(PRODUCT_QUERY.UPDATE_PRODUCT_STATUS, [
       newStatus,
       id,
@@ -169,8 +169,8 @@ export class ProductService {
       );
     }
 
-    await this.checkAuthor(userId, id);
     await this.checkExistProductById(id);
+    await this.checkAuthor(userId, id);
     await this.productRepository.query(PRODUCT_QUERY.DELETE_PRODUCT, [id]);
   }
 
@@ -228,7 +228,7 @@ export class ProductService {
 
   async checkAuthor(userId: number, id: number) {
     const { product } = await this.getProductById(id);
-    if (product.sellerId !== userId) {
+    if (product.seller_id !== userId) {
       throw new CustomException(
         [ErrorMessage.NO_AUTHORITY],
         HttpStatus.FORBIDDEN,

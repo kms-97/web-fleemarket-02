@@ -29,6 +29,8 @@ const Container = styled.ul`
   border-radius: 10px;
   overflow: hidden;
 
+  z-index: 1;
+
   & > li {
     width: 100%;
     padding: 10px;

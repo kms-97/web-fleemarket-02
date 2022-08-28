@@ -1,12 +1,17 @@
-import React from "react";
+import React, { MouseEventHandler } from "react";
 import styled from "@emotion/styled";
 
 interface Props {
   children?: React.ReactNode;
+  onClick?: MouseEventHandler;
 }
 
-const DropDown = ({ children }: Props, ref: React.ForwardedRef<HTMLUListElement>) => {
-  return <Container ref={ref}>{children}</Container>;
+const DropDown = ({ children, onClick }: Props, ref: React.ForwardedRef<HTMLUListElement>) => {
+  return (
+    <Container ref={ref} onClick={onClick}>
+      {children}
+    </Container>
+  );
 };
 
 const Container = styled.ul`

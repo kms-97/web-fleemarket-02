@@ -226,4 +226,14 @@ export class ProductService {
       );
     }
   }
+
+  async checkAuthor(userId: number, id: number) {
+    const { product } = await this.getProductById(id);
+    if (product.sellerId !== userId) {
+      throw new CustomException(
+        [ErrorMessage.NO_AUTHORITY],
+        HttpStatus.FORBIDDEN,
+      );
+    }
+  }
 }

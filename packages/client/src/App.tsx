@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
@@ -16,9 +16,13 @@ import LocationPage from "@pages/LocationPage";
 import { useQuery } from "@hooks/useQuery";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import UserProfilePage from "@pages/UserProfilePage";
+import ProductChatPage from "@pages/ProductChatPage";
+import ChatDetailPage from "@pages/ChatDetailPage";
+import VerifyAuth from "@components/VerifyAuth";
 
 const App = () => {
   const location = useLocation();
+
   useQuery(["userinfo"], requestGetLoginUserInfo, {
     cacheExpiredTime: Infinity,
   });
@@ -36,12 +40,16 @@ const App = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/signup/location" element={<SignUpLoPage />} />
-            <Route path="/main" element={<MainPage />} />
-            <Route path="/category" element={<CategroyPage />} />
-            <Route path="/product/:id" element={<ProductDetailPage />} />
-            <Route path="/product/write" element={<ProductWritePage />} />
-            <Route path="/location" element={<LocationPage />} />
-            <Route path="/profile" element={<UserProfilePage />} />
+            <Route path="" element={<VerifyAuth />}>
+              <Route path="/main" element={<MainPage />} />
+              <Route path="/category" element={<CategroyPage />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
+              <Route path="/product/:id/chat" element={<ProductChatPage />} />
+              <Route path="/chat/:chatRoomId" element={<ChatDetailPage />} />
+              <Route path="/product/write" element={<ProductWritePage />} />
+              <Route path="/location" element={<LocationPage />} />
+              <Route path="/profile" element={<UserProfilePage />} />
+            </Route>
           </Routes>
         </CSSTransition>
       </TransitionGroup>

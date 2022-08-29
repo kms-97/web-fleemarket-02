@@ -15,7 +15,6 @@ import {
 } from "@apis/product";
 
 import { useQuery } from "@hooks/useQuery";
-import { useSearchParam } from "@hooks/useSearchParam";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { IUser } from "types/user.type";
 import { useMutation } from "@hooks/useMutation";
@@ -27,10 +26,9 @@ import EmptyList from "@modules/ProductList/EmptyList";
 const MainPage = () => {
   const { addToastMessage } = useToastMessageAction();
   const navigation = useNavigate();
-  const params = useSearchParam();
   const [products, setProducts] = useState<IProductItem[]>();
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
-  const { data, updateCache } = useQuery(
+  const { updateCache } = useQuery(
     ["products", user?.id ?? -1],
     async () => {
       if (!user) {
@@ -38,6 +36,9 @@ const MainPage = () => {
       }
 
       const activeLocation = getActiveLocation(user);
+      const urlSearchParams = new URLSearchParams(window.location.search);
+      const params = Object.fromEntries(urlSearchParams.entries());
+
       if (params.category) {
         return await requestGetProducts({ category: params.category, location: activeLocation.id });
       } else {

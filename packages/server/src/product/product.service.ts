@@ -99,7 +99,7 @@ export class ProductService {
     await this.wishService.insertWish(userId, productId);
   }
 
-  async updateProduct(id: number, dto: ProductInsertDto) {
+  async updateProduct(userId: number, id: number, dto: ProductInsertDto) {
     if (isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
@@ -108,6 +108,7 @@ export class ProductService {
     }
 
     await this.checkExistProductById(id);
+    await this.checkAuthor(userId, id);
 
     const {
       title,
@@ -136,7 +137,11 @@ export class ProductService {
     await this.productRepository.query(PRODUCT_QUERY.UPDATE_PRODUCT, values);
   }
 
-  async updateProductStatus(id: number, newStatus: productStatus) {
+  async updateProductStatus(
+    userId: number,
+    id: number,
+    newStatus: productStatus,
+  ) {
     if (isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
@@ -151,15 +156,15 @@ export class ProductService {
       );
     }
 
+    await this.checkAuthor(userId, id);
     await this.checkExistProductById(id);
-
     await this.productRepository.query(PRODUCT_QUERY.UPDATE_PRODUCT_STATUS, [
       newStatus,
       id,
     ]);
   }
 
-  async deleteProduct(id: number) {
+  async deleteProduct(userId: number, id: number) {
     if (isNaN(id)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],
@@ -167,8 +172,8 @@ export class ProductService {
       );
     }
 
+    await this.checkAuthor(userId, id);
     await this.checkExistProductById(id);
-
     await this.productRepository.query(PRODUCT_QUERY.DELETE_PRODUCT, [id]);
   }
 
@@ -223,6 +228,16 @@ export class ProductService {
       throw new CustomException(
         [ErrorMessage.NOT_FOUND_TARGET('상품')],
         HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  async checkAuthor(userId: number, id: number) {
+    const { product } = await this.getProductById(id);
+    if (product.sellerId !== userId) {
+      throw new CustomException(
+        [ErrorMessage.NO_AUTHORITY],
+        HttpStatus.FORBIDDEN,
       );
     }
   }

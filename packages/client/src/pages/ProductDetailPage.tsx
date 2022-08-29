@@ -1,66 +1,84 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "@components/modules/Header";
 import styled from "@emotion/styled";
 import Text from "@base/Text";
-import FloatButton from "@components/modules/FloatButton";
-import VerticalIcon from "@icons/VerticalIcon";
 import Button from "@base/Button";
 import ProductDetailContent from "@components/modules/ProductDetailContent";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@hooks/useQuery";
-import { requestDeleteProduct, requestGetProduct } from "@src/apis/product";
-import DropDown from "@modules/DropDown";
+import {
+  requestAddWishProduct,
+  requestDeleteWishProduct,
+  requestGetProduct,
+} from "@src/apis/product";
 import { useMutation } from "@hooks/useMutation";
+import WishButton from "@modules/WishButton";
+import { requestGetLoginUserInfo } from "@apis/auth";
+import DotDropdown from "@modules/DropDown/Dot";
 
 const ProductDetailPage = () => {
-  const navigation = useNavigate();
   const { id } = useParams();
-  const [showDotDropdown, setShowDotDropdown] = useState<boolean>(false);
-  const { data: product } = useQuery(["product", id!], async () => requestGetProduct(Number(id)));
-
-  const [deleteMutate] = useMutation(requestDeleteProduct, {
-    onSuccess: () => {
-      navigation("/main");
+  const [isMyProduct, setIsMyProduct] = useState<boolean>(false);
+  const [isWishProduct, setIsWishProduct] = useState<boolean>(false);
+  const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
+  const { data: product, updateCache } = useQuery(["product", Number(id)], async () =>
+    requestGetProduct(Number(id)),
+  );
+  const [toggleWish] = useMutation(
+    async () => {
+      if (!product) return;
+      if (isWishProduct) return requestDeleteWishProduct(product.id);
+      else return requestAddWishProduct(product.id);
     },
-    cacheClear: true,
-  });
+    {
+      onSuccess() {
+        if (!user || !product) return;
+        const newProduct = { ...product };
+        if (isWishProduct) {
+          newProduct.likeUsers = newProduct.likeUsers.filter((id) => id !== user.id);
+          setIsWishProduct(false);
+        } else {
+          newProduct.likeUsers.push(user.id);
+          setIsWishProduct(true);
+        }
 
-  const onClickDotButton = () => {
-    setShowDotDropdown((prev) => !prev);
+        updateCache(["product", Number(id)], newProduct);
+      },
+      cacheClear: true,
+    },
+  );
+
+  useEffect(() => {
+    if (!user || !product) return;
+    setIsWishProduct(product.likeUsers.includes(user.id));
+    setIsMyProduct(product.seller.id === user.id);
+  }, [user, product]);
+
+  const onClickWishButton: React.MouseEventHandler = (e) => {
+    e.stopPropagation();
+    toggleWish();
   };
 
-  const onClickDeleteButton = () => {
-    deleteMutate(id);
-  };
-
-  const onClickUpdateButton = () => {
-    navigation(`/product/update/${id}`);
-  };
-
-  const DotDropdown = () => {
-    if (!showDotDropdown) return <></>;
+  const PriceSection = ({ price }: { price: string | number }) => {
+    const numberPrice = Number(price);
     return (
-      <DropDown>
-        <li onClick={onClickUpdateButton}>수정하기</li>
-        <li onClick={onClickDeleteButton}>삭제하기</li>
-      </DropDown>
+      <Text size="md" isBold={true}>
+        {numberPrice ? `${numberPrice.toLocaleString()} 원` : `가격 미정`}
+      </Text>
     );
   };
 
   if (!product) return <></>;
   return (
     <Container>
-      <Header>
-        <FloatButton fixedPos="right" onClick={onClickDotButton}>
-          <VerticalIcon />
-        </FloatButton>
-        <DotDropdown />
-      </Header>
-      <ProductDetailContent product={product} />
+      <Header>{isMyProduct ? <DotDropdown product={product} /> : ""}</Header>
+      <ProductDetailContent product={product} isMyProduct={isMyProduct} />
       <Footer>
-        <Text size="lg">
-          {product && Number(product.price).toLocaleString()}원<Button>문의하기</Button>
-        </Text>
+        <WishButton isActive={isWishProduct} onClick={onClickWishButton} />
+        <FlexContainer>
+          <PriceSection price={product.price} />
+          <Button>문의하기</Button>
+        </FlexContainer>
       </Footer>
     </Container>
   );
@@ -86,11 +104,7 @@ const Container = styled.div`
     border: none;
     position: absolute;
     z-index: 1;
-
-    ul {
-      top: 50px;
-      right: 0px;
-    }
+    justify-content: flex-end;
   }
 `;
 
@@ -102,11 +116,11 @@ const Footer = styled.footer`
   justify-content: space-between;
 
   border-top: solid 1px ${({ theme }) => theme.COLOR.GRAY3};
+`;
 
-  > p {
-    display: flex;
-    column-gap: 8px;
-  }
+const FlexContainer = styled.div`
+  display: flex;
+  column-gap: 8px;
 `;
 
 export default ProductDetailPage;

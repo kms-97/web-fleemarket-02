@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import styled from "@emotion/styled";
@@ -8,29 +8,27 @@ import MapPinIcon from "@icons/MapPinIcon";
 import Text from "@base/Text";
 import Fab from "@base/Fab";
 
-import { requestGetProducts } from "@apis/product";
+import { requestAddWishProduct, requestDeleteWishProduct, requestGetProducts } from "@apis/product";
 
 import { useQuery } from "@hooks/useQuery";
 import { useSearchParam } from "@hooks/useSearchParam";
-import { IProductItem } from "types/product.type";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { IUser } from "types/user.type";
+import { useMutation } from "@hooks/useMutation";
+import { IProductItem } from "types/product.type";
 
 const MainPage = () => {
   const navigation = useNavigate();
   const params = useSearchParam();
-  const [products, setProducts] = useState<IProductItem[]>();
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
-
-  const { refetch } = useQuery(
-    ["products", user?.id ?? 0],
+  const { data: products, updateCache } = useQuery(
+    ["products", user?.id ?? -1],
     async () => {
       if (!user) {
         return;
       }
 
       const activeLocation = getActiveLocation(user);
-
       if (params.category) {
         return await requestGetProducts({ category: params.category, location: activeLocation.id });
       } else {
@@ -38,8 +36,35 @@ const MainPage = () => {
       }
     },
     {
-      onSuccess(data) {
-        setProducts(data);
+      overrideCache: true,
+    },
+  );
+  const [toggleWish] = useMutation(
+    async (
+      isWishProduct: boolean,
+      setIsWishProduct: React.Dispatch<React.SetStateAction<boolean>>,
+      product: IProductItem,
+    ) => {
+      if (isWishProduct) return requestDeleteWishProduct(product.id);
+      else return requestAddWishProduct(product.id);
+    },
+    {
+      onSuccess(data, ...args) {
+        if (!user || !products) return;
+        const [isWishProduct, setIsWishProduct, product] = args;
+        const newProducts = [...products];
+        const index = newProducts.findIndex((p) => p.id === product.id);
+        if (isWishProduct) {
+          newProducts[index].likeUsers = newProducts[index].likeUsers.filter(
+            (id) => id !== user.id,
+          );
+          setIsWishProduct(false);
+        } else {
+          newProducts[index].likeUsers.push(user.id);
+          setIsWishProduct(true);
+        }
+
+        updateCache(["products", user?.id ?? -1], newProducts);
       },
     },
   );
@@ -71,7 +96,7 @@ const MainPage = () => {
         <ProductList>
           {products &&
             products.map((product) => (
-              <ProductItem key={product.id} product={product} isActive={true} />
+              <ProductItem key={product.id} product={product} toggleWish={toggleWish} />
             ))}
         </ProductList>
         <Layer>

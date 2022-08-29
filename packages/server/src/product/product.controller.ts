@@ -43,35 +43,46 @@ export class ProductController {
     @User() user: TokenUser,
     @Param('id') productId: number,
   ) {
-    const userId = 1; // todo: auth를 통해 접속한 유저 아이디 전달받기.
+    const userId = user.id;
     await this.productService.insertProductWish(userId, productId);
   }
 
   @UseGuards(AccessJwtAuthGuard)
   @Put(':id')
-  async updateProduct(@Param('id') id: number, @Body() dto: ProductInsertDto) {
-    await this.productService.updateProduct(id, dto);
+  async updateProduct(
+    @User() user: TokenUser,
+    @Param('id') id: number,
+    @Body() dto: ProductInsertDto,
+  ) {
+    const userId = user.id;
+    await this.productService.updateProduct(userId, id, dto);
   }
 
   @UseGuards(AccessJwtAuthGuard)
   @Patch(':id')
   async updateProductStatus(
+    @User() user: TokenUser,
     @Param('id') id: number,
     @Body('status') newStatus: productStatus,
   ) {
-    await this.productService.updateProductStatus(id, newStatus);
+    const userId = user.id;
+    await this.productService.updateProductStatus(userId, id, newStatus);
   }
 
   @UseGuards(AccessJwtAuthGuard)
   @Delete(':id')
-  async deleteProduct(@Param('id') id: number) {
-    await this.productService.deleteProduct(id);
+  async deleteProduct(@User() user: TokenUser, @Param('id') id: number) {
+    const userId = user.id;
+    await this.productService.deleteProduct(userId, id);
   }
 
   @UseGuards(AccessJwtAuthGuard)
   @Delete(':id/wish')
-  async deleteProductWish(@Param('id') productId: number) {
-    const userId = 1; // todo: auth를 통해 접속한 유저 아이디 전달받기.
+  async deleteProductWish(
+    @User() user: TokenUser,
+    @Param('id') productId: number,
+  ) {
+    const userId = user.id;
     await this.productService.deleteProductWish(userId, productId);
   }
 }

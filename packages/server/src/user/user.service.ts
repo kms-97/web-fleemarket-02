@@ -71,8 +71,8 @@ export class UserService {
     }
   }
 
-  async insertUserLocationHandler(dto: UserLocationDto) {
-    const { userId, locationId, isActive } = dto;
+  async insertUserLocationHandler(userId: number, dto: UserLocationDto) {
+    const { locationId, isActive } = dto;
     if (isNaN(userId) || isNaN(locationId)) {
       throw new CustomException(
         [ErrorMessage.NOT_VALID_FORMAT],

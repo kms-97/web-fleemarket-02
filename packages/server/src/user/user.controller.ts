@@ -32,8 +32,12 @@ export class UserController {
   @UseGuards(AccessJwtAuthGuard)
   @Post('/location')
   @HttpCode(201)
-  async insertUserLocation(@Body() dto: UserLocationDto) {
-    await this.userService.insertUserLocationHandler(dto);
+  async insertUserLocation(
+    @User() user: TokenUser,
+    @Body() dto: UserLocationDto,
+  ) {
+    const userId = user.id;
+    await this.userService.insertUserLocationHandler(userId, dto);
   }
 
   @Get()

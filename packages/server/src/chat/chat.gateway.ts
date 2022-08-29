@@ -16,7 +16,7 @@ import {
 } from './dto/chatRoom.dto';
 import { ChatRoom } from './entities/chatRoom.entity';
 
-@WebSocketGateway(81, {
+@WebSocketGateway(8080, {
   namespace: 'chat',
   cors: {
     origin: '*',

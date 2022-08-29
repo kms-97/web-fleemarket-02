@@ -7,14 +7,26 @@ import VerticalIcon from "@icons/VerticalIcon";
 import HeartIcon from "@icons/HeartIcon";
 import Button from "@base/Button";
 import ProductDetailContent from "@components/modules/ProductDetailContent";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@hooks/useQuery";
 import { requestGetProduct } from "@src/apis/product";
 import { IProduct } from "@src/types/product.type";
+import { requestGetLoginUserInfo } from "@apis/auth";
+import { useChatAction } from "@hooks/useSocket";
 
 const ProductDetailPage = () => {
+  const { onJoinRoom, onCreateChatRoom } = useChatAction();
   const { id } = useParams();
+  const navigation = useNavigate();
+  const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
   const [product, setProduct] = useState<IProduct | null>(null);
+  const isSeller = product?.seller.id === user?.id;
+  const chatCountByDeletedAt = product?.chatRooms?.reduce((count, room) => {
+    if (room.deleteUserId === null || room.deleteUserId !== user?.id) count += 1;
+
+    return count;
+  }, 0);
+
   const { refetch } = useQuery(["product", id!], requestGetProduct, {
     onSuccess: (data) => {
       setProduct(data);
@@ -29,6 +41,26 @@ const ProductDetailPage = () => {
     refetch(id);
   }, []);
 
+  const moveToChatList = () => {
+    if (isSeller) {
+      navigation(`/product/${id}/chat`);
+      return;
+    }
+    const chatRooms = product?.chatRooms;
+
+    const room = chatRooms?.find((room) => room.buyerId === user?.id);
+
+    if (room) {
+      onJoinRoom({ chatRoomId: room.id, userId: Number(user?.id) });
+    } else {
+      onCreateChatRoom({
+        productId: Number(product?.id),
+        buyerId: Number(user?.id),
+        sellerId: Number(product?.seller.id),
+      });
+    }
+  };
+
   return (
     <Container>
       <Header>
@@ -41,9 +73,12 @@ const ProductDetailPage = () => {
         <WishButton isActive={true}>
           <HeartIcon />
         </WishButton>
-        <Text size="lg">
-          {product && Number(product.price).toLocaleString()}원<Button>문의하기</Button>
-        </Text>
+        <ChatButtonForm>
+          <Text size="lg">{product && Number(product.price).toLocaleString()}원</Text>
+          <Button onClick={moveToChatList}>
+            {isSeller ? `채팅 목록 보기(${chatCountByDeletedAt})` : "문의하기"}
+          </Button>
+        </ChatButtonForm>
       </Footer>
     </Container>
   );
@@ -95,6 +130,11 @@ const WishButton = styled.button<{ isActive: boolean }>`
       stroke: ${({ theme }) => theme.COLOR.PRIMARY1};
     }
   }
+`;
+
+const ChatButtonForm = styled.div`
+  display: flex;
+  gap: 16px;
 `;
 
 export default ProductDetailPage;

@@ -70,9 +70,7 @@ const MainPage = () => {
         </MainHeader>
         <ProductList>
           {products &&
-            products.map((product) => (
-              <ProductItem key={product.id} product={product} isActive={true} />
-            ))}
+            products.map((product) => <ProductItem key={product.id} product={product} />)}
         </ProductList>
         <Layer>
           <Fab onClick={moveToProductWritePage} />

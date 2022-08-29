@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
@@ -16,6 +16,7 @@ import LocationPage from "@pages/LocationPage";
 import { useQuery } from "@hooks/useQuery";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import UserProfilePage from "@pages/UserProfilePage";
+import ProductUpdatePage from "@pages/ProductUpdatePage";
 
 const App = () => {
   const location = useLocation();
@@ -28,26 +29,29 @@ const App = () => {
   };
 
   return (
-    <Template>
-      <TransitionGroup className="transition-group" childFactory={childFactory}>
-        <CSSTransition key={location.pathname} timeout={350}>
-          <Routes location={location}>
-            <Route path="/" element={<CoverPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/signup/location" element={<SignUpLoPage />} />
-            <Route path="/main" element={<MainPage />} />
-            <Route path="/category" element={<CategroyPage />} />
-            <Route path="/product/:id" element={<ProductDetailPage />} />
-            <Route path="/product/write" element={<ProductWritePage />} />
-            <Route path="/location" element={<LocationPage />} />
-            <Route path="/profile" element={<UserProfilePage />} />
-          </Routes>
-        </CSSTransition>
-      </TransitionGroup>
+    <>
+      <Template>
+        <TransitionGroup className="transition-group" childFactory={childFactory}>
+          <CSSTransition key={location.pathname} timeout={350}>
+            <Routes location={location}>
+              <Route path="/" element={<CoverPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/signup/location" element={<SignUpLoPage />} />
+              <Route path="/main" element={<MainPage />} />
+              <Route path="/category" element={<CategroyPage />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
+              <Route path="/product/write" element={<ProductWritePage />} />
+              <Route path="/location" element={<LocationPage />} />
+              <Route path="/profile" element={<UserProfilePage />} />
+              <Route path="/product/update/:productId" element={<ProductUpdatePage />} />
+            </Routes>
+          </CSSTransition>
+        </TransitionGroup>
+        <div id="modal" />
+      </Template>
       <ToastMessage />
-      <div id="modal" />
-    </Template>
+    </>
   );
 };
 

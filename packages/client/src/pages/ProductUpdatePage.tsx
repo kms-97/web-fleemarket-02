@@ -10,34 +10,56 @@ import ProductWriteTitle from "@components/modules/ProductWriteTitle";
 import ProductWriteImage from "@components/modules/ProductWriteImage";
 import ProductWriteHeader from "@components/modules/ProductWriteHeader";
 import { useMutation } from "@hooks/useMutation";
-import { requestAddProduct } from "@src/apis/product";
-import { useNavigate } from "react-router-dom";
+import { requestGetProduct, requestUpdateProduct } from "@src/apis/product";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@hooks/useQuery";
+import { useInput } from "@hooks/useInput";
 import { ICategory } from "types/category.type";
 import { requestGetCategory } from "@src/apis/category";
-import auth from "@hoc/auth";
 import { IUser } from "types/user.type";
 import { requestGetLoginUserInfo } from "@apis/auth";
-import { useInput } from "@hooks/useInput";
+import { IProduct } from "types/product.type";
 
 const MAX_IMAGE_LIMIT = 10;
 
-const ProductWritePage = auth(() => {
+const ProductUpdatePage = () => {
   const navigation = useNavigate();
+  const { productId } = useParams();
+  const [product, setProduct] = useState<IProduct | null>(null);
   const { price, priceString, changePriceString } = usePriceInput("");
-  const { imgUrl, addImages, deleteImage } = useImageInput(MAX_IMAGE_LIMIT);
+  const { imgUrl, addImages, deleteImage, setImgUrl } = useImageInput(MAX_IMAGE_LIMIT);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
-  const [description, descriptionHandler] = useInput("");
-  const [title, titleHandler] = useInput("");
+  const [description, descriptionHandler, setDescription] = useInput("");
+  const [title, titleHandler, setTitle] = useInput("");
   const { data: categories } = useQuery<ICategory[]>(["category"], requestGetCategory);
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
-  const [mutate] = useMutation(requestAddProduct, {
+
+  const [mutate] = useMutation(requestUpdateProduct, {
     cacheClear: true,
     onSuccess() {
       moveToMainPage();
     },
   });
+
+  const { data } = useQuery(
+    ["product", productId!],
+    async () => requestGetProduct(Number(productId)),
+    {
+      onSuccess: (data) => {
+        setProduct(data);
+      },
+    },
+  );
+
+  useEffect(() => {
+    if (!product) return;
+    setImgUrl(product.imgUrl);
+    changePriceString(product.price + "");
+    setSelectedCategory(product.category.name);
+    setTitle(product.title);
+    setDescription(product.description);
+  }, [product]);
 
   useEffect(() => {
     checkValidate();
@@ -54,10 +76,10 @@ const ProductWritePage = auth(() => {
 
   const onClickSubmitButton: React.FormEventHandler = (e) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !product) return;
     const sellerId = user.id;
-    const locationId = getActiveLocation(user).id;
-    const product = {
+    const locationId = product.location.id;
+    const updateProduct = {
       title,
       description,
       imgUrl,
@@ -67,7 +89,7 @@ const ProductWritePage = auth(() => {
       categoryName: selectedCategory,
     };
 
-    mutate(product);
+    mutate(productId, updateProduct);
   };
 
   const onChangeImageInput: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -103,8 +125,9 @@ const ProductWritePage = auth(() => {
           selectedCategory={selectedCategory}
           checkValidate={checkValidate}
           onClickCategoryBtn={onClickCategoryBtn}
-          onChangeTitle={titleHandler}
+          defaultCategory={selectedCategory}
           titleValue={title}
+          onChangeTitle={titleHandler}
         />
         <PriceSection>
           <Input
@@ -127,7 +150,7 @@ const ProductWritePage = auth(() => {
       </Footer>
     </Container>
   );
-});
+};
 
 const Container = styled.form`
   width: 100%;
@@ -203,4 +226,4 @@ const Footer = styled.footer`
   }
 `;
 
-export default ProductWritePage;
+export default ProductUpdatePage;

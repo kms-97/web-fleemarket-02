@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import UserProfileContent from "./UserProfileContent";
 import UserTabList from "./UserTabList";
 
-const TAB = ["판매목록", "관심목록", "채팅"];
+const TAB = ["내 정보", "판매목록", "관심목록", "채팅"];
 
 export interface ITabState {
   isSelected: boolean;
@@ -12,7 +12,7 @@ export interface ITabState {
 }
 
 const UserProfileForm = () => {
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
   const navigation = useNavigate();
   const query = new URLSearchParams(search).get("tab");
   const [tabs, setTabs] = useState<ITabState[]>(() =>
@@ -21,7 +21,8 @@ const UserProfileForm = () => {
 
   useEffect(() => {
     const selectedTab = tabs.find((tab) => tab.name === query);
-    if (!selectedTab) {
+
+    if (!selectedTab && pathname === "/profile") {
       navigation(`/profile?tab=${TAB[0]}`, { replace: true });
     }
 

@@ -23,7 +23,7 @@ interface ReturnUseChatAction {
   onLeaveRoom: (chatRoomId: number) => void;
 }
 
-const socket = io("http://localhost:81/chat");
+const socket = io("http://localhost:8080/chat");
 
 const useChatList = (): ReturnUseChatList => {
   const [rooms, setRooms] = useState<IChatRoom[]>([]);

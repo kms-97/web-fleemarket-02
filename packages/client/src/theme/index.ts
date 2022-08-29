@@ -6,6 +6,7 @@ const COLOR = {
   GRAY1: "#888888",
   GRAY2: "#BBBBBB",
   GRAY3: "#D7D7D7",
+  GRAY4: "#E0E0E0",
 
   TITLE_ACTIVE: "#222222",
   ERROR: "#F45452",

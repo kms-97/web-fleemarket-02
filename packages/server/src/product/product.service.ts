@@ -81,7 +81,12 @@ export class ProductService {
       sellerId,
       categoryName,
     ];
-    await this.productRepository.query(PRODUCT_QUERY.INSERT_PRODUCT, values);
+    const result = await this.productRepository.query(
+      PRODUCT_QUERY.INSERT_PRODUCT,
+      values,
+    );
+
+    return { id: result.insertId };
   }
 
   async insertProductWish(userId: number, productId: number) {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Text from "@base/Text";
 import Image from "@base/Image";
 import styled from "@emotion/styled";
@@ -10,12 +10,13 @@ import { useNavigate } from "react-router-dom";
 
 interface Props {
   product: IProductItem;
-  isActive: boolean;
 }
 
-const ProductItem = ({ product, isActive }: Props) => {
+const ProductItem = ({ product }: Props) => {
   const navigation = useNavigate();
-  const { id, title, locationName, createdAt, price, likeUsers, chatCount, imgUrl } = product;
+  const { id, title, locationName, createdAt, price, likeUsers, chatRooms, imgUrl } = product;
+  const [isActive, setIsActive] = useState(false);
+
   const wishCount = likeUsers.length;
 
   const moveToDetailPage = (id: number) => {
@@ -27,7 +28,7 @@ const ProductItem = ({ product, isActive }: Props) => {
       <IconBox>
         <MessageIcon />
         <Text size="md" fColor="GRAY1">
-          {chatCount}
+          {chatRooms.length}
         </Text>
       </IconBox>
     );
@@ -65,11 +66,11 @@ const ProductItem = ({ product, isActive }: Props) => {
         </Text>
         <PriceSection />
       </div>
-      <WishButton isActive={isActive}>
+      <WishButton isActive={isActive} onClick={console.log}>
         <HeartIcon />
       </WishButton>
       <ChatLike>
-        {chatCount ? <ChatIcon /> : ""}
+        {chatRooms?.length ? <ChatIcon /> : ""}
         {wishCount ? <WishIcon /> : ""}
       </ChatLike>
     </Container>

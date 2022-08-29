@@ -5,10 +5,10 @@ import Text from "@base/Text";
 import Badge from "@base/Chat/Badge";
 
 import { getExpriedTime } from "@utils/timeCalculate";
-import { useChatAction } from "@hooks/useSocket";
 
 import { IChatRoom } from "types/chat.type";
 import { IUser } from "types/user.type";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   room: IChatRoom;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const ChatItem = ({ room, user }: Props) => {
-  const { onJoinRoom } = useChatAction();
+  const navigate = useNavigate();
 
   const { buyer, product, chatLog } = room;
   const lastChat = chatLog.sort((a, b) => b.id - a.id)[0];
@@ -32,7 +32,7 @@ const ChatItem = ({ room, user }: Props) => {
   }, [chatLog]);
 
   const onClickItem = () => {
-    onJoinRoom({ chatRoomId: room.id, userId: user.id });
+    navigate(`/chat/${room.id}`);
   };
 
   return (

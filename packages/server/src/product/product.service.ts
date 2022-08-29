@@ -12,8 +12,6 @@ import { ProductInsertDto } from './dto/productInsert.dto';
 import { ProductSearchDto } from './dto/productSearch.dto';
 import { Product, ProductRepository } from './entities/product.entity';
 
-const DEFAULT_LIMIT = 10;
-
 @Injectable()
 export class ProductService {
   constructor(
@@ -27,19 +25,18 @@ export class ProductService {
 
   async findProduct(dto: ProductSearchDto) {
     const { category, location } = dto;
-    const page = dto.page ?? 1;
     let products: Product[];
 
     if (category) {
       await this.categoryService.checkExistCategoryByName(category);
       await this.locationService.checkExistLocationById(location);
-      products = await this.findProductByCategory(category, location, page);
+      products = await this.findProductByCategory(category, location);
     } else {
       await this.locationService.checkExistLocationById(location);
-      products = await this.findProductByLocation(location, page);
+      products = await this.findProductByLocation(location);
     }
 
-    return { products, page };
+    return { products };
   }
 
   async getProductDetailById(id: number) {
@@ -84,7 +81,12 @@ export class ProductService {
       sellerId,
       categoryName,
     ];
-    await this.productRepository.query(PRODUCT_QUERY.INSERT_PRODUCT, values);
+    const result = await this.productRepository.query(
+      PRODUCT_QUERY.INSERT_PRODUCT,
+      values,
+    );
+
+    return { id: result.insertId };
   }
 
   async insertProductWish(userId: number, productId: number) {
@@ -156,8 +158,8 @@ export class ProductService {
       );
     }
 
-    await this.checkAuthor(userId, id);
     await this.checkExistProductById(id);
+    await this.checkAuthor(userId, id);
     await this.productRepository.query(PRODUCT_QUERY.UPDATE_PRODUCT_STATUS, [
       newStatus,
       id,
@@ -172,8 +174,8 @@ export class ProductService {
       );
     }
 
-    await this.checkAuthor(userId, id);
     await this.checkExistProductById(id);
+    await this.checkAuthor(userId, id);
     await this.productRepository.query(PRODUCT_QUERY.DELETE_PRODUCT, [id]);
   }
 
@@ -189,27 +191,24 @@ export class ProductService {
     await this.wishService.deleteWish(userId, productId);
   }
 
-  findProductByCategory(category: string, location: number, page: number) {
-    const offset = (page - 1) * DEFAULT_LIMIT;
+  findProductByCategory(category: string, location: number) {
     return this.productRepository.query(
       PRODUCT_QUERY.FIND_PRODUCT_BY_CATEGORY,
-      [category, location, offset, DEFAULT_LIMIT],
+      [category, location],
     );
   }
 
-  findProductByLocation(location: number, page: number) {
-    const offset = (page - 1) * DEFAULT_LIMIT;
+  findProductByLocation(location: number) {
     return this.productRepository.query(
       PRODUCT_QUERY.FIND_PRODUCT_BY_LOCATION,
-      [location, offset, DEFAULT_LIMIT],
+      [location],
     );
   }
 
-  findProductBySellerId(id: number, page: number) {
-    const offset = (page - 1) * DEFAULT_LIMIT;
+  findProductBySellerId(id: number) {
     return this.productRepository.query(
       PRODUCT_QUERY.FIND_PRODUCT_BY_SELLER_ID,
-      [id, offset, DEFAULT_LIMIT],
+      [id],
     );
   }
 
@@ -234,7 +233,7 @@ export class ProductService {
 
   async checkAuthor(userId: number, id: number) {
     const { product } = await this.getProductById(id);
-    if (product.sellerId !== userId) {
+    if (product.seller_id !== userId) {
       throw new CustomException(
         [ErrorMessage.NO_AUTHORITY],
         HttpStatus.FORBIDDEN,

@@ -41,7 +41,6 @@ const SignUpLoPage = () => {
 
   const onClickSignUpButton = useCallback(() => {
     if (locations.length === 0) {
-      // toast
       addToastMessage({ type: "error", message: "지역이 선택되지 않았습니다.", isVisible: true });
       return;
     }

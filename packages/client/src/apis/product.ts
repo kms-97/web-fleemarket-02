@@ -30,14 +30,14 @@ const requestGetProducts = async (query: any) => {
 };
 
 const requestAddProduct = async (data: IRequestProduct) => {
-  const result = await request(`${GET_PRODUCT}`, {
+  const result = await request<{ id: number; success: boolean }>(`${GET_PRODUCT}`, {
     method: "POST",
     body: JSON.stringify(data),
   });
 
-  const { success } = result;
+  const { success, id } = result;
 
-  return success;
+  return { success, id };
 };
 
 const requestAddWishProduct = async (productId: number) => {

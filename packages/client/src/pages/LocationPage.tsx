@@ -1,5 +1,4 @@
 import React from "react";
-import auth from "@hoc/auth";
 import { useQuery } from "@hooks/useQuery";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { useMutation } from "@hooks/useMutation";
@@ -15,7 +14,7 @@ import { IUserLocation } from "types/location.type";
 import styled from "@emotion/styled";
 import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
-const LocationPage = auth(() => {
+const LocationPage = () => {
   const { addToastMessage } = useToastMessageAction();
   const { data: user, updateCache } = useQuery(["userinfo"], requestGetLoginUserInfo);
   const [deleteMutate] = useMutation(
@@ -28,6 +27,7 @@ const LocationPage = auth(() => {
     },
     ["userinfo"],
   );
+
   const [addMutate] = useMutation(
     requestAddUserLocation,
     {
@@ -38,6 +38,7 @@ const LocationPage = auth(() => {
     },
     ["userinfo"],
   );
+
   const [updateMutate] = useMutation(
     requestUpdateUserLocation,
     {
@@ -71,7 +72,11 @@ const LocationPage = auth(() => {
     if (!success) return;
 
     const newUser = { ...user };
-    newUser.locations = newUser.locations.filter((location) => location.id !== locationId);
+    newUser.locations = newUser.locations
+      .filter((location) => location.id !== locationId)
+      .map((location) => {
+        return { ...location, isActive: true };
+      });
     updateCache(["userinfo"], newUser);
   };
 
@@ -104,7 +109,7 @@ const LocationPage = auth(() => {
       </Wrapper>
     </Container>
   );
-});
+};
 
 const Container = styled.div`
   position: relative;

@@ -8,6 +8,7 @@ import StatusDropdown from "@modules/DropDown/Status";
 import { useMutation } from "@hooks/useMutation";
 import { requestPatchProduct } from "@apis/product";
 import { useQuery } from "@hooks/useQuery";
+import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 interface Props {
   product: IProduct;
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const ProductDetailContent = ({ product, isMyProduct }: Props) => {
+  const { addToastMessage } = useToastMessageAction();
   const { title, category, createdAt, location, seller, description, imgUrl } = product;
   const { updateCache } = useQuery([], async () => {
     return;
@@ -32,6 +34,10 @@ const ProductDetailContent = ({ product, isMyProduct }: Props) => {
         newProduct.status = newStatus;
         setStatus(newStatus);
         updateCache(["product", Number(product.id)], newProduct);
+        addToastMessage({ type: "notice", message: "수정되었습니다.", isVisible: true });
+      },
+      onError(error) {
+        addToastMessage({ type: "error", message: error, isVisible: true });
       },
     },
   );
@@ -96,7 +102,7 @@ const DetailTitle = styled.div`
 `;
 
 const DetailDesc = styled.div`
-  white-space: pre-wrap;
+  word-break: break-word;
   flex-grow: 1;
 
   > p {

@@ -41,6 +41,8 @@ export const Container = styled.header`
   border-radius: 8px 8px 0 0;
   border-bottom: 1px solid ${({ theme }) => theme.COLOR.GRAY3};
 
+  z-index: 1;
+
   & > .back:hover path {
     stroke: ${({ theme }) => theme.COLOR.PRIMARY1};
   }

@@ -20,6 +20,11 @@ const UserProfileForm = () => {
   );
 
   useEffect(() => {
+    navigation(`/profile?tab=${TAB[0]}`, { replace: true });
+  }, []);
+
+  useEffect(() => {
+    if (!query) return;
     const selectedTab = tabs.find((tab) => tab.name === query);
     if (!selectedTab) {
       navigation(`/profile?tab=${TAB[0]}`, { replace: true });

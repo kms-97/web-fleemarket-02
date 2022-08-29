@@ -47,7 +47,6 @@ export class LocationService {
   findLocationByKeyword(keyword: string, lastId: number) {
     return this.locationRepository.query(
       LOCATION_QUERY.FIND_LOCATION_BY_KEYWORD,
-      // [`%${keyword}%`, offset, DEFAULT_LIMIT],
       [`%${keyword}%`, lastId ?? 0],
     );
   }

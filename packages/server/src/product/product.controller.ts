@@ -34,7 +34,7 @@ export class ProductController {
   @UseGuards(AccessJwtAuthGuard)
   @Post()
   async insertProduct(@Body() dto: ProductInsertDto) {
-    await this.productService.insertProduct(dto);
+    return await this.productService.insertProduct(dto);
   }
 
   @UseGuards(AccessJwtAuthGuard)

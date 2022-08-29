@@ -63,6 +63,8 @@ export const CacheProvider = ({ children }: Props) => {
         }
       },
       get: (key) => {
+        if (!storeRef.current[key]) return null;
+
         const { data, expiredTime } = storeRef.current[key];
 
         const currentTime = new Date().getTime();

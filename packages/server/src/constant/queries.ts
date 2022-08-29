@@ -53,8 +53,10 @@ const PRODUCT_QUERY = {
           json_object('id', l.id, 'code', l.code, 'dong', l.dong) as location,
           json_object('id', c.id, 'name', c.name) as category,
           json_object('id', u.id, 'userId', u.user_id, 'name', u.name) as seller,
-          if(count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers
+          if(count(w.id) = 0, json_array(), json_arrayagg(w.user_id)) as likeUsers,
+          if(count(cr.id) = 0, json_array(), json_arrayagg(json_object('id', cr.id, 'sellerId', cr.sellerId, 'buyerId', cr.buyerId, 'deleteUserId', cr.deleteUserId))) as chatRooms
     from Product p
+    left join ChatRoom cr on cr.productId = p.id
     join Location l on p.location_id = l.id
     join User u on u.id = p.seller_id
     join Category c on c.name = p.category_name
@@ -229,6 +231,75 @@ const WISH_QUERY = {
     `,
 };
 
+const CHAT_QUERY = {
+  INSERT_CHATLOG: `
+    insert into ChatLog (userId, chatRoomId, content) values (?, ?, ?);
+  `,
+  GET_CAHTLOG_BY_ID: `
+    select * from ChatLog cl where cl.id = ?
+  `,
+  UPDATE_CHATLOG_WITH_IS_READ: `
+    update ChatLog cl set cl.isRead = true where cl.id = ? and cl.userId = ?;
+  `,
+  INSERT_CHATROOM: `
+    insert into ChatRoom (sellerId, buyerId, productId) values (?, ?, ?);
+  `,
+  GET_CHATROOMS_BY_PRODUCT_ID: `
+    select 
+      cr.id as id,
+      cr.deletedAt as deletedAt,
+      cr.deleteUserId as deleteUserId,
+      (select json_object('id', u.id, 'name', u.name) from User u where u.id = cr.sellerId) as seller,
+      (select json_object('id', u.id, 'name', u.name) from User u where u.id = cr.buyerId) as buyer,
+      json_object('id', p.id, 'title', p.title,'imgUrl', p.imgUrl, 'price', p.price, 'status', p.status) as product,
+      if (count(cl.id) = 0, json_array(), json_arrayagg(json_object('id', cl.id, 'userId', cl.userId, 'content', cl.content, 'isRead', cl.isRead, 'createdAt', cl.createdAt))) as chatLog
+    from ChatRoom cr
+    join Product p on p.id = cr.productId
+    left join ChatLog cl on cr.id = cl.chatRoomId
+    where (cr.productId = ? and cr.sellerId = ?) and (cr.deleteUserId != ? or cr.deleteUserId is null)
+    group by cl.chatRoomId, cr.id;
+  `,
+  GET_CHATROOMS_BY_USER_ID: `
+    select 
+      cr.id as id,
+      cr.deletedAt as deletedAt,
+      cr.deleteUserId as deleteUserId,
+      (select json_object('id', u.id, 'name', u.name) from User u where u.id = cr.sellerId) as seller,
+      (select json_object('id', u.id, 'name', u.name) from User u where u.id = cr.buyerId) as buyer,
+      json_object('id', p.id, 'title', p.title,'imgUrl', p.imgUrl, 'price', p.price, 'status', p.status) as product,
+      if (count(cl.id) = 0, json_array(), json_arrayagg(json_object('id', cl.id, 'userId', cl.userId, 'content', cl.content, 'isRead', cl.isRead, 'createdAt', cl.createdAt))) as chatLog
+    from ChatRoom cr
+    join Product p on p.id = cr.productId
+    left join ChatLog cl on cr.id = cl.chatRoomId
+    where (cr.buyerId = ? or cr.sellerId = ?) and (cr.deleteUserId != ? or cr.deleteUserId is null)
+    group by cl.chatRoomId, cr.id;
+  `,
+  GET_CHATROOM_BY_ID: `
+    select 
+      cr.id as id,
+      cr.deletedAt as deletedAt,
+      cr.deleteUserId as deleteUserId,
+      (select json_object('id', u.id, 'name', u.name) from User u where u.id = cr.sellerId) as seller,
+      (select json_object('id', u.id, 'name', u.name) from User u where u.id = cr.buyerId) as buyer,
+      json_object('id', p.id, 'title', p.title,'imgUrl', p.imgUrl, 'price', p.price, 'status', p.status) as product,
+      if (count(cl.id) = 0, json_array(), json_arrayagg(json_object('id', cl.id, 'userId', cl.userId, 'content', cl.content, 'isRead', cl.isRead, 'createdAt', cl.createdAt))) as chatLog
+    from ChatRoom cr 
+    join Product p on p.id = cr.productId
+    left join (select * from ChatLog limit 999) as  cl on cr.id = cl.chatRoomId
+    where cr.id = ?
+    group by cl.chatRoomId, cr.id;
+  `,
+  CHECK_CHATROOM_BY_ID: `
+    select ifnull(cr.id, null) from ChatRoom cr where cr.id = ?;
+  `,
+  SOFT_DELETE_CHATROOM_BY_ID: `
+    update ChatRoom cr set deletedAt = now(), deleteUserId = ? where (cr.sellerId = ? or cr.buyerId) and cr.id = ?;
+  `,
+  DELETE_CHATROOM_BY_ID: `
+    delete from ChatRoom cr where cr.id = ? and (cr.sellerId = ? or cr.buyerId);
+  `,
+};
+
 export {
   AUTH_QUERY,
   CATEGORY_QUERY,
@@ -237,4 +308,5 @@ export {
   USER_QUERY,
   USER_LOCATION_QUERY,
   WISH_QUERY,
+  CHAT_QUERY,
 };

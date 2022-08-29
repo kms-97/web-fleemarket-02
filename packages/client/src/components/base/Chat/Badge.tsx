@@ -17,8 +17,8 @@ const Badge: React.FC<Props> = ({ children }) => {
 };
 
 const StyledBadge = styled.div`
-  min-width: 22.5px;
-  min-height: 22.5px;
+  min-width: 22px;
+  min-height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;

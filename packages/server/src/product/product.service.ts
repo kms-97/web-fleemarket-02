@@ -229,6 +229,7 @@ export class ProductService {
         HttpStatus.NOT_FOUND,
       );
     }
+    return product;
   }
 
   async checkAuthor(userId: number, id: number) {

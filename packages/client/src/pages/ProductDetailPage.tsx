@@ -14,12 +14,14 @@ import {
 } from "@src/apis/product";
 import { useMutation } from "@hooks/useMutation";
 import WishButton from "@modules/WishButton";
-import { requestGetLoginUserInfo } from "@apis/auth";
 import DotDropdown from "@modules/DropDown/Dot";
 import { IProduct } from "types/product.type";
+import { requestGetLoginUserInfo } from "@apis/auth";
+import { useChatAction } from "@hooks/useSocket";
 import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const ProductDetailPage = () => {
+  const { onJoinRoom, onCreateChatRoom } = useChatAction();
   const { addToastMessage } = useToastMessageAction();
   const navigation = useNavigate();
   const { id } = useParams();
@@ -36,6 +38,13 @@ const ProductDetailPage = () => {
       },
     },
   );
+  const isSeller = product?.seller.id === user?.id;
+  const chatCountByDeletedAt = product?.chatRooms?.reduce((count, room) => {
+    if (room.deleteUserId === null || room.deleteUserId !== user?.id) count += 1;
+
+    return count;
+  }, 0);
+
   const [deleteProduct] = useMutation(
     async (product: IProduct) => {
       return await requestDeleteProduct(product.id);
@@ -104,6 +113,26 @@ const ProductDetailPage = () => {
   };
 
   if (!product) return <></>;
+  const moveToChatList = () => {
+    if (isSeller) {
+      navigation(`/product/${id}/chat`);
+      return;
+    }
+    const chatRooms = product?.chatRooms;
+
+    const room = chatRooms?.find((room) => room.buyerId === user?.id);
+
+    if (room) {
+      onJoinRoom({ chatRoomId: room.id, userId: Number(user?.id) });
+    } else {
+      onCreateChatRoom({
+        productId: Number(product?.id),
+        buyerId: Number(user?.id),
+        sellerId: Number(product?.seller.id),
+      });
+    }
+  };
+
   return (
     <Container>
       <Header>
@@ -114,7 +143,9 @@ const ProductDetailPage = () => {
         <WishButton isActive={isWishProduct} onClick={onClickWishButton} />
         <FlexContainer>
           <PriceSection price={product.price} />
-          <Button>문의하기</Button>
+           <Button onClick={moveToChatList}>
+            {isSeller ? `채팅 목록 보기(${chatCountByDeletedAt})` : "문의하기"}
+          </Button>
         </FlexContainer>
       </Footer>
     </Container>
@@ -153,9 +184,20 @@ const Footer = styled.footer`
   border-top: solid 1px ${({ theme }) => theme.COLOR.GRAY3};
 `;
 
-const FlexContainer = styled.div`
-  display: flex;
-  column-gap: 8px;
+  > p {
+    display: flex;
+    column-gap: 8px;
+  }
+`;
+
+const WishButton = styled.button<{ isActive: boolean }>`
+  > svg {
+    fill: ${({ theme, isActive }) => (isActive ? theme.COLOR.PRIMARY1 : "")};
+
+    > path {
+      stroke: ${({ theme }) => theme.COLOR.PRIMARY1};
+    }
+  }
 `;
 
 export default ProductDetailPage;

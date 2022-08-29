@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { ProductModule } from './product/product.module';
 import { WishModule } from './wish/wish.module';
 import { UserLocationModule } from '@userLocation/userLocation.module';
+import { ChatModule } from './chat/chat.module';
+import { ChatGateway } from './chat/chat.gateway';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { UserLocationModule } from '@userLocation/userLocation.module';
     ProductModule,
     WishModule,
     UserLocationModule,
+    ChatModule,
   ],
+  providers: [ChatGateway],
 })
 export class AppModule {}

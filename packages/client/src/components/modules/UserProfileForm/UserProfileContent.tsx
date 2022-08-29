@@ -1,10 +1,12 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { ITabState } from ".";
 import UserProductList from "@modules/ProductList/UserProductList";
+import UserWishList from "@modules/ProductList/UserWishList";
 import { useQuery } from "@hooks/useQuery";
 import { requestGetLoginUserInfo } from "@apis/auth";
-import UserWishList from "@modules/ProductList/UserWishList";
+import UserChatList from "./UserChatList";
+import UserProfile from "./UserProfile";
+import { ITabState } from ".";
 
 interface Props {
   tabs: ITabState[];
@@ -27,7 +29,9 @@ const UserProfileContent = ({ tabs }: Props) => {
       case "관심목록":
         return <UserWishList />;
       case "채팅":
-        return <></>;
+        return <UserChatList />;
+      case "내 정보":
+        return <UserProfile />;
       default:
         return <></>;
     }

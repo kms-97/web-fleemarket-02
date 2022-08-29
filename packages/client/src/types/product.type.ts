@@ -1,4 +1,5 @@
 import { ICategory } from "./category.type";
+import { IProductChat } from "./chat.type";
 import { ICoreResponse } from "./core.type";
 import { ILocation } from "./location.type";
 import { IUser } from "./user.type";
@@ -15,14 +16,14 @@ interface IProduct {
   status: "판매중" | "예약중" | "거래완료";
   likeUsers: number[];
   hits: number;
-  chatCount: number;
+  chatRooms: IProductChat[];
   createdAt: Date;
 }
 
 interface IProductItem
   extends Pick<
     IProduct,
-    "id" | "title" | "imgUrl" | "price" | "likeUsers" | "chatCount" | "createdAt"
+    "id" | "title" | "imgUrl" | "price" | "likeUsers" | "chatRooms" | "createdAt"
   > {
   sellerId: number;
   locationName: string;

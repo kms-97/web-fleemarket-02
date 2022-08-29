@@ -20,10 +20,11 @@ interface Props {
 
 const ProductItem = ({ product, toggleWish, deleteProduct }: Props) => {
   const navigation = useNavigate();
-  const { id, title, locationName, createdAt, price, likeUsers, chatCount, imgUrl } = product;
+  const { id, title, locationName, createdAt, price, likeUsers, chatRooms, imgUrl } = product;
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
   const [isMyProduct, setIsMyProduct] = useState<boolean>(false);
   const [isWishProduct, setIsWishProduct] = useState<boolean>(false);
+
   const wishCount = likeUsers.length;
 
   useEffect(() => {
@@ -41,7 +42,7 @@ const ProductItem = ({ product, toggleWish, deleteProduct }: Props) => {
       <IconBox>
         <MessageIcon />
         <Text size="md" fColor="GRAY1">
-          {chatCount}
+          {chatRooms.length}
         </Text>
       </IconBox>
     );
@@ -89,7 +90,7 @@ const ProductItem = ({ product, toggleWish, deleteProduct }: Props) => {
         {isMyProduct && <DotDropdown product={product} deleteProduct={deleteProduct} />}
       </ButtonContainer>
       <ChatLike>
-        {chatCount ? <ChatIcon /> : ""}
+        {chatRooms?.length ? <ChatIcon /> : ""}
         {wishCount ? <WishIcon /> : ""}
       </ChatLike>
     </Container>

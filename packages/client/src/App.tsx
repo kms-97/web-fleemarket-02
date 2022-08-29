@@ -16,6 +16,7 @@ import LocationPage from "@pages/LocationPage";
 import { useQuery } from "@hooks/useQuery";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import UserProfilePage from "@pages/UserProfilePage";
+import ProductUpdatePage from "@pages/ProductUpdatePage";
 import ProductChatPage from "@pages/ProductChatPage";
 import ChatDetailPage from "@pages/ChatDetailPage";
 import VerifyAuth from "@components/VerifyAuth";
@@ -46,6 +47,7 @@ const App = () => {
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/product/:id/chat" element={<ProductChatPage />} />
               <Route path="/chat/:chatRoomId" element={<ChatDetailPage />} />
+              <Route path="/product/update/:productId" element={<ProductUpdatePage />} />
               <Route path="/product/write" element={<ProductWritePage />} />
               <Route path="/location" element={<LocationPage />} />
               <Route path="/profile" element={<UserProfilePage />} />

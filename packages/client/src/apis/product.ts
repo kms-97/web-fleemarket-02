@@ -30,15 +30,36 @@ const requestGetProducts = async (query: any) => {
 };
 
 const requestAddProduct = async (data: IRequestProduct) => {
-  const result = await request(`${GET_PRODUCT}`, {
+  const result = await request<{ id: number; success: boolean }>(`${GET_PRODUCT}`, {
     method: "POST",
     body: JSON.stringify(data),
+  });
+
+  const { success, id } = result;
+
+  return { success, id };
+};
+
+const requestAddWishProduct = async (productId: number) => {
+  const result = await request(`${GET_PRODUCT}/${productId}/wish`, {
+    method: "POST",
   });
 
   const { success } = result;
 
   return success;
 };
+
+const requestDeleteWishProduct = async (productId: number) => {
+  const result = await request(`${GET_PRODUCT}/${productId}/wish`, {
+    method: "Delete",
+  });
+
+  const { success } = result;
+
+  return success;
+};
+
 const requestUpdateProduct = async (productId: number, data: IRequestProduct) => {
   const result = await request(`${GET_PRODUCT}/${productId}`, {
     method: "PUT",
@@ -49,6 +70,7 @@ const requestUpdateProduct = async (productId: number, data: IRequestProduct) =>
 
   return success;
 };
+
 const requestPatchProduct = async (productId: number, data: IUpdateProductStatus) => {
   const result = await request(`${GET_PRODUCT}/${productId}`, {
     method: "PATCH",
@@ -90,4 +112,6 @@ export {
   requestPatchProduct,
   requestDeleteProduct,
   requestAddProductImage,
+  requestAddWishProduct,
+  requestDeleteWishProduct,
 };

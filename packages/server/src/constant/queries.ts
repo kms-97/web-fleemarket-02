@@ -88,7 +88,7 @@ const PRODUCT_QUERY = {
     left join Wish w on w.product_id = p.id
     where p.category_name = ? and p.location_id = ?
     group by p.id
-    limit ?, ?;
+    order by p.createdAt desc;
     `,
   FIND_PRODUCT_BY_LOCATION: `
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId, p.createdAt as createdAt,
@@ -98,7 +98,7 @@ const PRODUCT_QUERY = {
     left join Wish w on w.product_id = p.id
     where p.location_id = ?
     group by p.id
-    limit ?, ?;
+    order by p.createdAt desc;
     `,
   FIND_PRODUCT_BY_SELLER_ID: `
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName, seller_id as sellerId, p.createdAt as createdAt,
@@ -108,9 +108,9 @@ const PRODUCT_QUERY = {
     left join Wish w on w.product_id = p.id
     where p.seller_id = ?
     group by p.id
-    limit ?, ?;
+    order by p.createdAt desc;
     `,
-  GET_PRODUCT_BY_ID: `select * from Product where id = ?`,
+  GET_PRODUCT_BY_ID: `select * from Product where id = ? order by Product.createdAt desc`,
 };
 
 const USER_QUERY = {
@@ -207,13 +207,15 @@ const USER_LOCATION_QUERY = {
 const WISH_QUERY = {
   GET_WISH_BY_UID: `
     select p.id as id, title, imgUrl, price, l.dong as locationName, category_name as categoryName,
-      seller_id as sellerId, json_arrayagg(w.user_id) as likeUsers
+      seller_id as sellerId, p.createdAt as createdAt,
+      (select if (count(w.id) = 0, json_array(), json_arrayagg(w.user_id))
+      from Wish w
+      where w.product_id = p.id) as likeUsers
     from Wish w
     left join Product p on w.product_id = p.id
     left join Location l on p.location_id = l.id
     where w.user_id = ?
-    group by p.id
-    limit ?, ?;
+    group by p.id;
     `,
   INSERT_WISH: `
     insert into Wish (user_id, product_id)

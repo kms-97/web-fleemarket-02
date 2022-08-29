@@ -109,7 +109,7 @@ export class AuthController {
     @Res() res: Response,
   ) {
     if (!code) {
-      return res.redirect('http://localhost:3000/');
+      return res.redirect('http://localhost:3000/login');
     }
 
     const aAccessToken = await this.authService.getGithubTokenByCode(code);

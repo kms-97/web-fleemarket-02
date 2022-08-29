@@ -1,8 +1,10 @@
 import Text from "@base/Text";
 import styled from "@emotion/styled";
+import { useModal } from "@hooks/useModal";
 import CloseIcon from "@icons/CloseIcon";
 import PlusIcon from "@icons/PlusIcon";
-import React from "react";
+import DeleteLocationModal from "@modals/DeleteLocationModal";
+import React, { MouseEventHandler } from "react";
 import { IUserLocation } from "types/location.type";
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -12,7 +14,13 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const LButton: React.FC<Props> = ({ location, onDelete, ...props }) => {
   if (location) {
+    const [isOpen, openModal, closeModal] = useModal();
     const { isActive, dong } = location;
+
+    const onClickCloseIcon: MouseEventHandler = (e) => {
+      e.stopPropagation();
+      openModal();
+    };
 
     const onDeleteLocation = (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -20,12 +28,17 @@ const LButton: React.FC<Props> = ({ location, onDelete, ...props }) => {
     };
 
     return (
-      <StyledButton location={location} {...props}>
-        <Text size="sm" isBold={true} fColor={isActive ? "OFF_WHITE" : "PRIMARY1"}>
-          {dong}
-        </Text>
-        <CloseIcon onClick={onDeleteLocation} />
-      </StyledButton>
+      <>
+        <StyledButton location={location} {...props}>
+          <Text size="sm" isBold={true} fColor={isActive ? "OFF_WHITE" : "PRIMARY1"}>
+            {dong}
+          </Text>
+          <CloseIcon onClick={onClickCloseIcon} />
+        </StyledButton>
+        {isOpen && (
+          <DeleteLocationModal dong={dong} onClose={closeModal} deleteLocation={onDeleteLocation} />
+        )}
+      </>
     );
   }
   return (

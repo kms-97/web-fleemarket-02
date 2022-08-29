@@ -5,21 +5,14 @@ import { CustomException } from '@base/CustomException';
 import { ErrorMessage } from '@constant/ErrorMessage';
 import { Wish, WishRepository } from './entities/wish.entity';
 
-const DEFAULT_LIMIT = 10;
-
 @Injectable()
 export class WishService {
   constructor(
     @InjectRepository(Wish) private readonly wishRepository: WishRepository,
   ) {}
 
-  findWishByUserId(id: number, page: number) {
-    const offset = (page - 1) * DEFAULT_LIMIT;
-    return this.wishRepository.query(WISH_QUERY.GET_WISH_BY_UID, [
-      id,
-      offset,
-      DEFAULT_LIMIT,
-    ]);
+  findWishByUserId(id: number) {
+    return this.wishRepository.query(WISH_QUERY.GET_WISH_BY_UID, [id]);
   }
 
   async insertWish(userId: number, productId: number) {

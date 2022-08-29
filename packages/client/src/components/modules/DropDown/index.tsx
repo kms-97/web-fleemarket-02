@@ -1,18 +1,21 @@
-import React from "react";
+import React, { MouseEventHandler } from "react";
 import styled from "@emotion/styled";
 
 interface Props {
   children?: React.ReactNode;
+  onClick?: MouseEventHandler;
 }
 
-const DropDown = ({ children }: Props) => {
-  return <Container>{children}</Container>;
+const DropDown = ({ children, onClick }: Props, ref: React.ForwardedRef<HTMLUListElement>) => {
+  return (
+    <Container ref={ref} onClick={onClick}>
+      {children}
+    </Container>
+  );
 };
 
-const Container = styled.div`
+const Container = styled.ul`
   position: absolute;
-  top: 0;
-  left: 0;
   width: 165px;
 
   background-color: ${({ theme }) => theme.COLOR.OFF_WHITE};
@@ -26,9 +29,11 @@ const Container = styled.div`
   border-radius: 10px;
   overflow: hidden;
 
+  z-index: 1;
+
   & > li {
     width: 100%;
-    padding: 16px;
+    padding: 10px;
     text-decoration: none;
     list-style: none;
     cursor: pointer;
@@ -44,4 +49,4 @@ const Container = styled.div`
   }
 `;
 
-export default DropDown;
+export default React.forwardRef(DropDown);

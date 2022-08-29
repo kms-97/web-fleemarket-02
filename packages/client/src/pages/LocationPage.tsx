@@ -1,5 +1,4 @@
 import React from "react";
-import auth from "@hoc/auth";
 import { useQuery } from "@hooks/useQuery";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { useMutation } from "@hooks/useMutation";
@@ -13,24 +12,85 @@ import Text from "@base/Text";
 import LocationForm from "@modules/LocationForm";
 import { IUserLocation } from "types/location.type";
 import styled from "@emotion/styled";
+import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
-const LocationPage = auth(() => {
-  const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
-  const [deleteMutate] = useMutation(requestDeleteUserLocation, { cacheClear: true }, ["userinfo"]);
-  const [addMutate] = useMutation(requestAddUserLocation, { cacheClear: true }, ["userinfo"]);
-  const [updateMutate] = useMutation(requestUpdateUserLocation, { cacheClear: true }, ["userinfo"]);
+const LocationPage = () => {
+  const { addToastMessage } = useToastMessageAction();
+  const { data: user, updateCache } = useQuery(["userinfo"], requestGetLoginUserInfo);
+  const [deleteMutate] = useMutation(
+    requestDeleteUserLocation,
+    {
+      onError(error) {
+        addToastMessage({ type: "error", message: error, isVisible: true });
+      },
+      cacheClear: true,
+    },
+    ["userinfo"],
+  );
 
-  const addLocation = (location: IUserLocation) => {
+  const [addMutate] = useMutation(
+    requestAddUserLocation,
+    {
+      onError(error) {
+        addToastMessage({ type: "error", message: error, isVisible: true });
+      },
+      cacheClear: true,
+    },
+    ["userinfo"],
+  );
+
+  const [updateMutate] = useMutation(
+    requestUpdateUserLocation,
+    {
+      onError(error) {
+        addToastMessage({ type: "error", message: error, isVisible: true });
+      },
+      cacheClear: true,
+    },
+    ["userinfo"],
+  );
+
+  const addLocation = async (location: IUserLocation) => {
+    if (!user) return;
+
     const { id } = location;
-    addMutate({ locationId: id, userId: user?.id, isActive: true });
+    const success = await addMutate({ locationId: id, userId: user?.id, isActive: true });
+    if (!success) return;
+
+    const newUser = { ...user };
+    newUser.locations = newUser.locations.map((location) => {
+      location.isActive = false;
+      return location;
+    });
+    newUser.locations.push(location);
+    updateCache(["userinfo"], newUser);
   };
 
-  const deleteUserLocation = (locationId: number) => {
-    deleteMutate({ locationId });
+  const deleteUserLocation = async (locationId: number) => {
+    if (!user) return;
+    const success = await deleteMutate({ locationId });
+    if (!success) return;
+
+    const newUser = { ...user };
+    newUser.locations = newUser.locations
+      .filter((location) => location.id !== locationId)
+      .map((location) => {
+        return { ...location, isActive: true };
+      });
+    updateCache(["userinfo"], newUser);
   };
 
-  const activeUserLocation = (locationId: number) => {
-    updateMutate({ locationId });
+  const activeUserLocation = async (locationId: number) => {
+    if (!user) return;
+    const success = await updateMutate({ locationId });
+    if (!success) return;
+
+    const newUser = { ...user };
+    newUser.locations = newUser.locations.map((location) => {
+      location.isActive = location.id === locationId;
+      return location;
+    });
+    updateCache(["userinfo"], newUser);
   };
 
   if (!user) return <></>;
@@ -49,7 +109,7 @@ const LocationPage = auth(() => {
       </Wrapper>
     </Container>
   );
-});
+};
 
 const Container = styled.div`
   position: relative;

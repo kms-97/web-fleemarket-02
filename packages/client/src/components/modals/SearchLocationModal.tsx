@@ -6,7 +6,6 @@ import ModalPortal from "./ModalPortal";
 import LeftIcon from "@icons/LeftIcon";
 import Text from "@base/Text";
 import { useInput } from "@hooks/useInput";
-import CloseIcon from "@icons/CloseIcon";
 import { requestGetLocations } from "@apis/location";
 import useDebounce from "@hooks/useDebounce";
 import { useQuery } from "@hooks/useQuery";
@@ -72,8 +71,7 @@ const SearchLocationModal = ({ onClose, addLocation }: Props) => {
 
             return (
               <li key={id + String(idx)} onClick={() => selectedLocation(location)}>
-                <CloseIcon />
-                <Text>{`${sido} ${gungu} ${dong} ${idx}`}</Text>
+                <Text>{`${sido} ${gungu} ${dong}`}</Text>
               </li>
             );
           })}

@@ -35,7 +35,7 @@ interface ICacheAction {
   no: (key: string) => void;
   fetchFn: <T>(key: string, fn: () => Promise<T>) => Promise<T> | undefined;
   fetchStart: (key: string) => void;
-  updateCache: <T>(key: string, data: T) => void;
+  updateCache: <T>(keys: (string | number)[], data: T) => void;
 }
 
 export const CacheContext = createContext({});
@@ -128,15 +128,16 @@ export const CacheProvider = ({ children }: Props) => {
       no: (key) => {
         storeRef.current[key]?.observer?.forEach((notify) => notify());
       },
-      updateCache: (key, data) => {
-        const observe = storeRef.current[key];
+      updateCache: (keys, data) => {
+        const keyValue = keys.join(" ");
+        const observe = storeRef.current[keyValue];
 
         if (!observe) {
           return;
         }
 
         observe.data = data;
-        action.no(key);
+        action.no(keyValue);
       },
     }),
     [],

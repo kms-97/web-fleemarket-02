@@ -1,5 +1,6 @@
-import { request } from "@src/apis";
 import { useEffect, useState } from "react";
+import { request } from "@src/apis";
+import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const IMG_TYPES = [
   "image/apng",
@@ -21,6 +22,7 @@ type IResUrl = {
 
 export const useImageInput = (maxLimit: number) => {
   const [imgUrl, setImgUrl] = useState<string[]>([]);
+  const { addToastMessage } = useToastMessageAction();
 
   useEffect(() => {
     return imgUrl.forEach((image) => URL.revokeObjectURL(image));
@@ -29,7 +31,11 @@ export const useImageInput = (maxLimit: number) => {
   const addImages = async (files: FileList) => {
     const length = files.length;
     if (!checkMaxLimit(length)) {
-      alert(`사진은 최대 ${maxLimit}개까지 첨부 가능합니다.`);
+      addToastMessage({
+        type: "error",
+        message: `사진은 최대 ${maxLimit}개까지 첨부 가능합니다.`,
+        isVisible: true,
+      });
       return;
     }
 
@@ -39,12 +45,13 @@ export const useImageInput = (maxLimit: number) => {
       const file = files[i];
 
       if (validFileType(file)) {
-        // const url = URL.createObjectURL(file);
-        // newImages.push(url);
-
         formData.append("image", file);
       } else {
-        alert(`적절한 파일 형식이 아닙니다.`);
+        addToastMessage({
+          type: "error",
+          message: `적절한 형식이 아닌 파일이 제외되었습니다.`,
+          isVisible: true,
+        });
       }
     }
 
@@ -76,5 +83,5 @@ export const useImageInput = (maxLimit: number) => {
     return left >= length;
   };
 
-  return { imgUrl, addImages, deleteImage };
+  return { imgUrl, addImages, deleteImage, setImgUrl };
 };

@@ -10,46 +10,73 @@ import ProductWriteTitle from "@components/modules/ProductWriteTitle";
 import ProductWriteImage from "@components/modules/ProductWriteImage";
 import ProductWriteHeader from "@components/modules/ProductWriteHeader";
 import { useMutation } from "@hooks/useMutation";
-import { requestAddProduct } from "@src/apis/product";
-import { useNavigate } from "react-router-dom";
+import { requestGetProduct, requestUpdateProduct } from "@src/apis/product";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@hooks/useQuery";
+import { useInput } from "@hooks/useInput";
 import { ICategory } from "types/category.type";
 import { requestGetCategory } from "@src/apis/category";
 import { IUser } from "types/user.type";
 import { requestGetLoginUserInfo } from "@apis/auth";
-import { useInput } from "@hooks/useInput";
+import { IProduct } from "types/product.type";
 import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const MAX_IMAGE_LIMIT = 10;
 
-const ProductWritePage = () => {
-  const navigation = useNavigate();
+const ProductUpdatePage = () => {
   const { addToastMessage } = useToastMessageAction();
+  const navigation = useNavigate();
+  const { productId } = useParams();
+  const [product, setProduct] = useState<IProduct | null>(null);
   const { price, priceString, changePriceString } = usePriceInput("");
-  const { imgUrl, addImages, deleteImage } = useImageInput(MAX_IMAGE_LIMIT);
+  const { imgUrl, addImages, deleteImage, setImgUrl } = useImageInput(MAX_IMAGE_LIMIT);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
-  const [description, descriptionHandler] = useInput("");
-  const [title, titleHandler] = useInput("");
+  const [description, descriptionHandler, setDescription] = useInput("");
+  const [title, titleHandler, setTitle] = useInput("");
   const { data: categories } = useQuery<ICategory[]>(["category"], requestGetCategory);
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
-  const [addProductMutation] = useMutation(requestAddProduct, {
+
+  const [mutate] = useMutation(requestUpdateProduct, {
     cacheClear: true,
-    onSuccess(data) {
-      moveToDetailPage(data.id);
-      addToastMessage({ type: "notice", message: "등록하였습니다.", isVisible: true });
+    onSuccess() {
+      moveToDetailPage();
+      addToastMessage({ type: "notice", message: "수정되었습니다.", isVisible: true });
     },
-    onError() {
-      addToastMessage({ type: "error", message: "등록에 실패하였습니다.", isVisible: true });
+    onError(error) {
+      addToastMessage({ type: "error", message: error, isVisible: true });
     },
   });
+
+  const { data } = useQuery(
+    ["product", productId!],
+    async () => requestGetProduct(Number(productId)),
+    {
+      onSuccess(data) {
+        setProduct(data);
+      },
+      onError(error) {
+        navigation(-1);
+        addToastMessage({ type: "error", message: error, isVisible: true });
+      },
+    },
+  );
+
+  useEffect(() => {
+    if (!product) return;
+    setImgUrl(product.imgUrl);
+    changePriceString(product.price + "");
+    setSelectedCategory(product.category.name);
+    setTitle(product.title);
+    setDescription(product.description);
+  }, [product]);
 
   useEffect(() => {
     checkValidate();
   }, [selectedCategory, imgUrl]);
 
-  const moveToDetailPage = (id: number) => {
-    navigation(`/product/${id}`, { replace: true });
+  const moveToDetailPage = () => {
+    navigation(`/product/${productId}`, { replace: true });
   };
 
   const getActiveLocation = (user: IUser) => {
@@ -59,10 +86,10 @@ const ProductWritePage = () => {
 
   const onClickSubmitButton: React.FormEventHandler = (e) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !product) return;
     const sellerId = user.id;
-    const locationId = getActiveLocation(user).id;
-    const product = {
+    const locationId = product.location.id;
+    const updateProduct = {
       title,
       description,
       imgUrl,
@@ -72,7 +99,7 @@ const ProductWritePage = () => {
       categoryName: selectedCategory,
     };
 
-    addProductMutation(product);
+    mutate(productId, updateProduct);
   };
 
   const onChangeImageInput: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -108,8 +135,8 @@ const ProductWritePage = () => {
           selectedCategory={selectedCategory}
           checkValidate={checkValidate}
           onClickCategoryBtn={onClickCategoryBtn}
-          onChangeTitle={titleHandler}
           titleValue={title}
+          onChangeTitle={titleHandler}
         />
         <PriceSection>
           <Input
@@ -208,4 +235,4 @@ const Footer = styled.footer`
   }
 `;
 
-export default ProductWritePage;
+export default ProductUpdatePage;

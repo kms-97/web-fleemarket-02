@@ -2,24 +2,42 @@ import React, { useEffect, useState } from "react";
 import Header from "@components/modules/Header";
 import styled from "@emotion/styled";
 import Text from "@base/Text";
-import FloatButton from "@components/modules/FloatButton";
-import VerticalIcon from "@icons/VerticalIcon";
-import HeartIcon from "@icons/HeartIcon";
 import Button from "@base/Button";
 import ProductDetailContent from "@components/modules/ProductDetailContent";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@hooks/useQuery";
-import { requestGetProduct } from "@src/apis/product";
-import { IProduct } from "@src/types/product.type";
+import {
+  requestAddWishProduct,
+  requestDeleteProduct,
+  requestDeleteWishProduct,
+  requestGetProduct,
+} from "@src/apis/product";
+import { useMutation } from "@hooks/useMutation";
+import WishButton from "@modules/WishButton";
+import DotDropdown from "@modules/DropDown/Dot";
+import { IProduct } from "types/product.type";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { useChatAction } from "@hooks/useSocket";
+import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const ProductDetailPage = () => {
   const { onJoinRoom, onCreateChatRoom } = useChatAction();
-  const { id } = useParams();
+  const { addToastMessage } = useToastMessageAction();
   const navigation = useNavigate();
+  const { id } = useParams();
+  const [isMyProduct, setIsMyProduct] = useState<boolean>(false);
+  const [isWishProduct, setIsWishProduct] = useState<boolean>(false);
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
-  const [product, setProduct] = useState<IProduct | null>(null);
+  const { data: product, updateCache } = useQuery(
+    ["product", Number(id)],
+    async () => requestGetProduct(Number(id)),
+    {
+      onError(error) {
+        navigation(-1);
+        addToastMessage({ type: "error", message: error, isVisible: true });
+      },
+    },
+  );
   const isSeller = product?.seller.id === user?.id;
   const chatCountByDeletedAt = product?.chatRooms?.reduce((count, room) => {
     if (room.deleteUserId === null || room.deleteUserId !== user?.id) count += 1;
@@ -27,20 +45,74 @@ const ProductDetailPage = () => {
     return count;
   }, 0);
 
-  const { refetch } = useQuery(["product", id!], requestGetProduct, {
-    onSuccess: (data) => {
-      setProduct(data);
+  const [deleteProduct] = useMutation(
+    async (product: IProduct) => {
+      return await requestDeleteProduct(product.id);
     },
-  });
+    {
+      onSuccess: () => {
+        navigation(-1);
+        addToastMessage({ type: "notice", message: "삭제되었습니다.", isVisible: true });
+      },
+      onError(error) {
+        addToastMessage({ type: "error", message: error, isVisible: true });
+      },
+      cacheClear: true,
+    },
+  );
+  const [toggleWish] = useMutation(
+    async () => {
+      if (!product) return;
+      if (isWishProduct) return requestDeleteWishProduct(product.id);
+      else return requestAddWishProduct(product.id);
+    },
+    {
+      onSuccess() {
+        if (!user || !product) return;
+        const newProduct = { ...product };
 
-  const onClickDotButton = () => {
-    console.log("123");
-  };
+        let message: string;
+        if (isWishProduct) {
+          newProduct.likeUsers = newProduct.likeUsers.filter((id) => id !== user.id);
+          setIsWishProduct(false);
+          message = "관심 목록에서 게시글을 제외하였습니다.";
+        } else {
+          newProduct.likeUsers.push(user.id);
+          setIsWishProduct(true);
+          message = "관심 목록에 게시글을 추가하였습니다.";
+        }
+
+        updateCache(["product", Number(id)], newProduct);
+        addToastMessage({ type: "notice", message, isVisible: true });
+      },
+      onError(error) {
+        addToastMessage({ type: "error", message: error, isVisible: true });
+      },
+      cacheClear: true,
+    },
+  );
 
   useEffect(() => {
-    refetch(id);
-  }, []);
+    if (!user || !product) return;
+    setIsWishProduct(product.likeUsers.includes(user.id));
+    setIsMyProduct(product.seller.id === user.id);
+  }, [user, product]);
 
+  const onClickWishButton: React.MouseEventHandler = (e) => {
+    e.stopPropagation();
+    toggleWish();
+  };
+
+  const PriceSection = ({ price }: { price: string | number }) => {
+    const numberPrice = Number(price);
+    return (
+      <Text size="md" isBold={true}>
+        {numberPrice ? `${numberPrice.toLocaleString()} 원` : `가격 미정`}
+      </Text>
+    );
+  };
+
+  if (!product) return <></>;
   const moveToChatList = () => {
     if (isSeller) {
       navigation(`/product/${id}/chat`);
@@ -64,21 +136,17 @@ const ProductDetailPage = () => {
   return (
     <Container>
       <Header>
-        <FloatButton fixedPos="right" onClick={onClickDotButton}>
-          <VerticalIcon />
-        </FloatButton>
+        {isMyProduct && <DotDropdown product={product} deleteProduct={deleteProduct} />}
       </Header>
-      {product && <ProductDetailContent product={product} />}
+      <ProductDetailContent product={product} isMyProduct={isMyProduct} />
       <Footer>
-        <WishButton isActive={true}>
-          <HeartIcon />
-        </WishButton>
-        <ChatButtonForm>
-          <Text size="lg">{product && Number(product.price).toLocaleString()}원</Text>
-          <Button onClick={moveToChatList}>
+        <WishButton isActive={isWishProduct} onClick={onClickWishButton} />
+        <FlexContainer>
+          <PriceSection price={product.price} />
+           <Button onClick={moveToChatList}>
             {isSeller ? `채팅 목록 보기(${chatCountByDeletedAt})` : "문의하기"}
           </Button>
-        </ChatButtonForm>
+        </FlexContainer>
       </Footer>
     </Container>
   );
@@ -93,8 +161,6 @@ const Container = styled.div`
   flex-direction: column;
   background-color: ${({ theme }) => theme.COLOR.WHITE};
 
-  overflow: hidden;
-
   * {
     flex-shrink: 0;
   }
@@ -104,6 +170,7 @@ const Container = styled.div`
     border: none;
     position: absolute;
     z-index: 1;
+    justify-content: flex-end;
   }
 `;
 
@@ -115,6 +182,7 @@ const Footer = styled.footer`
   justify-content: space-between;
 
   border-top: solid 1px ${({ theme }) => theme.COLOR.GRAY3};
+`;
 
   > p {
     display: flex;
@@ -130,11 +198,6 @@ const WishButton = styled.button<{ isActive: boolean }>`
       stroke: ${({ theme }) => theme.COLOR.PRIMARY1};
     }
   }
-`;
-
-const ChatButtonForm = styled.div`
-  display: flex;
-  gap: 16px;
 `;
 
 export default ProductDetailPage;

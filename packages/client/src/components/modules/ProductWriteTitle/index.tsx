@@ -10,32 +10,50 @@ interface Props {
   selectedCategory: string;
   checkValidate: () => void;
   onClickCategoryBtn: React.MouseEventHandler;
+  onChangeTitle?: React.ChangeEventHandler<HTMLInputElement>;
+  titleValue: string;
 }
 
 const ProductWriteTitle = (
-  { categories, selectedCategory, onClickCategoryBtn, checkValidate }: Props,
+  {
+    categories,
+    selectedCategory,
+    onClickCategoryBtn,
+    checkValidate,
+    titleValue = "",
+    onChangeTitle,
+  }: Props,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) => {
-  const CategoryNotice = () => {
-    return selectedCategory ? (
-      <></>
-    ) : (
-      <Text fColor="GRAY2" size="sm">
-        {"(필수) 카테고리를 선택해주세요"}
-      </Text>
-    );
-  };
-
   return (
     <Container>
-      <Input iSize="lg" placeholder="글 제목" ref={ref} onBlur={checkValidate} />
-      <CategoryNotice />
-      <CategoryList>
-        {categories &&
-          categories.map(({ name }) => (
-            <RButton name="category" value={name} key={name} onClick={onClickCategoryBtn} />
-          ))}
-      </CategoryList>
+      <Input
+        iSize="lg"
+        placeholder="글 제목"
+        ref={ref}
+        onBlur={checkValidate}
+        value={titleValue}
+        onChange={onChangeTitle}
+        maxLength={255}
+      />
+      {categories && titleValue && (
+        <>
+          <Text fColor="GRAY2" size="sm">
+            {"(필수) 카테고리를 선택해주세요"}
+          </Text>
+          <CategoryList>
+            {categories.map(({ name }) => (
+              <RButton
+                name="category"
+                value={name}
+                key={name}
+                onClick={onClickCategoryBtn}
+                defaultChecked={name === selectedCategory ? true : false}
+              />
+            ))}
+          </CategoryList>
+        </>
+      )}
     </Container>
   );
 };

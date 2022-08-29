@@ -1,5 +1,4 @@
 import { AccessJwtAuthGuard } from '@auth/guards/jwt-auth.guard';
-import { PaginationDto } from '@base/Pagination.dto';
 import { TokenUser, User } from '@decorator/user.decorator';
 import {
   Controller,
@@ -32,8 +31,12 @@ export class UserController {
   @UseGuards(AccessJwtAuthGuard)
   @Post('/location')
   @HttpCode(201)
-  async insertUserLocation(@Body() dto: UserLocationDto) {
-    await this.userService.insertUserLocationHandler(dto);
+  async insertUserLocation(
+    @User() user: TokenUser,
+    @Body() dto: UserLocationDto,
+  ) {
+    const userId = user.id;
+    await this.userService.insertUserLocationHandler(userId, dto);
   }
 
   @Get()
@@ -47,32 +50,29 @@ export class UserController {
   }
 
   @Get(':id/product')
-  async getUserProductById(
-    @Param('id') id: number,
-    @Query() dto: PaginationDto,
-  ) {
-    return this.userService.getUserProductById(id, dto);
+  async getUserProductById(@Param('id') id: number) {
+    return this.userService.getUserProductById(id);
   }
 
   @Get(':id/wish')
-  async getUserWishById(@Param('id') id: number, @Query() dto: PaginationDto) {
-    return this.userService.getUserWishById(id, dto);
-  }
-
-  @UseGuards(AccessJwtAuthGuard)
-  @Patch(':id')
-  async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
-    await this.userService.updateUser(id, dto);
+  async getUserWishById(@Param('id') id: number) {
+    return this.userService.getUserWishById(id);
   }
 
   @UseGuards(AccessJwtAuthGuard)
   @Patch('location')
   async updateActiveUserLocation(
     @User() user: TokenUser,
-    @Param('locationId') locationId: number,
+    @Body('locationId') locationId: number,
   ) {
     const userId = user.id;
     await this.userService.updateActiveUserLocationHandler(userId, locationId);
+  }
+
+  @UseGuards(AccessJwtAuthGuard)
+  @Patch(':id')
+  async updateUser(@Param('id') id: number, @Body() dto: UserUpdateDto) {
+    await this.userService.updateUser(id, dto);
   }
 
   @UseGuards(AccessJwtAuthGuard)

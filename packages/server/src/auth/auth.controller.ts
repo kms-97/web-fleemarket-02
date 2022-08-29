@@ -108,9 +108,10 @@ export class AuthController {
     @Query('code') code: string,
     @Res() res: Response,
   ) {
-    console.log(code);
+    const host = this.configService.get('HOST');
+
     if (!code) {
-      return res.redirect('http://localhost:3000/login');
+      return res.redirect(`${host}/login`);
     }
 
     const aAccessToken = await this.authService.getGithubTokenByCode(code);
@@ -122,13 +123,13 @@ export class AuthController {
 
     if (user) {
       await this.login(user, res);
-      return res.redirect('http://localhost:3000/main');
+      return res.redirect(`${host}/main`);
     }
 
     res.cookie('github', userInfo, {
       maxAge: EXPIRED_ACCESS_TOKEN,
     });
 
-    return res.redirect('http://localhost:3000/signup');
+    return res.redirect(`${host}/signup`);
   }
 }

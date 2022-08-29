@@ -37,6 +37,7 @@ const GlobalStyle = ({ theme }: Props) => {
 
         * {
           box-sizing: border-box;
+          font-family: "Jua", sans-serif !important;
         }
       `}
     />

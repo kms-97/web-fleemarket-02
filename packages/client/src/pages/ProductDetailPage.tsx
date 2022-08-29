@@ -21,7 +21,7 @@ import { useChatAction } from "@hooks/useSocket";
 import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const ProductDetailPage = () => {
-  const { onJoinRoom, onCreateChatRoom } = useChatAction();
+  const { onCreateChatRoom } = useChatAction();
   const { addToastMessage } = useToastMessageAction();
   const navigation = useNavigate();
   const { id } = useParams();
@@ -117,12 +117,13 @@ const ProductDetailPage = () => {
       navigation(`/product/${id}/chat`);
       return;
     }
+
     const chatRooms = product?.chatRooms;
 
     const room = chatRooms?.find((room) => room.buyerId === user?.id);
 
     if (room) {
-      onJoinRoom({ chatRoomId: room.id, userId: Number(user?.id) });
+      navigation(`/chat/${room.id}`);
     } else {
       onCreateChatRoom({
         productId: Number(product?.id),

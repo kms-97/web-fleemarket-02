@@ -23,7 +23,6 @@ const UserTabList = ({ tabs }: Props) => {
 const Container = styled.main`
   width: 100%;
   display: flex;
-  border-bottom: 1px solid ${({ theme }) => theme.COLOR.GRAY3};
   background-color: ${({ theme }) => theme.COLOR.OFF_WHITE};
 
   & > * {

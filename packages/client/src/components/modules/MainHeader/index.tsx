@@ -17,7 +17,7 @@ const MainHeader = ({ children }: Props) => {
   };
 
   const moveToProfilePage = () => {
-    navigation("/profile");
+    navigation("/profile?tab=내 정보");
   };
 
   return (

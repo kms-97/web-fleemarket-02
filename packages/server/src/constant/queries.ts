@@ -123,7 +123,8 @@ const USER_QUERY = {
           json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
           (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
           from Wish w
-          where w.user_id = u.id) as wishes
+          where w.user_id = u.id) as wishes,
+          u.github as github
     from User u
     left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
               from UserLocation ul

@@ -20,6 +20,8 @@ const UserProfileForm = () => {
   );
 
   useEffect(() => {
+    if (query) return;
+
     navigation(`/profile?tab=${TAB[0]}`, { replace: true });
   }, []);
 

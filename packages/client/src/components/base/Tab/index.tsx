@@ -25,6 +25,7 @@ const StyledTab = styled.div`
       color: ${({ theme }) => theme.COLOR.PRIMARY1};
     }
   }
+  border-bottom: 2px solid ${({ theme }) => theme.COLOR.GRAY3};
 
   &.active {
     border-bottom: 2px solid ${({ theme }) => theme.COLOR.PRIMARY1};

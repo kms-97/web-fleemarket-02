@@ -18,7 +18,7 @@ const SignUpLoPage = () => {
   const navigation = useNavigate();
   const { clearState } = useSignUpFormAction();
   const { data } = useSignUpForm();
-  const [cookies] = useCookies();
+  const [cookies, removeCookie] = useCookies();
   const { addToastMessage } = useToastMessageAction();
 
   const [locations, setLocations] = useState<IUserLocation[]>([]);
@@ -26,9 +26,11 @@ const SignUpLoPage = () => {
     onSuccess() {
       clearState();
       navigation("/login");
+      removeCookie("github", null);
     },
     onError(error) {
       addToastMessage({ type: "error", message: error, isVisible: true });
+      removeCookie("github", null);
     },
   });
 

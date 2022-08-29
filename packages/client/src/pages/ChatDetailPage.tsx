@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import Header from "@modules/Header";
 import Text from "@base/Text";
@@ -19,7 +19,8 @@ const ChatDetailPage = () => {
   const [value, valueHandler, setValue] = useInput();
   const { chatRoomId } = useParams<"chatRoomId">();
   const { data: user } = useQuery(["userinfo"], requestGetLoginUserInfo);
-  const { onDeleteRoom } = useChatAction();
+  const [isJoin, setJoin] = useState(false);
+  const { onDeleteRoom, onJoinRoom } = useChatAction();
 
   useQuery(["room", Number(chatRoomId)], () => requestGetChatRoomById(Number(chatRoomId)), {
     onSuccess(data) {
@@ -27,6 +28,13 @@ const ChatDetailPage = () => {
     },
     cacheExpiredTime: 0,
   });
+
+  useEffect(() => {
+    if (!room || !user || isJoin) return;
+
+    onJoinRoom({ chatRoomId: room.id, userId: user.id });
+    setJoin(true);
+  }, [room, user]);
 
   if (!user || !room || !chatRoomId) {
     return <></>;
@@ -36,6 +44,8 @@ const ChatDetailPage = () => {
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+
+    if (!value) return;
 
     onSendMessage({ userId: user.id, chatRoomId: Number(chatRoomId), content: value });
     setValue("");

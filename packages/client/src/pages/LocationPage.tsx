@@ -28,6 +28,7 @@ const LocationPage = auth(() => {
     },
     ["userinfo"],
   );
+
   const [addMutate] = useMutation(
     requestAddUserLocation,
     {
@@ -38,6 +39,7 @@ const LocationPage = auth(() => {
     },
     ["userinfo"],
   );
+
   const [updateMutate] = useMutation(
     requestUpdateUserLocation,
     {
@@ -71,7 +73,11 @@ const LocationPage = auth(() => {
     if (!success) return;
 
     const newUser = { ...user };
-    newUser.locations = newUser.locations.filter((location) => location.id !== locationId);
+    newUser.locations = newUser.locations
+      .filter((location) => location.id !== locationId)
+      .map((location) => {
+        return { ...location, isActive: true };
+      });
     updateCache(["userinfo"], newUser);
   };
 

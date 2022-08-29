@@ -25,7 +25,7 @@ const StyledBubble = styled.div<{ isSeller: boolean }>`
 
   background-color: ${({ theme, isSeller }) =>
     isSeller ? theme.COLOR.PRIMARY1 : theme.COLOR.OFF_WHITE};
-  border-radius: ${({ isSeller }) => (isSeller ? "0px 8px 8px 8px" : "8px 0px 8px 8px")};
+  border-radius: ${({ isSeller }) => (isSeller ? "8px 0px 8px 8px" : "0px 8px 8px 8px")};
 
   padding: 8px;
 `;

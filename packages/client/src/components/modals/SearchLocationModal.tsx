@@ -25,6 +25,7 @@ const SearchLocationModal = ({ onClose, addLocation }: Props) => {
   const { refetch } = useQuery(["/searchLocation", keyword], requestGetLocations, {
     overrideCache: true,
     isCacheSave: false,
+    firstFetch: false,
     onSuccess(data) {
       setLocations(data);
     },

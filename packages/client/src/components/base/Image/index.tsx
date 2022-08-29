@@ -23,6 +23,7 @@ const StyledImage = styled.div<ImageProps>`
   position: relative;
 
   width: ${({ theme, size }) => theme.IMAGE_SIZE[size]};
+  height: ${({ theme, size }) => (size === "gd" ? "auto" : theme.IMAGE_SIZE[size])};
   aspect-ratio: 1 / 1;
 
   display: flex;

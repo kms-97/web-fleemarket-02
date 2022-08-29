@@ -18,10 +18,7 @@ import { ChatRoom } from './entities/chatRoom.entity';
 
 @WebSocketGateway(8080, {
   namespace: 'chat',
-  cors: {
-    origin: '*',
-    credentials: true,
-  },
+  cors: true,
 })
 export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}

@@ -1,5 +1,4 @@
 import React from "react";
-import auth from "@hoc/auth";
 import { useQuery } from "@hooks/useQuery";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { useMutation } from "@hooks/useMutation";
@@ -15,7 +14,7 @@ import { IUserLocation } from "types/location.type";
 import styled from "@emotion/styled";
 import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
-const LocationPage = auth(() => {
+const LocationPage = () => {
   const { addToastMessage } = useToastMessageAction();
   const { data: user, updateCache } = useQuery(["userinfo"], requestGetLoginUserInfo);
   const [deleteMutate] = useMutation(
@@ -110,7 +109,7 @@ const LocationPage = auth(() => {
       </Wrapper>
     </Container>
   );
-});
+};
 
 const Container = styled.div`
   position: relative;

@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@hooks/useQuery";
 import { ICategory } from "types/category.type";
 import { requestGetCategory } from "@src/apis/category";
-import auth from "@hoc/auth";
 import { IUser } from "types/user.type";
 import { requestGetLoginUserInfo } from "@apis/auth";
 import { useInput } from "@hooks/useInput";
@@ -23,7 +22,7 @@ import { useToastMessageAction } from "@contexts/ToastMessageContext";
 
 const MAX_IMAGE_LIMIT = 10;
 
-const ProductWritePage = auth(() => {
+const ProductWritePage = () => {
   const navigation = useNavigate();
   const { addToastMessage } = useToastMessageAction();
   const { price, priceString, changePriceString } = usePriceInput("");
@@ -133,7 +132,7 @@ const ProductWritePage = auth(() => {
       </Footer>
     </Container>
   );
-});
+};
 
 const Container = styled.form`
   width: 100%;

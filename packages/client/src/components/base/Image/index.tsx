@@ -7,11 +7,13 @@ interface ImageProps {
   size: ImageSizeType;
 }
 
-interface Props extends React.ImgHTMLAttributes<HTMLImageElement>, ImageProps {}
+interface Props extends React.ImgHTMLAttributes<HTMLImageElement>, ImageProps {
+  idx?: number;
+}
 
-const Image: React.FC<Props> = ({ children, size, ...props }) => {
+const Image: React.FC<Props> = ({ children, size, idx, ...props }) => {
   return (
-    <StyledImage size={size}>
+    <StyledImage size={size} data-idx={idx}>
       {size === "gd" && <div className="gradient" />}
       {props.src && <img alt="image" {...props} />}
       {children}

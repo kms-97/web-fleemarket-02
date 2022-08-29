@@ -123,7 +123,8 @@ const USER_QUERY = {
           json_arrayagg(json_object('id', l.id, 'dong', l.dong, 'code', l.code, 'isActive', l.is_active)) as locations,
           (select if (count(w.id) = 0, json_array(), json_arrayagg(w.product_id))
           from Wish w
-          where w.user_id = u.id) as wishes
+          where w.user_id = u.id) as wishes,
+          u.github as github
     from User u
     left join (select l.id as id, ul.user_id as user_id, l.code as code, l.dong as dong, ul.is_active as is_active
               from UserLocation ul
@@ -282,7 +283,8 @@ const CHAT_QUERY = {
       (select json_object('id', u.id, 'name', u.name) from User u where u.id = cr.sellerId) as seller,
       (select json_object('id', u.id, 'name', u.name) from User u where u.id = cr.buyerId) as buyer,
       json_object('id', p.id, 'title', p.title,'imgUrl', p.imgUrl, 'price', p.price, 'status', p.status) as product,
-      if (count(cl.id) = 0, json_array(), json_arrayagg(json_object('id', cl.id, 'userId', cl.userId, 'content', cl.content, 'isRead', cl.isRead, 'createdAt', cl.createdAt))) as chatLog
+      if (count(cl.id) = 0, json_array(), 
+      json_arrayagg(json_object('id', cl.id, 'userId', cl.userId, 'content', cl.content, 'isRead', cl.isRead, 'createdAt', cl.createdAt))) as chatLog
     from ChatRoom cr 
     join Product p on p.id = cr.productId
     left join (select * from ChatLog limit 999) as  cl on cr.id = cl.chatRoomId

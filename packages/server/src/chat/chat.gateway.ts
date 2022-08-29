@@ -1,5 +1,4 @@
-import { AccessJwtAuthGuard } from '@auth/guards/jwt-auth.guard';
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,

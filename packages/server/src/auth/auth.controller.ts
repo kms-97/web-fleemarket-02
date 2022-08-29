@@ -108,6 +108,7 @@ export class AuthController {
     @Query('code') code: string,
     @Res() res: Response,
   ) {
+    console.log(code);
     if (!code) {
       return res.redirect('http://localhost:3000/login');
     }

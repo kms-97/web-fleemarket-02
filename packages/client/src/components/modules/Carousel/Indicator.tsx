@@ -12,8 +12,8 @@ const Indicator = ({ totalIndex, currentIndex }: Props) => {
       {Array(totalIndex)
         .fill(0)
         .map((_, idx) => {
-          if (idx === currentIndex) return <li className="filled" />;
-          else return <li />;
+          if (idx === currentIndex) return <li key={idx} className="filled" />;
+          else return <li key={idx} />;
         })}
     </Container>
   );

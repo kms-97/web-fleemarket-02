@@ -25,6 +25,7 @@ const ChatDetailPage = () => {
     onSuccess(data) {
       roomHandler(data);
     },
+    cacheExpiredTime: 0,
   });
 
   if (!user || !room || !chatRoomId) {

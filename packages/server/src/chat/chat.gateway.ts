@@ -9,11 +9,7 @@ import {
 import { Namespace, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { InsertChatLogDto } from './dto/chatLog.dto';
-import {
-  ChatRoomByIdDto,
-  GetChatRoomsByProductIdDto,
-  InsertChatRoomDto,
-} from './dto/chatRoom.dto';
+import { ChatRoomByIdDto, InsertChatRoomDto } from './dto/chatRoom.dto';
 import { ChatRoom } from './entities/chatRoom.entity';
 
 @WebSocketGateway(8080, {
@@ -47,17 +43,21 @@ export class ChatGateway {
       chatRoomDto,
     )) as ChatRoom;
 
-    await Promise.all(
-      room?.chatLog.map((chat) => {
-        if (!chat.isRead)
-          this.chatService.updateChatLogWithIsRead({
-            id: chat.id,
-            userId: chat.userId,
-          });
-      }),
-    );
-
     socket.join(String(room.id));
+
+    const socketSize = socket.rooms.size;
+
+    if (socketSize > 1) {
+      await Promise.all(
+        room?.chatLog.map((chat) => {
+          if (!chat.isRead && chat.userId !== chatRoomDto.userId)
+            this.chatService.updateChatLogWithIsRead({
+              id: chat.id,
+              userId: chat.userId,
+            });
+        }),
+      );
+    }
 
     return room;
   }
@@ -71,22 +71,10 @@ export class ChatGateway {
 
     const { id } = room;
 
-    socket.join(id);
-    socket.emit('create-room', id);
+    socket.join(String(id));
+    this.nsp.emit('create-room', room);
 
     return room;
-  }
-
-  @SubscribeMessage('room-list')
-  async handleRoomList(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() chatRoomsDto: GetChatRoomsByProductIdDto,
-  ) {
-    const rooms = await this.chatService.getChatRoomsByProductId(chatRoomsDto);
-
-    socket.emit('room-list', rooms);
-
-    return rooms;
   }
 
   @SubscribeMessage('message')
@@ -110,10 +98,8 @@ export class ChatGateway {
       userId: chat.userId,
     });
 
-    room;
-
-    socket.broadcast.to(String(chat.chatRoomId)).emit('message', room);
-    socket.emit('refresh-room', room);
+    socket.broadcast.to(String(room.id)).emit('message', room);
+    this.nsp.emit('refresh-room', room);
 
     return room;
   }
@@ -140,13 +126,3 @@ export class ChatGateway {
     return result;
   }
 }
-
-// 1. DB를 사용하여 나갔다 들어와도 기존 채팅이 유지가 되어있어야 함 ✅
-
-// 2. 읽음표시 기능(실시간) ✅
-
-// 3. 카톡처럼 같은 시간에(분 단위)적히면 마지막 채팅만 시각이 적혀야함, ✅
-
-// 4. 채팅방 목록에 안읽은 채팅 개수와 마지막 채팅 , 마지막 채팅 시간 ✅
-
-// 5. 상대방에게도 메시지가 바뀌어 보여야함 (실시간) ✅

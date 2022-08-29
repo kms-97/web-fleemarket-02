@@ -23,7 +23,10 @@ interface ReturnUseChatAction {
   onLeaveRoom: (chatRoomId: number) => void;
 }
 
-const socket = io(`${process.env.REACT_APP_HOST}/chat`);
+const socket = io(`http://localhost:8080/chat`, {
+  withCredentials: true,
+  transports: ["websocket"],
+});
 
 const useChatList = (): ReturnUseChatList => {
   const [rooms, setRooms] = useState<IChatRoom[]>([]);
@@ -46,7 +49,7 @@ const useChatList = (): ReturnUseChatList => {
     // 채팅방 리스트를 가져옴
 
     // 새로운 메시지가 추가됐을때 채팅방 데이터를 업데이트
-    socket.emit("refresh-room", refreshRoom);
+    socket.on("refresh-room", refreshRoom);
 
     // 새로운 채팅방이 생겼을때 추가해줌
     socket.on("create-room", createRoom);
@@ -77,7 +80,7 @@ const useChat = (): ReturnUseChat => {
       socket.off("delete-room", roomHandler);
       socket.off("message", roomHandler);
     };
-  }, [chatRoomId]);
+  }, []);
 
   const onSendMessage = useCallback((chatLog: ICreateChatLogDto) => {
     socket.emit("message", chatLog, (room: IChatRoom) => {
@@ -103,9 +106,7 @@ const useChatAction = (): ReturnUseChatAction => {
 
   const onJoinRoom = useCallback(
     (chatRoomDto: IJoinChatRoomDto) => {
-      socket.emit("join-room", chatRoomDto, (chat: IChatRoom) => {
-        navigate(`/chat/${chat.id}`);
-      });
+      socket.emit("join-room", chatRoomDto);
     },
     [navigate],
   );

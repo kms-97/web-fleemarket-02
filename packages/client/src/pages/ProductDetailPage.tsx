@@ -112,7 +112,6 @@ const ProductDetailPage = () => {
     );
   };
 
-  if (!product) return <></>;
   const moveToChatList = () => {
     if (isSeller) {
       navigation(`/product/${id}/chat`);
@@ -133,6 +132,8 @@ const ProductDetailPage = () => {
     }
   };
 
+  if (!product) return <></>;
+
   return (
     <Container>
       <Header>
@@ -143,7 +144,7 @@ const ProductDetailPage = () => {
         <WishButton isActive={isWishProduct} onClick={onClickWishButton} />
         <FlexContainer>
           <PriceSection price={product.price} />
-           <Button onClick={moveToChatList}>
+          <Button onClick={moveToChatList}>
             {isSeller ? `채팅 목록 보기(${chatCountByDeletedAt})` : "문의하기"}
           </Button>
         </FlexContainer>
@@ -184,20 +185,9 @@ const Footer = styled.footer`
   border-top: solid 1px ${({ theme }) => theme.COLOR.GRAY3};
 `;
 
-  > p {
-    display: flex;
-    column-gap: 8px;
-  }
-`;
-
-const WishButton = styled.button<{ isActive: boolean }>`
-  > svg {
-    fill: ${({ theme, isActive }) => (isActive ? theme.COLOR.PRIMARY1 : "")};
-
-    > path {
-      stroke: ${({ theme }) => theme.COLOR.PRIMARY1};
-    }
-  }
+const FlexContainer = styled.div`
+  display: flex;
+  column-gap: 8px;
 `;
 
 export default ProductDetailPage;

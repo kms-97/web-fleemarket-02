@@ -25,11 +25,15 @@ export const useQuery = <T>(
     ...initialQueryOptions,
     ...options,
   };
-  const { clear, set, get, subscribe, unsubscribe, init, no, fetchFn, fetchStart } =
+  const { clear, set, get, subscribe, unsubscribe, init, no, fetchFn, fetchStart, updateCache } =
     useCacheAction();
 
-  const { data, error, loading } = state as IFetchInitialState<T>;
   const keyValue = keys.join(" ");
+
+  const { data, error, loading } = {
+    ...state,
+    data: get<T>(keyValue) ?? state.data,
+  } as IFetchInitialState<T>;
 
   const refetch = async (...args: any) => {
     fetchStart(keyValue);
@@ -62,6 +66,7 @@ export const useQuery = <T>(
 
   useEffect(() => {
     if (!firstFetch) {
+      dispatch({ type: FETCH_SUCCESS, payload: null });
       return;
     }
 
@@ -122,5 +127,5 @@ export const useQuery = <T>(
     }
   }, [notify]);
 
-  return { data, error, loading, refetch };
+  return { data, error, loading, refetch, updateCache };
 };

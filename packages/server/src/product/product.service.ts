@@ -225,5 +225,6 @@ export class ProductService {
         HttpStatus.NOT_FOUND,
       );
     }
+    return product;
   }
 }

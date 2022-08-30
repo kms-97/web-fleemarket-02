@@ -60,7 +60,7 @@ const SignUpLoPage = () => {
       locations: newLocations,
     };
 
-    if (cookies["github"]) {
+    if (JSON.parse(cookies["github"])) {
       bodyData.github = cookies["github"];
     }
     signUpMutation(bodyData);

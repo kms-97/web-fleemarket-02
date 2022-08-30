@@ -102,6 +102,7 @@ const DetailTitle = styled.div`
 `;
 
 const DetailDesc = styled.div`
+  white-space: pre;
   word-break: break-word;
   flex-grow: 1;
 

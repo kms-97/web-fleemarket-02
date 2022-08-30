@@ -23,7 +23,7 @@ interface ReturnUseChatAction {
   onLeaveRoom: (chatRoomId: number) => void;
 }
 
-const socket = io(`${process.env.REACT_APPßß_HOST}/chat`, {
+const socket = io(`${process.env.REACT_APP_HOST}/chat`, {
   withCredentials: true,
   transports: ["websocket"],
 });

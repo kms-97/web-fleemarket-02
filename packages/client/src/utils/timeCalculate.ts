@@ -1,8 +1,12 @@
+const NINE_HOURS = 1000 * 60 * 60 * 9;
+
 export const getExpriedTime = (createdAt: Date) => {
   const today = new Date();
   const timeValue = new Date(createdAt);
 
-  const betweenTime = Math.floor((today.getTime() - timeValue.getTime()) / 1000 / 60);
+  const betweenTime = Math.floor(
+    (today.getTime() - (timeValue.getTime() - NINE_HOURS)) / 1000 / 60,
+  );
   if (betweenTime < 1) return "방금전";
   if (betweenTime < 60) {
     return `${betweenTime}분전`;

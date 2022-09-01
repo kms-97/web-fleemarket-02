@@ -4,7 +4,7 @@
   -->
   <h3>우아한 중고거래 프로젝트 - 우아마켓</h3>
   
-  [데모](http://15.164.181.228/) | [위키](https://github.com/woowa-techcamp-2022/web-fleemarket-02/wiki) | [팀 노션](https://www.notion.so/2-0fb05219488b45b392280950aafe91cd)
+  [데모](http://15.164.181.228/) | [위키](https://github.com/woowa-techcamp-2022/web-fleemarket-02/wiki) | [팀 노션](https://talented-sapphire-33e.notion.site/2-0fb05219488b45b392280950aafe91cd)
 </div>
 
 ## Built with
